@@ -9,6 +9,8 @@ from variables_check import VariablesCheck
 from plot_excel import PlotExcel
 
 
+#.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
+
 #from variables import Variables
 
 # Define the filename
@@ -16,10 +18,14 @@ filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
 
 # Main class
 class MainClass:
-    def __init__(self):
+    def __init__(self,filename_excel):
 
         self.filename_excel = filename_excel
         self.import_excel = None
+
+    def new_Name(self):
+        print('Let\'s create a new file extension "csv"')
+        
 
     def read_data_from_excel(self):
         #VariablesCheck.plot_re
