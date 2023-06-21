@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib as mplt
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import os
 
 from variables_check import VariablesCheck
@@ -13,15 +13,16 @@ from plot_excel import PlotExcel
 
 #from variables import Variables
 
-# Define the filename
-filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
-
 # Main class
 class MainClass:
-    def __init__(self,filename_excel):
+
+    # Define the filename
+    filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
+    
+    def __init__(self,filename_excel,import_excel=None):
 
         self.filename_excel = filename_excel
-        self.import_excel = None
+        self.import_excel = import_excel
 
     def new_Name(self):
         print('Let\'s create a new file extension "csv"')
@@ -33,67 +34,21 @@ class MainClass:
         plot_excel_instance = PlotExcel(self.filename_excel)
         plot_excel_instance.plot_results()
 
-    '''''
-    def read_data_from_excel(self):
-        variables_check_instance = VariablesCheck(self.filename_excel)
-        import_excel = variables_check_instance.check_file()
+class PlotExcel(MainClass):
 
-        # Perform further processing on the imported data
+    def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
+        super().__init__(filename_excel)
+        self.import_excel_DateTime = import_excel_DateTime
+        self.import_excel_self_consumption = import_excel_self_consumption
+
+    def plot_results(self):
+
+        #variables_common_instance = VariablesCheck(self.filename_excel)
+        #import_excel = variables_common_instance.check_file()
+        import_excel = VariablesCheck.check_file()
+
         import_excel_DateTime = import_excel['DateTime']
         import_excel_self_consumption = import_excel['SelfConsumption [kWh]']
-
-        plot_excel_instance = PlotExcel()
-        plot_excel_instance.plot_results(import_excel_DateTime, import_excel_self_consumption)
-    '''''
-    
-
-    '''''
-    def read_data_from_excel(self):
-
-
-            name_without_extension = os.path.splitext(filename_excel)[0]
-            print(name_without_extension)  # Output: data
-
-            # Add a new extension to the filename
-            filename_excel_cvs = name_without_extension + '.csv'
-            print(filename_excel_cvs)  # Output: data.txt
-
-            
-            self.import_excel = pd.read_excel(self.filename_excel,sheet_name= '15min')
-            print("Data loaded from Excel sheet.")
-            import_excel_DateTime = self.import_excel['DateTime']
-            import_excel_self_consumption= self.import_excel['SelfConsumption [kWh]']
-            
-            
-
-            try:
-                self.import_excel = pd.read_csv(filename_excel_cvs)
-                print("Data loaded from CSV file.")
-            except FileNotFoundError:
-                # Read data from Excel sheet
-                self.data = pd.read_excel(filename_excel,sheet_name= '15min')
-                print("Data loaded from Excel sheet.")
-                
-                # Save the data as a CSV file
-                self.data.to_csv(filename_excel_cvs, index=True)
-                print("Data saved as CSV file for faster access.")
-
-            #self.import_excel = pd.read_excel(filename_excel,sheet_name= '15min')
-            print("Data loaded from Excel sheet.")
-            import_excel_DateTime = self.import_excel['DateTime']
-            import_excel_self_consumption= self.import_excel['SelfConsumption [kWh]']
-
-
-            #return import_excel_self_consumption ,import_excel_DateTime
-
-            self.plot_results(import_excel_DateTime, import_excel_self_consumption)
-
-    '''''
-    
-
-    '''''
-
-    def plot_results(self, import_excel_DateTime, import_excel_self_consumption):
         #plotFigure =plt.figure()
         plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
         plt.plot(import_excel_DateTime, import_excel_self_consumption)
@@ -123,17 +78,59 @@ class MainClass:
         #plotBar.canvas.manager.window.setGeometry(500, 100, 800, 600)
 
         plt.show()
-    '''''
+
+
+class VariablesCheck(MainClass):
+
+    def __init__(self, filename_excel,name_without_extension,filename_excel_cvs):
+        super().__init__(filename_excel)
+        #MainClass.__init__(self,filename_excel)
+
+        self.name_without_extension = name_without_extension
+        self.filename_excel_cvs = filename_excel_cvs
+
+    def check_file(self):
+        name_without_extension = os.path.splitext(self.filename_excel)[0]
+        print(name_without_extension)  # Output: data
+
+        # Add a new extension to the filename
+        filename_excel_cvs = name_without_extension + '.csv'
+        print(filename_excel_cvs)  # Output: data.txt
+
+        try:
+            import_excel = pd.read_csv(filename_excel_cvs)
+            print("Data loaded from CSV file.")
+        except FileNotFoundError:
+            # Read data from Excel sheet
+            import_excel = pd.read_excel(self.filename_excel, sheet_name='15min')
+            print("Data loaded from Excel sheet.")
+
+            # Save the data as a CSV file
+            import_excel.to_csv(filename_excel_cvs, index=True)
+            print("Data saved as CSV file for faster access.")
+
+        return import_excel
+    
+    def get_plot_excel_instance(self):
+        return PlotExcel()
+
+
+#VariablesCheck.check_file()
+
+
+
+#print(help(VariablesCheck))
+
 
 
 
 # Create an instance of the MainClass
-main_instance = MainClass()
+#main_instance = MainClass()
 
 
 
 # Call the method to process data
-main_instance.read_data_from_excel()
+#main_instance.read_data_from_excel()
 
 # Call the method to process data using SubClass
 #subclass_instance = Variables(main_instance)

@@ -4,7 +4,7 @@ import os
 from plot_excel import PlotExcel
 from Read_excel_main import MainClass
 
-class VariablesCheck(MainClass):
+class VariablesCheck2(MainClass):
 
     def __init__(self, filename_excel):
         self.filename_excel = filename_excel
