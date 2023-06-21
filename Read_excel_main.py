@@ -4,9 +4,17 @@ import numpy as np
 import matplotlib as mplt
 import matplotlib.pyplot as plt
 import os
+import tkinter as tk
+from tkinter import filedialog
+#import tkinterdnd2 as tk2
+#from tkinterdnd2 import DnD
 
-from variables_check import VariablesCheck
-from plot_excel import PlotExcel
+# import tkinterdnd2
+# try:
+#     from Tkinter import *
+# except ImportError:
+#     from tkinter import *
+
 
 
 #.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
@@ -17,12 +25,44 @@ from plot_excel import PlotExcel
 class MainClass:
 
     # Define the filename
-    filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
+    #filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
+    #initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
+    #initial_path = '"C:/Users/cfitz"'
+    #print(initial_path)
     
-    def __init__(self,filename_excel,import_excel=None):
+    def __init__(self):
 
-        self.filename_excel = filename_excel
-        self.import_excel = import_excel
+        self.filename_excel = None
+        #self.initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
+        self.initial_path = '"C:/Users/cfitz"'
+        self.directory_path = None
+        self.imort_excel = None
+
+        #print(self.initial_path)
+
+
+    def select_directory(self):
+        root_directory = tk.Tk()
+        root_directory.withdraw()  # Hide the root window
+        
+        # Open directory dialog and allow the user to select a directory
+        self.directory_path = filedialog.askdirectory(initialdir=self.initial_path, title="Choose the path where the Excel-file is that you want to read")
+        #self.directory_path = filedialog.askdirectory(title="Choose the path where the Excel-file is that you want to read")
+        #print(MainClass.initial_path)
+        root_directory.destroy()  # Close the Tkinter window
+
+
+    def select_file(self):
+        if self.directory_path is None:
+            print("No directory selected.")
+            return
+        
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        
+        # Open file dialog and allow the user to select a file from the chosen directory
+        self.filename_excel = filedialog.askopenfilename(initialdir=self.directory_path, title="Choose the Excel-file that you want to read", filetypes=[("Excel Files", "*.xlsx")])
+        root.destroy()  # Close the Tkinter window
 
     def new_Name(self):
         print('Let\'s create a new file extension "csv"')
@@ -30,16 +70,30 @@ class MainClass:
 
     def read_data_from_excel(self):
         #VariablesCheck.plot_re
+        print("Es werden nun die Daten aus dem Excel-File eingelesen.")
 
-        plot_excel_instance = PlotExcel(self.filename_excel)
-        plot_excel_instance.plot_results()
+        variables_check = VariablesCheck(self.filename_excel)
+        self.imort_excel = variables_check.check_file()
+
+        # VariablesCheck.check_file()
+        # plot_excel_instance = PlotExcel()
+        # plot_excel_instance.plot_results()
+
+
+#Create an instance of the MainClass
+
+#print(main_class.directory_path)
+#print(main_class.filename)
+
+#print(help(MainClass))
 
 class PlotExcel(MainClass):
 
-    def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
-        super().__init__(filename_excel)
-        self.import_excel_DateTime = import_excel_DateTime
-        self.import_excel_self_consumption = import_excel_self_consumption
+    # def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
+    def __init__(self):
+        super().__init__()
+        # self.import_excel_DateTime = import_excel_DateTime
+        # self.import_excel_self_consumption = import_excel_self_consumption
 
     def plot_results(self):
 
@@ -80,14 +134,20 @@ class PlotExcel(MainClass):
         plt.show()
 
 
+#print(help(PlotExcel))
+
 class VariablesCheck(MainClass):
 
-    def __init__(self, filename_excel,name_without_extension,filename_excel_cvs):
-        super().__init__(filename_excel)
+    def __init__(self, filename_excel):
+        super().__init__()
+
+        self.filename_excel = filename_excel
+
+        #super().__init__(filename_excel)
         #MainClass.__init__(self,filename_excel)
 
-        self.name_without_extension = name_without_extension
-        self.filename_excel_cvs = filename_excel_cvs
+        # self.name_without_extension = name_without_extension
+        # self.filename_excel_cvs = filename_excel_cvs
 
     def check_file(self):
         name_without_extension = os.path.splitext(self.filename_excel)[0]
@@ -109,34 +169,31 @@ class VariablesCheck(MainClass):
             import_excel.to_csv(filename_excel_cvs, index=True)
             print("Data saved as CSV file for faster access.")
 
+            print(help(VariablesCheck))
+
         return import_excel
     
     def get_plot_excel_instance(self):
         return PlotExcel()
-
-
-#VariablesCheck.check_file()
-
-
-
-#print(help(VariablesCheck))
+    
 
 
 
 
-# Create an instance of the MainClass
-#main_instance = MainClass()
+main_class = MainClass()
+main_class.select_directory()
+main_class.select_file()
+main_class.read_data_from_excel()
+
+plot_excel = PlotExcel()
+plot_excel.plot_results()
 
 
 
-# Call the method to process data
-#main_instance.read_data_from_excel()
 
 # Call the method to process data using SubClass
 #subclass_instance = Variables(main_instance)
 #subclass_instance.process_data()
-
-
 
 
 
