@@ -6,15 +6,17 @@ import matplotlib.pyplot as plt
 import os
 import tkinter as tk
 from tkinter import filedialog
-#import tkinterdnd2 as tk2
-#from tkinterdnd2 import DnD
+from TkinterDnD2 import *
+
+# from tkinterdnd2 import DND_FILES, TkinterDnD
+# import tkinterdnd2 as tk2
+# from tkinterdnd2 import DnD
 
 # import tkinterdnd2
 # try:
 #     from Tkinter import *
 # except ImportError:
 #     from tkinter import *
-
 
 
 #.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
@@ -29,6 +31,7 @@ class MainClass:
     #initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
     #initial_path = '"C:/Users/cfitz"'
     #print(initial_path)
+    # import_excel_csv_np = None
     
     def __init__(self):
 
@@ -36,7 +39,11 @@ class MainClass:
         #self.initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
         self.initial_path = '"C:/Users/cfitz"'
         self.directory_path = None
-        self.imort_excel = None
+        self.import_excel = None
+
+        self.import_excel_csv_np = None
+        self.filename_excel_npy = None
+
 
         #print(self.initial_path)
 
@@ -73,7 +80,7 @@ class MainClass:
         print("Es werden nun die Daten aus dem Excel-File eingelesen.")
 
         variables_check = VariablesCheck(self.filename_excel)
-        self.imort_excel = variables_check.check_file()
+        MainClass.import_excel = variables_check.check_file()
 
         # VariablesCheck.check_file()
         # plot_excel_instance = PlotExcel()
@@ -91,21 +98,34 @@ class PlotExcel(MainClass):
 
     # def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
     def __init__(self):
-        super().__init__()
-        # self.import_excel_DateTime = import_excel_DateTime
-        # self.import_excel_self_consumption = import_excel_self_consumption
+        # super().__init__()
+
+        self.import_excel_DateTime = None
+        self.import_excel_self_consumption = None
+        # self.filename_excel_npy
 
     def plot_results(self):
 
         #variables_common_instance = VariablesCheck(self.filename_excel)
         #import_excel = variables_common_instance.check_file()
-        import_excel = VariablesCheck.check_file()
+        # import_excel = VariablesCheck.check_file()
 
-        import_excel_DateTime = import_excel['DateTime']
-        import_excel_self_consumption = import_excel['SelfConsumption [kWh]']
+        print("Please wait...")
+        
+
+
+        # self.import_excel_DateTime = MainClass.import_excel['DateTime']
+        # self.import_excel_self_consumption = MainClass.import_excel['SelfConsumption [kWh]']
+
+
         #plotFigure =plt.figure()
         plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
-        plt.plot(import_excel_DateTime, import_excel_self_consumption)
+
+        # plt.plot(self.import_excel_DateTime, self.import_excel_self_consumption)
+        plt.plot(self.import_excel_csv_np[:,1], self.import_excel_csv_np[:,2])
+        plt.plot(self.import_excel_csv_np[:,1], self.import_excel_csv_np[:,2])
+
+
         plt.xlabel('Date Time') #Sets the label for the x-axis.
         plt.ylabel('Self consumption [kWh]') #Sets the label for the y-axis.
         plt.title('Plot figure') #Sets the title for the plot.
@@ -122,7 +142,7 @@ class PlotExcel(MainClass):
 
         #plotBar= plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
         plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
-        plt.bar(import_excel_DateTime, import_excel_self_consumption)
+        plt.bar(self.import_excel_DateTime, self.import_excel_self_consumption)
         plt.xlabel('Date Time') #Sets the label for the x-axis.
         plt.ylabel('Self consumption [kWh]') #Sets the label for the y-axis.
         plt.title('Plot bar') #Sets the title for the plot.
@@ -138,10 +158,14 @@ class PlotExcel(MainClass):
 
 class VariablesCheck(MainClass):
 
-    def __init__(self, filename_excel):
+    # def __init__(self, filename_excel):
+    def __init__(self):
         super().__init__()
 
-        self.filename_excel = filename_excel
+        # self.import_excel_csv_np = import_excel_csv_np
+
+        self.filename_excel
+        self.import_excel_csv_np
 
         #super().__init__(filename_excel)
         #MainClass.__init__(self,filename_excel)
@@ -153,23 +177,43 @@ class VariablesCheck(MainClass):
         name_without_extension = os.path.splitext(self.filename_excel)[0]
         print(name_without_extension)  # Output: data
 
-        # Add a new extension to the filename
+        # Add a new extension to the filename for .cvs
         filename_excel_cvs = name_without_extension + '.csv'
         print(filename_excel_cvs)  # Output: data.txt
+
+        # Add a new extension to the filename for .npy
+        filename_excel_npy = name_without_extension + '.npy'
+        print(filename_excel_npy)  # Output: data.txt
 
         try:
             import_excel = pd.read_csv(filename_excel_cvs)
             print("Data loaded from CSV file.")
+
+            # Umwandlung in ein numpy-Array
+            self.import_excel_csv_np = import_excel.to_numpy()
+
+            # Save the array
+            np.save(filename_excel_npy, self.import_excel_csv_np)
+            
         except FileNotFoundError:
             # Read data from Excel sheet
             import_excel = pd.read_excel(self.filename_excel, sheet_name='15min')
+
             print("Data loaded from Excel sheet.")
 
             # Save the data as a CSV file
             import_excel.to_csv(filename_excel_cvs, index=True)
             print("Data saved as CSV file for faster access.")
 
-            print(help(VariablesCheck))
+            # Umwandlung in ein numpy-Array
+            self.import_excel_csv_np = import_excel.to_numpy()
+
+            # Save the array
+            np.save(filename_excel_npy, self.import_excel_csv_np)
+
+
+
+            # print(help(VariablesCheck))
 
         return import_excel
     
@@ -181,11 +225,17 @@ class VariablesCheck(MainClass):
 
 
 main_class = MainClass()
+plot_excel = PlotExcel()
+variables_check = VariablesCheck()
+# variables_check.check_file()
+# plot_excel = PlotExcel()
+
 main_class.select_directory()
 main_class.select_file()
-main_class.read_data_from_excel()
+variables_check.check_file()
+# main_class.read_data_from_excel()
 
-plot_excel = PlotExcel()
+# plot_excel = PlotExcel()
 plot_excel.plot_results()
 
 
