@@ -35,7 +35,7 @@ class MainClass:
     
     def __init__(self):
 
-        self.filename_excel = None
+        # self.filename_excel = None
         #self.initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
         self.initial_path = '"C:/Users/cfitz"'
         self.directory_path = None
@@ -43,6 +43,7 @@ class MainClass:
 
         self.import_excel_csv_np = None
         self.filename_excel_npy = None
+        self.rownumber1 = None
 
 
         #print(self.initial_path)
@@ -71,9 +72,7 @@ class MainClass:
         self.filename_excel = filedialog.askopenfilename(initialdir=self.directory_path, title="Choose the Excel-file that you want to read", filetypes=[("Excel Files", "*.xlsx")])
         root.destroy()  # Close the Tkinter window
 
-    def new_Name(self):
-        print('Let\'s create a new file extension "csv"')
-        
+    
 
     def read_data_from_excel(self):
         #VariablesCheck.plot_re
@@ -98,32 +97,31 @@ class PlotExcel(MainClass):
 
     # def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
     def __init__(self):
-        # super().__init__()
+        super().__init__()
 
+        # self.import_excel_csv_np = import_excel_csv_np
         self.import_excel_DateTime = None
         self.import_excel_self_consumption = None
         # self.filename_excel_npy
 
-    def plot_results(self):
+    def plot_results(self,import_excel_csv_np):
 
         #variables_common_instance = VariablesCheck(self.filename_excel)
         #import_excel = variables_common_instance.check_file()
         # import_excel = VariablesCheck.check_file()
 
         print("Please wait...")
-        
-
-
-        # self.import_excel_DateTime = MainClass.import_excel['DateTime']
-        # self.import_excel_self_consumption = MainClass.import_excel['SelfConsumption [kWh]']
-
 
         #plotFigure =plt.figure()
         plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
 
         # plt.plot(self.import_excel_DateTime, self.import_excel_self_consumption)
-        plt.plot(self.import_excel_csv_np[:,1], self.import_excel_csv_np[:,2])
-        plt.plot(self.import_excel_csv_np[:,1], self.import_excel_csv_np[:,2])
+        # plt.plot(import_excel_csv_np[:,1], import_excel_csv_np[:,2])
+        # print(import_excel_csv_np)
+        rows = np.arange(0,10000)
+        plt.scatter(import_excel_csv_np[rows,1], import_excel_csv_np[rows,2], s=1)
+        # plt.plot(import_excel_csv_np[rows,1], import_excel_csv_np[rows,2])
+        # plt.plot(MainClass.import_excel_csv_np[:,1], MainClass.import_excel_csv_np[:,2])
 
 
         plt.xlabel('Date Time') #Sets the label for the x-axis.
@@ -134,24 +132,24 @@ class PlotExcel(MainClass):
         # Set the position and size of the first figure window
         #plotFigure.canvas.manager.window.setGeometry(100, 100, 800, 600)
 
-        #plt.show()
+        plt.show()
 
         # Toggle full-screen mode
         #plt.get_current_fig_manager().full_screen_toggle()
         # Create a plot and set the figure size
 
-        #plotBar= plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
-        plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
-        plt.bar(self.import_excel_DateTime, self.import_excel_self_consumption)
-        plt.xlabel('Date Time') #Sets the label for the x-axis.
-        plt.ylabel('Self consumption [kWh]') #Sets the label for the y-axis.
-        plt.title('Plot bar') #Sets the title for the plot.
-        plt.grid(True) #Adds a grid to the plot.
+        # #plotBar= plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
+        # plt.figure(figsize=(12, 8))  # Set the width and height of the figure window
+        # plt.bar(self.import_excel_DateTime, self.import_excel_self_consumption)
+        # plt.xlabel('Date Time') #Sets the label for the x-axis.
+        # plt.ylabel('Self consumption [kWh]') #Sets the label for the y-axis.
+        # plt.title('Plot bar') #Sets the title for the plot.
+        # plt.grid(True) #Adds a grid to the plot.
 
-        # Set the position and size of the second figure window
-        #plotBar.canvas.manager.window.setGeometry(500, 100, 800, 600)
+        # # Set the position and size of the second figure window
+        # #plotBar.canvas.manager.window.setGeometry(500, 100, 800, 600)
 
-        plt.show()
+        # # plt.show()
 
 
 #print(help(PlotExcel))
@@ -159,41 +157,67 @@ class PlotExcel(MainClass):
 class VariablesCheck(MainClass):
 
     # def __init__(self, filename_excel):
-    def __init__(self):
+    def __init__(self, rownumber1, rownumber2):
+
         super().__init__()
 
-        # self.import_excel_csv_np = import_excel_csv_np
+        self.rownumber1 = rownumber1
+        self.rownumber2 = rownumber2
 
-        self.filename_excel
-        self.import_excel_csv_np
-
-        #super().__init__(filename_excel)
-        #MainClass.__init__(self,filename_excel)
-
-        # self.name_without_extension = name_without_extension
-        # self.filename_excel_cvs = filename_excel_cvs
-
-    def check_file(self):
-        name_without_extension = os.path.splitext(self.filename_excel)[0]
+    def check_file(self,filename_excel):
+        name_without_extension = os.path.splitext(filename_excel)[0]
         print(name_without_extension)  # Output: data
 
+        base_filename_excel = os.path.basename(name_without_extension)
+        print(base_filename_excel)
+
+        folderpath = name_without_extension
+
+        # Check if the folder already exists
+        if not os.path.exists(folderpath):
+            # Create the folder/directory
+            os.mkdir(folderpath)
+            print("Folder created:", base_filename_excel)
+        else:
+            print("Folder already exists:", base_filename_excel)
+
+
         # Add a new extension to the filename for .cvs
-        filename_excel_cvs = name_without_extension + '.csv'
+        # filename_excel_cvs = name_without_extension + '.csv'
+        filename_excel_cvs = folderpath + '/' + base_filename_excel + '.csv'
         print(filename_excel_cvs)  # Output: data.txt
 
         # Add a new extension to the filename for .npy
-        filename_excel_npy = name_without_extension + '.npy'
+        # filename_excel_npy = name_without_extension + '.npy'
+        filename_excel_npy = folderpath + '/' + base_filename_excel + '.npy'
         print(filename_excel_npy)  # Output: data.txt
+
+        # Add a new extension to the filename for .npy for the chosen rows
+        rows_str = "_{}_{}".format(self.rownumber1, self.rownumber2)
+        print(rows_str)
+        filename_excel_npy_rows = folderpath + base_filename_excel + rows_str + '.npy'
+        print(filename_excel_npy_rows)  # Output: data.txt
 
         try:
             import_excel = pd.read_csv(filename_excel_cvs)
             print("Data loaded from CSV file.")
 
-            # Umwandlung in ein numpy-Array
-            self.import_excel_csv_np = import_excel.to_numpy()
+            # change to a numpy array
+            import_excel_csv_np = import_excel.to_numpy()
+
+            print(np.shape(import_excel_csv_np))
+            array_count = sum(len(row) for row in import_excel_csv_np)
+            print(array_count)
 
             # Save the array
-            np.save(filename_excel_npy, self.import_excel_csv_np)
+            np.save(filename_excel_npy, import_excel_csv_np)
+
+
+            # change to a numpy array for the chosen rows
+            import_excel_csv_np_rows = import_excel_csv_np[:,[self.rownumber1, self.rownumber2]]
+
+             # Save the array fo the chosen rows
+            np.save(filename_excel_npy_rows, import_excel_csv_np_rows)
             
         except FileNotFoundError:
             # Read data from Excel sheet
@@ -206,16 +230,17 @@ class VariablesCheck(MainClass):
             print("Data saved as CSV file for faster access.")
 
             # Umwandlung in ein numpy-Array
-            self.import_excel_csv_np = import_excel.to_numpy()
+            import_excel_csv_np = import_excel.to_numpy()
+
 
             # Save the array
-            np.save(filename_excel_npy, self.import_excel_csv_np)
+            np.save(filename_excel_npy, import_excel_csv_np)
 
 
 
             # print(help(VariablesCheck))
 
-        return import_excel
+        return import_excel_csv_np
     
     def get_plot_excel_instance(self):
         return PlotExcel()
@@ -223,20 +248,21 @@ class VariablesCheck(MainClass):
 
 
 
-
+print("Input the rows you want to plot; for now max 2")
 main_class = MainClass()
 plot_excel = PlotExcel()
-variables_check = VariablesCheck()
+variables_check = VariablesCheck(1, 2)
 # variables_check.check_file()
 # plot_excel = PlotExcel()
 
 main_class.select_directory()
 main_class.select_file()
-variables_check.check_file()
+# main_class.create_folder()
+import_excel_csv_np = variables_check.check_file(main_class.filename_excel)
 # main_class.read_data_from_excel()
 
 # plot_excel = PlotExcel()
-plot_excel.plot_results()
+plot_excel.plot_results(import_excel_csv_np)
 
 
 
