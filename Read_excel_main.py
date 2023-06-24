@@ -166,7 +166,7 @@ class PlotExcel(MainClass):
         dates = import_excel["DateTime"]  # Get the dates from processed data
 
         # skip some DateTime members of the Array for no overloading  --        # skip_interval = # subset_dates = dates[::skip_interval]
-        datetime_column = pd.to_datetime(import_excel['datetime_column'])
+        datetime_column = pd.to_datetime(import_excel['DateTime'])
 
 
         subset_months = datetime_column[datetime_column.dt.year == 2023].dt.month
@@ -212,6 +212,7 @@ class PlotExcel(MainClass):
             html.Div(id='selected-dates-output'),  # Placeholder for displaying selected start and end dates
             dcc.Dropdown(
                 id='column-dropdown',
+                # options = columns #--> because of the tolist() function it's the same output
                 options=[{'label': column, 'value': column} for column in columns],
                 multi=False,  # Set multi=True to allow selecting multiple datasets
                 value=columns[0]  # Set the initial value to the first column
@@ -226,6 +227,7 @@ class PlotExcel(MainClass):
                 figure=self.create_plot_figure(processed_data, dates[0], [])  # Pass the initial date and empty dataset list
             )
         ])
+
 
         # Define the callback to update the available datasets based on the selected column
         @app.callback(
@@ -258,25 +260,19 @@ class PlotExcel(MainClass):
             start_date = dates[start_date_index]
             end_date = dates[end_date_index]
             return f'Selected Dates: {start_date} - {end_date}'
+        
 
         # Run the Dash application
         app.run_server(debug=True,mode='inline',dev_tools_ui=True,)
 
                         # dev_tools_hot_reload=True,  --> would be interesting to add later
 
-                # app.run_server(
-                # debug=True,
-                # port=8050,
-                # host='0.0.0.0',
-                # dev_tools_ui=True,
-                # dev_tools_hot_reload=True,
-                # ev_tools_hot_reload_interval=1000,
-                # dev_tools_silence_routes_logging=False,
-                # mode='inline'
-                # )
+                # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, # dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
+                # dev_tools_silence_routes_logging=False,# mode='inline'# )
 
 
     def create_plot_figure(self, processed_data, start_date, end_date, selected_datasets):
+
         filtered_data = processed_data['data']
 
         # Filter the data based on the selected date range
@@ -291,11 +287,14 @@ class PlotExcel(MainClass):
                 go.Bar(
                     x=filtered_data[date]['x'],
                     y=filtered_data[date]['y'],
+                    # y=filtered_data[date][f'y_{i+1}'],
                     z=filtered_data[date]['z'],
                     text=filtered_data[date]['text'],
                     hoverinfo='text',
                     marker=dict(color='blue'),
                     name=f'Dataset - {date}'
+                    # name=f'Dataset {i+1} - {date}'
+
                     # opacity=0.7 if dataset == selected_dataset else 0.3  # Set opacity based on the selected dataset
                 ) for date in filtered_data
             ],
@@ -353,75 +352,26 @@ class VariablesCheck(MainClass):
         filename_excel_cvs = folderpath + '/' + base_filename_excel + '.csv'
         print(filename_excel_cvs)  # Output: data.txt
 
-        # Add a new extension to the filename for .npy
-        # filename_excel_npy = name_without_extension + '.npy'
-        filename_excel_npy = folderpath + '/' + base_filename_excel + '.npy'
-        print(filename_excel_npy)  # Output: data.txt
 
-        # Add a new extension to the filename for .npy for the chosen rows
-        rows_str = "_{}_{}".format(self.rownumber1, self.rownumber2)
-        print(rows_str)
-        filename_excel_npy_cols = folderpath + base_filename_excel + rows_str + '.npy'
-        print(filename_excel_npy_cols)  # Output: data.txt
 
         try:
-            import_excel = pd.read_csv(filename_excel_cvs)
-            print("Data loaded from CSV file.")
 
-            # change to a numpy array
-            import_excel_csv_np = import_excel.to_numpy()
+            # Read data from Excel sheet  
+            import_excel = pd.read_excel(filename_excel, sheet_name='15min')
+            print("Data loaded from xlsx file.")
 
-            print(np.shape(import_excel_csv_np))
-            array_count = sum(len(row) for row in import_excel_csv_np)
-            print(array_count)
-
-            # Save the array
-            np.save(filename_excel_npy, import_excel_csv_np)
-
-
-            # change to a numpy array for the chosen rows
-            import_excel_csv_np_cols = import_excel_csv_np[:,[self.rownumber1, self.rownumber2]]
-
-             # Save the array fo the chosen rows
-            np.save(filename_excel_npy_cols, import_excel_csv_np_cols)
             
         except FileNotFoundError:
-            # Read data from Excel sheet
-            # import_excel = pd.read_excel(self.filename_excel, sheet_name='15min')
-            import_excel = pd.read_excel(filename_excel, sheet_name='15min')
 
-            print("Data loaded from Excel sheet.")
-
-            # Save the data as a CSV file
-            import_excel.to_csv(filename_excel_cvs, index=True)
-            print("Data saved as CSV file for faster access.")
-
-            # Umwandlung in ein numpy-Array
-            import_excel_csv_np = import_excel.to_numpy()
-
-
-            # Save the array
-            np.save(filename_excel_npy, import_excel_csv_np)
-
-            # change to a numpy array for the chosen rows
-            import_excel_csv_np_cols = import_excel_csv_np[:,[self.rownumber1, self.rownumber2]]
-    
-
-            # Save the array fo the chosen rows
-            np.save(filename_excel_npy_cols, import_excel_csv_np_cols)
-
-
+            print("The File could not be found.")
 
             # print(help(VariablesCheck))
 
-        return import_excel, import_excel_csv_np, import_excel_csv_np_cols
-    
-    def get_plot_excel_instance(self):
-        return PlotExcel()
+        return import_excel
     
 
 
-
+# Start the code running #
 print("Input the rows you want to plot; for now max 2")
 main_class = MainClass()
 plot_excel = PlotExcel()
@@ -433,13 +383,13 @@ variables_check = VariablesCheck(1, 2)
 main_class.select_directory()
 main_class.select_file()
 # main_class.create_folder()
-import_excel, import_excel_csv_np, import_excel_csv_np_cols = variables_check.check_file(main_class.filename_excel)
+import_excel = variables_check.check_file(main_class.filename_excel)
 # main_class.read_data_from_excel()
 
 
-print("rows shape: ",np.shape(import_excel_csv_np_cols))
-print("other shape", np.shape(import_excel_csv_np))
+# print("rows shape: ",np.shape(import_excel_csv_np_cols))
+# print("other shape", np.shape(import_excel_csv_np))
 
 
-plot_excel.plot_results(import_excel, import_excel_csv_np, import_excel_csv_np_cols)
-# plot_excel.start_dash_plot(import_excel)
+# plot_excel.plot_results(import_excel, import_excel_csv_np, import_excel_csv_np_cols)
+plot_excel.start_dash_plot(import_excel)
