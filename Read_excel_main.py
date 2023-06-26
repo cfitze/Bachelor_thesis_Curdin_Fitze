@@ -12,6 +12,8 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+# to save the import_excel Data from the Excel-file into a binary pickle file
+import pickle  
 
 
 #.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
@@ -171,6 +173,14 @@ class PlotExcel(MainClass):
 
         subset_months = datetime_column[datetime_column.dt.year == 2023].dt.month
 
+        # Map the month numbers to English month names
+        # month_names = subset_months.dt.strftime('%b')  # Using '%b' for abbreviated month names
+        month_names = datetime_column.dt.strftime('%b')  # Using '%b' for abbreviated month names
+
+        # Set the index of the subset_months DataFrame
+        subset_months.index = month_names
+
+
         # Create marks dictionary with English month names
         month_names = ['January', 'February', 'March', 'April', 'May', 'June',
                'July', 'August', 'September', 'October', 'November', 'December']
@@ -188,9 +198,13 @@ class PlotExcel(MainClass):
         # data_array = df[column_name].tolist()
 
         # print(keys)
+        
+        # Set initial values for the slider and dropdown menu
+        initial_start_date_index = 0  # Set the initial start date index
+        initial_end_date_index = len(dates) - 1  # Set the initial end date index
+        initial_selected_columns = [columns[0]]  # Set the initial selected column
 
-        # keys_list = list(keys)
-        # print(keys_list)  # Output: ['name', 'age', 'city']
+
 
         # Create the Dash application
         app = dash.Dash(__name__)
@@ -207,7 +221,7 @@ class PlotExcel(MainClass):
                 # marks={i: {'label': date} for i, date in enumerate(dates)},
                 min=0,
                 max=len(dates) - 1,
-                value=[0, len(dates) - 1]  # Set the initial range to include all dates
+                value=[initial_start_date_index, initial_end_date_index]  # Set initial range
             ),
             html.Div(id='selected-dates-output'),  # Placeholder for displaying selected start and end dates
             dcc.Dropdown(
@@ -215,28 +229,32 @@ class PlotExcel(MainClass):
                 # options = columns #--> because of the tolist() function it's the same output
                 options=[{'label': column, 'value': column} for column in columns],
                 multi=False,  # Set multi=True to allow selecting multiple datasets
-                value=columns[0]  # Set the initial value to the first column
+                value=initial_selected_columns # Set the initial value to the first column
             ),
-            dcc.Dropdown(
-                id='dataset-dropdown',
-                options=[],
-                multi=True  # Allow selecting multiple datasets
-            ),
+            # dcc.Dropdown(
+            #     id='dataset-dropdown',
+            #     options=[],
+            #     multi=True  # Allow selecting multiple datasets
+            # ),
             dcc.Graph(
                 id='3d-bar-plot',
-                figure=self.create_plot_figure(processed_data, dates[0], [])  # Pass the initial date and empty dataset list
+                # figure=self.create_plot_figure(import_excel, dates[0], [])  # Pass the initial date and empty dataset list
+                figure=self.create_plot_figure(import_excel, datetime_column[0], datetime_column[35000], [])  # Pass the initial date and empty dataset list
             )
         ])
 
 
-        # Define the callback to update the available datasets based on the selected column
+        # Define the callback to update the available datasets based on the selected columns
         @app.callback(
             dash.dependencies.Output('dataset-dropdown', 'options'),
             [dash.dependencies.Input('column-dropdown', 'value')]
         )
-        def update_datasets(column):
-            selected_data = processed_data['data'][column]  # Get the data for the selected column
-            return [{'label': dataset, 'value': dataset} for dataset in selected_data]
+        def update_datasets(selected_columns):
+            options = []
+            for column in selected_columns:
+                selected_data = import_excel[column]  # Get the data for the selected column
+                options.extend([{'label': dataset, 'value': dataset} for dataset in selected_data])
+            return options
 
         # Define the callback to update the plot based on the selected date range and datasets
         @app.callback(
@@ -248,9 +266,10 @@ class PlotExcel(MainClass):
             start_date_index, end_date_index = selected_date_range
             start_date = dates[start_date_index]
             end_date = dates[end_date_index]
-            return self.create_plot_figure(processed_data, start_date, end_date, selected_datasets)
+            selected_columns = app.callback_context.inputs['column-dropdown.value']
+            return self.create_plot_figure(import_excel, start_date, end_date, selected_datasets, selected_columns)
 
-        # Define the callback to display selected start and end dates
+        # Define the callback to display the selected start and end dates
         @app.callback(
             dash.dependencies.Output('selected-dates-output', 'children'),
             [dash.dependencies.Input('date-slider', 'value')]
@@ -259,8 +278,13 @@ class PlotExcel(MainClass):
             start_date_index, end_date_index = selected_date_range
             start_date = dates[start_date_index]
             end_date = dates[end_date_index]
-            return f'Selected Dates: {start_date} - {end_date}'
-        
+            return f"Selected Date Range: {start_date} to {end_date}"
+
+
+
+
+
+
 
         # Run the Dash application
         app.run_server(debug=True,mode='inline',dev_tools_ui=True,)
@@ -271,12 +295,19 @@ class PlotExcel(MainClass):
                 # dev_tools_silence_routes_logging=False,# mode='inline'# )
 
 
-    def create_plot_figure(self, processed_data, start_date, end_date, selected_datasets):
+    def create_plot_figure(self, import_excel_figure, start_date, end_date, selected_datasets):
 
-        filtered_data = processed_data['data']
+        # filtered_data = import_excel_figure['data']
+        filtered_data = import_excel_figure
+
+        # skip some DateTime members of the Array for no overloading  --        # skip_interval = # subset_dates = dates[::skip_interval]
+        datetime_column = pd.to_datetime(import_excel['DateTime'])
+
 
         # Filter the data based on the selected date range
-        filtered_data = {date: data for date, data in filtered_data.items() if start_date <= date <= end_date}
+        filtered_data = {date: data for date, data in filtered_data.items() if start_date <= datetime_column <= end_date}
+
+
 
         # Filter the data based on the selected datasets
         filtered_data = {date: data for date, data in filtered_data.items() if data['dataset'] in selected_datasets}
@@ -336,36 +367,59 @@ class VariablesCheck(MainClass):
         base_filename_excel = os.path.basename(name_without_extension)
         print(base_filename_excel)
 
-        folderpath = name_without_extension
+        folder_path = name_without_extension
+
+        # file path for the pickle file made out of the folder_path and the base_filename_excel variables
+        file_path = f'{folder_path}/{base_filename_excel}.pkl'
 
         # Check if the folder already exists
-        if not os.path.exists(folderpath):
+        if not os.path.exists(folder_path):
             # Create the folder/directory
-            os.mkdir(folderpath)
+            os.mkdir(folder_path)
             print("Folder created:", base_filename_excel)
         else:
             print("Folder already exists:", base_filename_excel)
 
+        # # Add a new extension to the filename for .cvs
+        # # filename_excel_cvs = name_without_extension + '.csv'
+        # filename_excel_cvs = folder_path + '/' + base_filename_excel + '.csv'
+        # print(filename_excel_cvs)  # Output: data.txt
 
-        # Add a new extension to the filename for .cvs
-        # filename_excel_cvs = name_without_extension + '.csv'
-        filename_excel_cvs = folderpath + '/' + base_filename_excel + '.csv'
-        print(filename_excel_cvs)  # Output: data.txt
-
-
-
+        
         try:
+            # Try to load the DataFrame from the saved pickle file
+            with open(file_path, 'rb') as file:
+                import_excel = pickle.load(file)
+                print('Loaded DataFrame from pickle file.')
 
-            # Read data from Excel sheet  
-            import_excel = pd.read_excel(filename_excel, sheet_name='15min')
-            print("Data loaded from xlsx file.")
+        except FileNotFoundError:
+            # If the pickle file doesn't exist, read the Excel file
+            try:
+                import_excel = pd.read_excel(filename_excel, sheet_name='15min')
+                print('Read DataFrame from Excel file.')
+
+                # Save the DataFrame to a binary file using pickle
+                with open(file_path, 'wb') as file:
+                    pickle.dump(import_excel, file)
+                    print('Saved DataFrame to pickle file.')
+
+            except Exception as e:
+                print(f'Error occurred: {e}')
+
+        # try:
+
+        #     # Read data from Excel sheet  
+        #     import_excel = pd.read_excel(filename_excel, sheet_name='15min')
+        #     print("Data loaded from xlsx file.")
 
             
-        except FileNotFoundError:
+        # except FileNotFoundError:
 
-            print("The File could not be found.")
+        #     print("The File could not be found.")
 
-            # print(help(VariablesCheck))
+        #     # print(help(VariablesCheck))
+
+
 
         return import_excel
     
