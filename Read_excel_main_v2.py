@@ -1,19 +1,18 @@
 
+import json
+import sys
 import pandas as pd
 import numpy as np
-import matplotlib as mplt
 import matplotlib.pyplot as plt
 import os
 from tkinter import filedialog
 import tkinter as tk
 from TkinterDnD2 import *
-# Dash application with interactivity
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+import dash # Dash application with interactivity
+from dash import dcc # import dash_core_components as dcc
+from dash import html  # import dash_html_components as html
 import plotly.graph_objs as go
-# to save the import_excel Data from the Excel-file into a binary pickle file
-import pickle  
+import pickle # to save the import_excel Data from the Excel-file into a binary pickle file
 
 
 #.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
@@ -22,8 +21,6 @@ import pickle
 # Main class
 class MainClass:
 
-    # Define the filename
-    
     #filename_excel= 'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.xlsx'
     #initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
     #initial_path = '"C:/Users/cfitz"'
@@ -32,74 +29,28 @@ class MainClass:
     
     def __init__(self):
 
-        # self.filename_excel = None
-        #self.initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
-        self.initial_path = '"C:/Users/cfitz"'
-        self.directory_path = None
-        self.import_excel = None
+        pass #more code can come here later on that will have to be inheritet
 
-        self.import_excel_csv_np = None
-        self.filename_excel_npy = None
-        self.rownumber1 = None
-
-
-        #print(self.initial_path)
-
-
-    def select_directory(self):
-        root_directory = tk.Tk()
-        root_directory.withdraw()  # Hide the root window
-        
-        # Open directory dialog and allow the user to select a directory
-        self.directory_path = filedialog.askdirectory(initialdir=self.initial_path, title="Choose the path where the Excel-file is that you want to read")
-        #self.directory_path = filedialog.askdirectory(title="Choose the path where the Excel-file is that you want to read")
-        #print(MainClass.initial_path)
-        root_directory.destroy()  # Close the Tkinter window
-
-
-    def select_file(self):
-        if self.directory_path is None:
-            print("No directory selected.")
-            return
-        
-        root = tk.Tk()
-        root.withdraw()  # Hide the root window
-        
-        # Open file dialog and allow the user to select a file from the chosen directory
-        self.filename_excel = filedialog.askopenfilename(initialdir=self.directory_path, title="Choose the Excel-file that you want to read", filetypes=[("Excel Files", "*.xlsx")])
-        root.destroy()  # Close the Tkinter window
+    print('With this dash application you can show 3d Bar plots from a chosen Excel-File')
+     
 
     
-
-    def read_data_from_excel(self):
-        #VariablesCheck.plot_re
-        print("Es werden nun die Daten aus dem Excel-File eingelesen.")
-
-        variables_check = VariablesCheck(self.filename_excel)
-        MainClass.import_excel = variables_check.check_file()
-
-        # VariablesCheck.check_file()
-        # plot_excel_instance = PlotExcel()
-        # plot_excel_instance.plot_results()
-
-
-#Create an instance of the MainClass
-
 #print(main_class.directory_path)
 #print(main_class.filename)
 
 #print(help(MainClass))
 
+
+# Subclass to plot the data
 class PlotExcel(MainClass):
 
     # def __init__(self, filename_excel,import_excel_DateTime,import_excel_self_consumption):
     def __init__(self):
         super().__init__()
 
-        # self.import_excel_csv_np = import_excel_csv_np
         self.import_excel_DateTime = None
         self.import_excel_self_consumption = None
-        # self.filename_excel_npy
+        # self.app = dash.Dash(__name__)
 
     def plot_results(self,import_excel ,import_excel_csv_np, import_excel_csv_np_cols):
 
@@ -157,8 +108,6 @@ class PlotExcel(MainClass):
         # # plt.show()
 
     def start_dash_plot(self, import_excel):
-        # Assign the import_excel to the class variable
-        # self.import_excel = import_excel
 
         columns_available = import_excel.columns.tolist()
 
@@ -166,21 +115,21 @@ class PlotExcel(MainClass):
         # Convert DateTime column to datetime format
         datetime_column = pd.to_datetime(import_excel['DateTime'])
 
-        # subset_months = datetime_column[datetime_column.dt.year == 2023].dt.month
 
+        # Set initial values for the slider and dropdown menu
 
-        # # Set initial values for the slider and dropdown menu
+        initial_selected_columns = ['Solar [kWh]','SelfConsumption [kWh]', 'Demand [kWh]', 'Net Grid Import/Export [kWh]', 'Battery [kWh]']  # Set the initial selected columns as a list
+        initial_data_without_datetime = import_excel.iloc[:, 1:]  # Exclude the first column (DateTime)
 
-        initial_selected_columns = [import_excel.columns[1:]]  # Set the initial selected column except the first DateTime column
 
         # Get the first and last dates from the DateTime column
-        first_date = import_excel['DateTime'].iloc[0]
-        last_date = import_excel['DateTime'].iloc[-1]
+        initial_first_date = import_excel['DateTime'].iloc[0]
+        initial_last_date = import_excel['DateTime'].iloc[-1]
 
         # Convert first and last dates to Swiss time format
         swiss_time_format = '%d.%b.%Y'
-        initial_start_date_index = first_date.strftime(swiss_time_format)
-        initial_end_date_index = last_date.strftime(swiss_time_format)
+        initial_start_date_index = initial_first_date.strftime(swiss_time_format)
+        initial_end_date_index = initial_last_date.strftime(swiss_time_format)
 
         # Create marks dictionary with English month names
         # month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -188,12 +137,12 @@ class PlotExcel(MainClass):
         # Create marks dictionary with German month names
         month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 
-# Start the Application
+
         # Create the Dash application
-        app = dash.Dash(__name__)
+        self.app = dash.Dash(__name__)
 
         # Define the layout of the application
-        app.layout = html.Div(children=[
+        self.app.layout = html.Div(children=[
             html.H1(children='3D Interactive Bar Plot'),
             dcc.RangeSlider(
                 id='date-slider',
@@ -208,32 +157,49 @@ class PlotExcel(MainClass):
                 # tooltip={'always_visible': True, 'placement': 'bottom'}
             ),
             html.Div(id='selected-dates-output'),  # Placeholder for displaying selected start and end dates
-            dcc.Dropdown(
-                id='column-dropdown',
-                options=[{'label': column, 'value': column} for column in import_excel.columns[1:]],
-                multi=True,  # Set multi=True to allow selecting multiple datasets
-                value=initial_selected_columns  # Set the initial value to the first column
+            # dcc.Dropdown(
+            #     id='column-dropdown',
+            #     options = [{'label': column, 'value': column} for column in initial_selected_columns],
+            #     multi=True,  # Set multi=True to allow selecting multiple datasets
+            #     value=initial_selected_columns  # Set the initial value to the first column
+            # ),
+            
+            dcc.RadioItems(
+                id='selected-radio-items',
+                options=[{'label': column, 'value': column} for column in initial_selected_columns],
+                value=initial_selected_columns,  # Set the initial value to the first column
+                labelStyle={'display': 'block'},
+                inputStyle={'margin-right': '5px'},
+                inputClassName='radio-input',
+                className='radio-container',
+                persistence=True,
+                persistence_type='session',
+                persistence_expired=False,
+                inline=False,
+                switch=False,
+                loading_state={'is_loading': False, 'component_name': 'radio-items'},
+                style={'color': 'blue', 'font-size': '14px'}
             ),
             dcc.Graph(
                 id='3d-bar-plot',
-                figure=self.create_plot_figure(import_excel, datetime_column ,initial_start_date_index, initial_end_date_index, initial_selected_columns)  # Pass the initial date and empty dataset list
+                figure=self.create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns)  # Pass the initial date and empty dataset list
             )
         ])
 
         # Define the callback to update the plot on the selected columns
-        @app.callback(
+        @self.app.callback(
             dash.dependencies.Output('3d-bar-plot', 'options'),
-            [dash.dependencies.Input('column-dropdown', 'value')]
+            [dash.dependencies.Input('selected-radio-items', 'value')]
         )
         def update_datasets(selected_columns):
             options = []
             for column in selected_columns:
-                selected_columns= import_excel[column]  # Get the data for the selected column
-                options.extend([{'label': dataset, 'value': dataset} for dataset in selected_data])
+                selected_columns= initial_data_without_datetime[column]  # Get the data for the selected column
+                options.extend([{'label': dataset, 'value': dataset} for dataset in selected_columns])
             return options
 
         # Define the callback to update the plot based on the selected date range
-        @app.callback(
+        @self.app.callback(
             dash.dependencies.Output('3d-bar-plot', 'figure'),
             [dash.dependencies.Input('date-slider', 'value')]
             # dash.dependencies.Input('3d-bar-plot', 'options')]
@@ -243,10 +209,10 @@ class PlotExcel(MainClass):
             start_date = datetime_column[start_date_index]
             end_date = datetime_column[end_date_index]
             selected_columns = dash.callback_context.inputs['column-dropdown.value']
-            return self.create_plot_figure(import_excel, datetime_column, start_date, end_date, selected_columns)
+            return self.create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, selected_columns)
 
         # Define the callback to display the selected start and end dates
-        @app.callback(
+        @self.app.callback(
             dash.dependencies.Output('selected-dates-output', 'children'),
             [dash.dependencies.Input('date-slider', 'value')]
         )
@@ -257,35 +223,49 @@ class PlotExcel(MainClass):
             return f"Selected Date Range: {start_date} to {end_date}"
             # return f"Selected Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
 
+
+
         # Run the Dash application
-        app.run_server(debug=True, mode='inline', dev_tools_ui=True)
+        # app.run_server(debug=True, mode='inline',dev_tools_ui=True,)
+
+    def run_server(self):
+        # self.app.run_server(debug=True)
+        self.app.run_server()
+
+        # sys.exit()
+        # return
+                        # dev_tools_hot_reload=True,  --> would be interesting to add later
+
+                # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, # dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
+                # dev_tools_silence_routes_logging=False,# mode='inline'# )
 
 
-    def create_plot_figure(self, import_excel_figure, datetime_column ,start_date, end_date, selected_columns):
+    def create_plot_figure(self, initial_data_without_datetime, datetime_column ,start_date, end_date, selected_columns):
 
         # Filter the data based on the selected date range
         filtered_data_dates = datetime_column[
             # (import_excel_figure['DateTime'] >= start_date) & (import_excel_figure['DateTime'] <= end_date)]
             (datetime_column >= start_date) & (datetime_column <= end_date)]
-        
-
-        import_excel_figure_without_datetime = import_excel_figure[1:]
+    
 
         # Filter the data based on the selected columns
-        filtered_data_columns = filtered_data[filtered_data['dataset'].isin(selected_columns)]
+        filtered_data_columns = initial_data_without_datetime.loc[(datetime_column >= start_date) & (datetime_column <= end_date), selected_columns]
+
+
+        print("Filtered data per chosen columns: {}".format(filtered_data_columns))
 
         # Create the 3D bar plot figure
         figure = {
             'data': [
                 go.Bar(
                     x=filtered_data_dates,
-                    y=filtered_data_columns,
-                    z=filtered_data['z'],
-                    text=filtered_data['text'],
-                    hoverinfo='text',
+                    y=filtered_data_columns[column],
+                    # z=filtered_data['z'],
+                    text='TestText',
+                    hoverinfo='all',
                     marker=dict(color='blue'),
-                    name=f'Dataset - {date}'
-                ) for date in filtered_data['DateTime']
+                    name=f'{column}'
+                ) for column in filtered_data_columns.columns
             ],
             'layout': go.Layout(
                 scene=dict(
@@ -310,14 +290,74 @@ class PlotExcel(MainClass):
 class VariablesCheck(MainClass):
 
     # def __init__(self, filename_excel):
-    def __init__(self, rownumber1, rownumber2):
+    def __init__(self):
 
         super().__init__()
 
-        self.rownumber1 = rownumber1
-        self.rownumber2 = rownumber2
+    
+        self.CONFIG_FILE = "config.json"
+        self.filename_excel = None
+        self.initial_path = '"C:/Users/cfitz/FHNW/P-6-23FS_M365 - General/04_Diverse/Github_repository"'
+        # self.initial_path = '"C:/Users/cfitz"'
+        self.directory_path = None
+        self.import_excel = None
 
-    def check_file(self,filename_excel):
+        # initalize the config as an empty dict
+        self.config = {}
+
+    # load the config file if it's already saved
+    def load_config(self):
+        try:
+            with open(self.CONFIG_FILE, "r") as f:
+                self.config = json.load(f)
+        except FileNotFoundError:
+            self.config = {}
+        return self.config
+    
+
+    def select_file(self):
+
+        # Check if file path is already set in the configuration
+        if "file_path" not in self.config:
+
+            root_directory = tk.Tk()
+            root_directory.withdraw()  # Hide the root window
+            
+            # Open directory dialog and allow the user to select a directory
+            self.directory_path = filedialog.askdirectory(initialdir=self.initial_path, title="Choose the path where the Excel-file is that you want to read")
+            #self.directory_path = filedialog.askdirectory(title="Choose the path where the Excel-file is that you want to read")
+            #print(MainClass.initial_path)
+            root_directory.destroy()  # Close the Tkinter window
+
+            if self.directory_path is None:
+                print("No directory selected.")
+                return
+            
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            
+            # Open file dialog and allow the user to select a file from the chosen directory
+            # self.filename_excel = filedialog.askopenfilename(initialdir=self.directory_path, title="Choose the Excel-file that you want to read", filetypes=[("Excel Files", "*.xlsx")])
+            self.config["file_path"] = filedialog.askopenfilename(initialdir=self.directory_path, title="Choose the Excel-file that you want to read", filetypes=[("Excel Files", "*.xlsx")])
+            
+            # safe the filename into the filename_excel variabel 
+            self.filename_excel = self.CONFIG_FILE['file_path']  
+            root.destroy()  # Close the Tkinter window
+
+            self.check_save_file(self.filename_excel)
+            self.save_config()  # Save the updated configuration
+            
+                # Use the selected file path in further processing
+            #print(f"Selected File: {self.config['file_path']}")
+            print(f"Selected File: {self.config}")
+
+
+    # save the new config file
+    def save_config(self):
+        with open(self.CONFIG_FILE, "w") as f:
+            json.dump(self.config, f)    
+
+    def check_save_file(self,filename_excel):
         name_without_extension = os.path.splitext(filename_excel)[0]
         print(name_without_extension)  # Output: data
 
@@ -337,12 +377,7 @@ class VariablesCheck(MainClass):
         else:
             print("Folder already exists:", base_filename_excel)
 
-        # # Add a new extension to the filename for .cvs
-        # # filename_excel_cvs = name_without_extension + '.csv'
-        # filename_excel_cvs = folder_path + '/' + base_filename_excel + '.csv'
-        # print(filename_excel_cvs)  # Output: data.txt
-
-        
+    
         try:
             # Try to load the DataFrame from the saved pickle file
             with open(file_path, 'rb') as file:
@@ -365,18 +400,8 @@ class VariablesCheck(MainClass):
             except Exception as e:
                 print(f'Error occurred: {e}')
 
-        # try:
 
-        #     # Read data from Excel sheet  
-        #     import_excel = pd.read_excel(filename_excel, sheet_name='15min')
-        #     print("Data loaded from xlsx file.")
-
-            
-        # except FileNotFoundError:
-
-        #     print("The File could not be found.")
-
-        #     # print(help(VariablesCheck))
+        # print(help(VariablesCheck))
 
 
 
@@ -385,24 +410,23 @@ class VariablesCheck(MainClass):
 
 
 # Start the code running #
-print("Input the rows you want to plot; for now max 2")
-main_class = MainClass()
-plot_excel = PlotExcel()
-print("filename", plot_excel.initial_path)
-variables_check = VariablesCheck(1, 2)
+
+if __name__ == '__main__':
+    main_class = MainClass()
+    plot_excel = PlotExcel()
+    # print("filename", plot_excel.initial_path)
+    variables_check = VariablesCheck()
+        # try to load the config.json file
+    variables_check.load_config()
+
+    # main_class.select_directory()
+    variables_check.select_file()
+    import_excel = variables_check.check_save_file(variables_check.filename_excel)
 
 
+    # plot_excel.plot_results(import_excel, import_excel_csv_np, import_excel_csv_np_cols)
 
-main_class.select_directory()
-main_class.select_file()
-# main_class.create_folder()
-import_excel = variables_check.check_file(main_class.filename_excel)
-# main_class.read_data_from_excel()
+# if __name__ == '__main__':
 
-
-# print("rows shape: ",np.shape(import_excel_csv_np_cols))
-# print("other shape", np.shape(import_excel_csv_np))
-
-
-# plot_excel.plot_results(import_excel, import_excel_csv_np, import_excel_csv_np_cols)
-plot_excel.start_dash_plot(import_excel)
+    plot_excel.start_dash_plot(import_excel)
+    plot_excel.run_server()
