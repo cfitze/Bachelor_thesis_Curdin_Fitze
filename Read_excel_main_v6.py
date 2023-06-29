@@ -1,5 +1,6 @@
 
 import json
+import random
 import sys
 import pandas as pd
 import numpy as np
@@ -15,9 +16,18 @@ import plotly.graph_objs as go
 import pickle # to save the import_excel Data from the Excel-file into a binary pickle file
 # import cProfile # to profile the code and see where it takes the most time
 
+from flask_caching import Cache
 
 #.mro() You can actually check a class’s MRO by calling the mro method on the class, which gives you the list of classes in the order of how a method is resolved.
 
+# Outside your class, set up cache configuration
+config = {
+    'CACHE_TYPE': 'filesystem',
+    'CACHE_DIR': 'cache-directory',
+}
+
+# Initialize cache outside of your class
+cache = Cache(config=config)
 
 # Main class
 class MainClass:
@@ -133,11 +143,14 @@ class PlotExcel(MainClass):
 
         # Get the first and last dates from the DateTime column
         initial_first_date = import_excel['DateTime'].iloc[0]
-        initial_last_date = import_excel['DateTime'].iloc[-1]
+        initial_last_date = import_excel['DateTime'].iloc[10000]
 
-        # Get the index of the first and last dates
-        initial_start_date_index = datetime_column.index[0]
-        initial_end_date_index = datetime_column.index[-1]
+        initial_start_date_index = int(initial_first_date.timestamp())
+        initial_end_date_index = int(initial_last_date.timestamp())
+
+        # # Get the index of the first and last dates
+        # initial_start_date_index = datetime_column.index[0]
+        # initial_end_date_index = datetime_column.index[-1]
 
         # # Convert first and last dates to Swiss time format
         swiss_time_format = '%d.%b.%Y'
@@ -150,23 +163,45 @@ class PlotExcel(MainClass):
         # Create marks dictionary with German month names
         month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 
+        # List of colors to be used in the bar plots
+        # color_list = ['blue', 'red', 'green', 'yellow', 'purple', 'black', 'orange']
+        # color_list = ['#0000FF', '#FF0000', '#008000', '#FFFF00', '#800080', '#000000', '#FFA500']
+        color_list = ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9A6324', '#800000']
+
         # Year
         year = "2023"
 
         # Generate the marks for every month
         # marks = {i+1: {'label': month_names[i] + ' ' + year} for i in range(12)}
 
-        # Create a list of months and years for marks
-        date_range = pd.date_range(initial_start_date_index_swiss, initial_end_date_index_swiss, freq='M')
-        # marks = {date: date.strftime('%b %Y') for date in date_range}
+
+        # Define the marks for the slider
+        date_range = pd.date_range(initial_first_date, initial_last_date, freq='D')
+        # # slider_marks = {date.timestamp(): date.strftime('%b %Y') for date in date_range}
+        # slider_marks = {date.timestamp(): date.strftime('%d.%m.%y') for date in date_range}
+
+        # date_range = pd.date_range(initial_first_date, initial_last_date, freq='MS')  # 'MS' stands for Month Start
+        slider_marks = {date.timestamp(): {'label': date.strftime('%b %Y'), 'style': {'color': "#{:06x}".format(random.randint(0, 0xFFFFFF))}} for date in date_range}
+
+        # data_per_month = initial_data_without_datetime.set_index(datetime_column_frame['DateTime']).resample('M').sum()
+
+
+    
+
+        # print(slider_marks)
+
 
 
         # Create the Dash application
         self.app = dash.Dash(__name__)
 
+        # Configure your cache with your dash app's server
+        cache.init_app(self.app.server)
+
+
         # Define the layout of the application
         self.app.layout = html.Div(children=[
-            html.H1(children='3D Interactive Bar Plot', style={'textAlign': 'center'}),
+            html.H1(children='Interactive Plotting', style={'textAlign': 'center', 'fontSize': '35px'}),
             dcc.Store(
                 id='store', 
                 data={
@@ -180,7 +215,8 @@ class PlotExcel(MainClass):
             html.Br(),
             dcc.RangeSlider(
                 id='date-slider',
-                # marks=marks,
+                step = None,    # If step=None, the slider will select the nearest step value.
+                marks = slider_marks,
                 # marks = {i: {'label': month_names[i-1]} for i in range(1, 13)},
                 min=initial_start_date_index,
                 max=initial_end_date_index,
@@ -188,7 +224,7 @@ class PlotExcel(MainClass):
                 # tooltip={'always_visible': True, 'placement': 'bottom'}
             ),
             html.Br(),
-            html.Div(id='selected-dates-output'),  # Placeholder for displaying selected start and end dates
+            html.Div(id='selected-dates-output', style={'fontWeight': 'bold','textAlign': 'center', 'fontSize': '25px'}),  # Placeholder for displaying selected start and end dates
             html.Br(),
             # dcc.Dropdown(
             #     id='column-dropdown',
@@ -197,30 +233,28 @@ class PlotExcel(MainClass):
             #     value=initial_selected_columns  # Set the initial value to the first column
             # ),
 
+
             dcc.Checklist(
                 id='selected-date-checklist-items',
                 options=[{'label': column, 'value': column} for column in columns_available_without_datetime],
-                value = initial_selected_columns,  # now this can be a list
-                labelStyle={'display': 'block'},
+                value = initial_selected_columns,
+                # labelStyle={'display': 'block'},
+                labelStyle={ 'fontWeight': 'bold', 'fontSize': '20px'},
                 inputStyle={'margin-right': '5px'},
                 inputClassName='check-input',
                 className='check-container',
                 persistence=True,
                 persistence_type='session',
-                inline=False,
-                loading_state={'is_loading': False, 'component_name': 'check-items'},
-                style={'color': 'blue', 'font-size': '14px'}
+                inline=True,
+                style={'color': 'blue', 'font-size': '8px'}
             ),
-    
             html.Br(),
             dcc.Graph(
                 id='3d-bar-plot',
-                figure=self.create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns)  # Pass the initial date and empty dataset list
+                figure=self.create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns, color_list)  # Pass the initial date and empty dataset list
             ),
             html.Div(id='graphs-container')
         ])
-
-        # Callbacks
         @self.app.callback(
             dash.dependencies.Output('graphs-container', 'children'),
             [dash.dependencies.Input('date-slider', 'value'),
@@ -228,16 +262,15 @@ class PlotExcel(MainClass):
             dash.dependencies.Input('store', 'data')]
         )
         def generate_plots(selected_date_range, selected_columns, stored_data):
-            datetime_column = pd.to_datetime(pd.DataFrame(stored_data['datetime_column'])['DateTime'])
-            start_date_index, end_date_index = selected_date_range
-            start_date = datetime_column[start_date_index]
-            end_date = datetime_column[end_date_index]
+            datetime_column = pd.to_datetime([i['DateTime'] for i in stored_data['datetime_column']])
+            start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
             initial_data_without_datetime = pd.DataFrame(stored_data['initial_data_without_datetime'])
 
             # Generate a dcc.Graph instance for each selected column
             plots = []
-            for column in selected_columns:
-                figure = self.create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, [column])
+            for i, column in enumerate(selected_columns):
+                color = color_list[i % len(color_list)]
+                figure = self.create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, [column], color=color)
                 plot = dcc.Graph(
                     id=f'{column}-bar-plot',
                     figure=figure
@@ -245,59 +278,65 @@ class PlotExcel(MainClass):
                 plots.append(plot)
 
             return plots
+        
+        #         plots = [
+        #     dcc.Graph(
+        #         id=f'{column}-bar-plot',
+        #         figure=self.create_plot_figure(
+        #             initial_data_without_datetime, datetime_column, start_date, end_date, [column], color=color
+        #         )
+        #     ) for i, column in enumerate(selected_columns)
+        # ]
 
-        # Callback to display the selected start and end dates
+
         @self.app.callback(
             dash.dependencies.Output('selected-dates-output', 'children'),
             [dash.dependencies.Input('date-slider', 'value'),
             dash.dependencies.Input('store', 'data')]
         )
         def display_selected_dates(selected_date_range, stored_data):
-            datetime_column = pd.to_datetime(stored_data['datetime_column'])
-            start_date_index, end_date_index = selected_date_range
-            start_date = datetime_column[start_date_index]
-            end_date = datetime_column[end_date_index]
-            return f"Selected Date Range: {start_date} to {end_date}"
-
+            start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
+            return f"Selected Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
 
 
         # Run the Dash application
         # app.run_server(debug=True, mode='inline',dev_tools_ui=True,)
 
     def run_server(self):
-        self.app.run_server(debug=True)
+        self.app.run_server(port=8060,debug=True, dev_tools_ui=True) #dev_tools_hot_reload_interval=1000, dev_tools_silence_routes_logging=False)
         # self.app.run_server()
 
-        # sys.exit()
-        # return
-                        # dev_tools_hot_reload=True,  --> would be interesting to add later
-
-                # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, # dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
+                # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, ll dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
                 # dev_tools_silence_routes_logging=False,# mode='inline'# )
 
-
-    def create_plot_figure(self, data_without_datetime, datetime_column ,start_date, end_date, selected_columns):
-
+    # @cache.memoize(timeout=30)
+    def create_plot_figure(self, data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list):
         # Filter the data based on the selected date range
         filtered_data_dates = datetime_column[(datetime_column >= start_date) & (datetime_column <= end_date)]
 
-        # filtered_data_columns = initial_data_without_datetime.loc[start_date_index:end_date_index]
         filtered_data_columns = data_without_datetime.loc[(datetime_column >= start_date) & (datetime_column <= end_date), :]
-
 
         # print("Filtered data per chosen columns: {}".format(filtered_data_columns))
 
-        # Create the 2d plot figure
+
+                # Create the 2d plot figure
         figure = {
             'data': [
-                go.Bar(
+            #     go.Bar(
+            #         x=filtered_data_dates,
+            #         y=filtered_data_columns[column],
+            #         hoverinfo='all',
+            #         marker=dict(color=color, line=dict(width=50)),
+            #         name=f'{column}-bar'
+            #     ) for column, color in zip(selected_columns, color_list)
+            # ] + [
+                go.Scatter(
                     x=filtered_data_dates,
                     y=filtered_data_columns[column],
-                    text='TestText',
-                    hoverinfo='all',
-                    marker=dict(color='blue'),
-                    name=f'{column}'
-                ) for column in selected_columns
+                    mode='lines+markers',
+                    marker=dict(color=color),
+                    name=f'{column}-scatter'
+                ) for column, color in zip(selected_columns, color_list)
             ],
             'layout': go.Layout(
                 xaxis=dict(title='Date'),
@@ -310,6 +349,31 @@ class PlotExcel(MainClass):
         }
 
         return figure
+
+    # # Create the 2d plot figure
+    #     figure = {
+    #         'data': [
+    #             go.Bar(
+    #                 x=filtered_data_dates,
+    #                 y=filtered_data_columns[column],
+    #                 # text='TestText',
+    #                 hoverinfo='all',
+    #                 marker=dict(color=color_list, line=dict(width=50)),
+    #                 name=f'{column}'
+    #             # ) for column in selected_columns
+    #             ) for column, color_list in zip(selected_columns, color)
+    #         ],
+    #         'layout': go.Layout(
+    #             xaxis=dict(title='Date'),
+    #             yaxis=dict(title='Value'),
+    #             barmode='group',
+    #             title='3D Interactive Bar Plot',
+    #             margin=dict(l=0, r=0, t=40, b=0),
+    #             legend=dict(x=0, y=1)
+    #         )
+    #     }
+
+    #     return figure
     
 
 #print(help(PlotExcel))
