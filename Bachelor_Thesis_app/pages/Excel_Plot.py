@@ -2,7 +2,6 @@ import random
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import tkinter as tk
 from TkinterDnD2 import *
 import dash # Dash application with interactivity
@@ -70,12 +69,10 @@ initial_end_date_index_swiss = initial_last_date.strftime(swiss_time_format)
 
 # Create marks dictionary with English month names
 # month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
 # Create marks dictionary with German month names
 month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
 
 # List of colors to be used in the bar plots
-# color_list = ['blue', 'red', 'green', 'yellow', 'purple', 'black', 'orange']
 # color_list = ['#0000FF', '#FF0000', '#008000', '#FFFF00', '#800080', '#000000', '#FFA500']
 color_list = ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9A6324', '#800000']
 
@@ -85,22 +82,15 @@ year = "2023"
 # Generate the marks for every month
 # marks = {i+1: {'label': month_names[i] + ' ' + year} for i in range(12)}
 
-
 # Define the marks for the slider
 date_range = pd.date_range(initial_first_date, initial_last_date, freq='D')
 # # slider_marks = {date.timestamp(): date.strftime('%b %Y') for date in date_range}
-# slider_marks = {date.timestamp(): date.strftime('%d.%m.%y') for date in date_range}
 
 # date_range = pd.date_range(initial_first_date, initial_last_date, freq='MS')  # 'MS' stands for Month Start
 slider_marks = {date.timestamp(): {'label': date.strftime('%b %Y'), 'style': {'color': "#{:06x}".format(random.randint(0, 0xFFFFFF))}} for date in date_range}
 
 # data_per_month = initial_data_without_datetime.set_index(datetime_column_frame['DateTime']).resample('M').sum()
 
-# print(slider_marks)
-
-
-# Configure your cache with your dash app's server
-# cache.init_app(app.server)
 
 
 # Define the layout of the application
@@ -133,6 +123,7 @@ layout = html.Div(children=[
         id='date-slider',
         step = None,    # If step=None, the slider will select the nearest step value.
         marks = slider_marks,
+        included = True,
         # marks = {i: {'label': month_names[i-1]} for i in range(1, 13)},
         min=initial_start_date_index,
         max=initial_end_date_index,
@@ -165,16 +156,36 @@ layout = html.Div(children=[
         style={'color': 'blue', 'font-size': '10px'}
     ),
     html.Br(),
-    dcc.Graph(
-        id='bar-plot',
-        # figure=create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns, color_list)  # Pass the initial date and empty dataset list
+    # dcc.Graph(
+    #     id='bar-plot',
+    #     # figure=create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns, color_list)  # Pass the initial date and empty dataset list
+    # ),
+    # html.Div(id='graphs-container'),
+    # html.Br(),
+
+    dcc.Loading(
+        id="loading",
+        type="circle",  # or "cube", "default"
+        children=[
+            html.Div(id='graphs-container')
+        ]
     ),
-    html.Div(id='graphs-container'),
+
     html.Br(),
 
 ])
 
     
+@callback(
+    dash.dependencies.Output('selected-dates-output', 'children'),
+    [dash.dependencies.Input('date-slider', 'value'),
+    dash.dependencies.Input('store', 'data')]
+)
+def display_selected_dates(selected_date_range, stored_data):
+    start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
+    return html.Div(f"Selected Date Range: {start_date.strftime('%d-%m-%Y')} to {end_date.strftime('%d-%m-%Y')}", style={'color': 'black', 'fontWeight': 'bold', 'fontSize': '20px'})
+
+
 # Define the callbacks
 @callback(
     dash.dependencies.Output('graphs-container', 'children'),
@@ -187,8 +198,15 @@ def generate_plots(selected_date_range, selected_columns, stored_data):
     start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
     initial_data_without_datetime = pd.DataFrame(stored_data['initial_data_without_datetime'])
 
+    # Generate combined plot
+    combined_figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list)
+    combined_plot = dcc.Graph(
+            id='combined-bar-plot',
+            figure=combined_figure
+    )
+
     # Generate a dcc.Graph instance for each selected column
-    plots = []
+    plots = [combined_plot]  # Add combined plot to list first
     for i, column in enumerate(selected_columns):
         color = color_list[i % len(color_list)]  # This line chooses the color for each graph
         figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, [column], color_list=[color])  # Here we pass the chosen color
@@ -200,25 +218,6 @@ def generate_plots(selected_date_range, selected_columns, stored_data):
         plots.append(plot)
 
     return plots
-
-#         plots = [
-#     dcc.Graph(
-#         id=f'{column}-bar-plot',
-#         figure=create_plot_figure(
-#             initial_data_without_datetime, datetime_column, start_date, end_date, [column], color=color
-#         )
-#     ) for i, column in enumerate(selected_columns)
-# ]
-
-@callback(
-    dash.dependencies.Output('selected-dates-output', 'children'),
-    [dash.dependencies.Input('date-slider', 'value'),
-    dash.dependencies.Input('store', 'data')]
-)
-def display_selected_dates(selected_date_range, stored_data):
-    start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
-    return html.Div(f"Selected Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}", style={'color': 'black', 'fontWeight': 'bold', 'fontSize': '20px'})
-
 
 # @cache.memoize(timeout=30)
 def create_plot_figure(data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list):
@@ -236,7 +235,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
                 y=filtered_data_columns[column],
                 mode='lines+markers',
                 marker=dict(color=color_list[i % len(color_list)], line=dict(width=2), size=1),  # Use the color from the list, and set size of dots
-                name=f'{column}-scatter'
+                name=f'{column}-Streudiagramm'
             ) for i, column in enumerate(selected_columns)
         ] + [
             go.Bar(
@@ -244,8 +243,8 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
                 y=filtered_data_columns[column],
                 hoverinfo='all',
                 marker=dict(color=color_list[i % len(color_list)], line=dict(width=1)),  # Use the color from the list
-                name=f'{column}-bar',
-                width=0.5,  # Adjust the width of the bars here
+                name=f'{column}-Balkendiagramm',
+                width=4,  # Adjust the width of the bars here
                 visible='legendonly'  # Make the plot not visible by default
             ) for i, column in enumerate(selected_columns)      
         ],
@@ -267,21 +266,75 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         )
     }
 
+    if len(selected_columns) == 1:
+        # Add average line for single column plot
+        column = selected_columns[0]
+        average_value = np.mean(filtered_data_columns[column])
+        min_value = np.min(filtered_data_columns[column])
+        max_value = np.max(filtered_data_columns[column])
+
+        average_line = go.Scatter(
+            x=filtered_data_dates,
+            y=average_value * np.ones(len(filtered_data_dates)),
+            mode='lines',
+            line=dict(color='black', dash='dash'),
+            name=f'{column}-Mittelwert: <b>{average_value:.3f}</b>'
+        )
+        figure['data'].append(average_line)
+
+        # Scatter trace for minimum value
+        min_scatter = go.Scatter(
+            x=filtered_data_dates,
+            y=np.full(len(filtered_data_dates), min_value),
+            mode='lines',
+            line=dict(color='black', dash='dash'),
+            name=f'Min: {min_value:.3f}',
+            visible='legendonly'
+        )
+        figure['data'].append(min_scatter)
+
+        # Scatter trace for maximum value
+        max_scatter = go.Scatter(
+            x=filtered_data_dates,
+            y=np.full(len(filtered_data_dates), max_value),
+            mode='lines',
+            line=dict(color='black', dash='dash'),
+            # marker=dict(color='black', symbol='triangle-up', size=10),
+            name=f'Max: {max_value:.3f}',
+            visible='legendonly'
+        )
+        figure['data'].append(max_scatter)
+
+        # # Add annotations for the minimum and maximum values
+        # figure['layout']['annotations'] = [
+        #     dict(
+        #         x=filtered_data_dates[0],
+        #         y=min_value,
+        #         text=f'Min: {min_value:.3f}',
+        #         showarrow=True,
+        #         arrowhead=1,
+        #         arrowcolor='black',
+        #         arrowsize=1,
+        #         ax=20,
+        #         ay=-40,
+        #         font=dict(color='black')
+        #     ),
+        #     dict(
+        #         x=filtered_data_dates[-1],
+        #         y=max_value,
+        #         text=f'Max: {max_value:.3f}',
+        #         showarrow=True,
+        #         arrowhead=1,
+        #         arrowcolor='black',
+        #         arrowsize=1,
+        #         ax=20,
+        #         ay=-40,
+        #         font=dict(color='black')
+        #     )
+        # ]
+
+
     return figure
-
-        #     # Create the 2d plot figure
-        #     go.Bar(
-        #         x=filtered_data_dates,
-        #         y=filtered_data_columns[column],
-        #         hoverinfo='all',
-        #         marker=dict(color=color, line=dict(width=50)),
-        #         name=f'{column}-bar'
-        #     ) for column, color in zip(selected_columns, color_list)
-        # ] + [
-    
-
-
-
 
 
 
