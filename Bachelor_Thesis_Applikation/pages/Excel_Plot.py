@@ -17,7 +17,7 @@ from flask_caching import Cache
 
 
 
-dash.register_page(__name__, path='/excel-plotting', name='Excel-Plotting', order=2) # is a subpage of the home page
+dash.register_page(__name__, path='/excel-plotting', name='Excel-Plotting', order=3) # is a subpage of the home page
 
 # Define the layout for the home page
 # home_page_layout = html.Div([
@@ -100,7 +100,7 @@ layout = html.Div(children=[
         children=[
             html.Div(
                 children=[
-                    html.H1('Interactive Plotting', style={'textAlign': 'center','fontSize': '32px', 'fontWeight': 'bold', 'fontFamily': 'Source Sans Pro'})
+                    html.H1('Interactive Plotting', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'})
                 ],
                 style={'textAlign': 'center'}
             )
@@ -326,7 +326,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         )
         figure['data'].append(moving_average_line)
 
-        
+
     return figure
         # # Add annotations for the minimum and maximum values
         # figure['layout']['annotations'] = [

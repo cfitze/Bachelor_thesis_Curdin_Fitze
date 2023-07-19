@@ -9,7 +9,7 @@ import locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
 
 
-dash.register_page(__name__, path='/', name='Results', order=1) # '/' is the home page fo this app
+dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the home page fo this app
 
 # Load data later from the Excel file from Solextron
 labels_yearly_consumption = ['Riedgrabenstrasse 5', 'Riedgrabenstrasse 7/9/11','Riedgrabenstrasse 13']
@@ -26,6 +26,8 @@ trace = go.Pie(
     text=values_yearly_consumption_formatted,  # Use the formatted values as labels
     textinfo='percent+text',  # Display label, percentage, and value
     hoverinfo= 'label+text+percent',  # Display label, percentage, and value on hover
+    hovertemplate='%{label}: %{text} kWh (%{percent})',  # Customize the hover template
+    name='',  # Empty string for the trace name
     textfont=dict(size=13, family='Arial'),
 )
 
@@ -60,7 +62,7 @@ figure = go.Figure(data=[trace], layout=chart_layout)
 # Define the layout of the Dash application
 layout = html.Div(children=[
     html.H1(children='Kennzahlen der Liegenschaften',
-            style={'text-align': 'center', 'font-size': '32px'}),
+            style={'text-align': 'center', 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
     html.Div([
         dcc.Graph(id='pie-chart', figure=figure)
     ], style={'width': '50%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '20px'}),
@@ -81,13 +83,30 @@ layout = html.Div(children=[
             id='table-container',
             children=[
                 html.Table(
-                    id='table',
+                    id='table1',
                     style={
                         'border': '1px solid black',
                         'border-collapse': 'collapse',
                         'width': '100%',
                         'margin': 'auto',
                         'margin-top': '5px'
+                    },
+                    children=[
+                        html.Tr([
+                            html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
+                            html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
+                            html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                        ])
+                    ]
+                ),
+                html.Table(
+                    id='table2',
+                    style={
+                        'border': '1px solid black',
+                        'border-collapse': 'collapse',
+                        'width': '100%',
+                        'margin': 'auto',
+                        'margin-top': '15px'
                     },
                     children=[
                         html.Tr([
@@ -105,11 +124,11 @@ layout = html.Div(children=[
 
 
 @callback(
-    Output('table', 'children'),
+    Output('table1', 'children'),
     Input('dropdown', 'value')
 )
-def update_table(option):
-    options_data = {
+def update_table1(option):
+    options_data1 = {
         'option1': [
             ['Eigenverbrauch [%]', '40.1', '43.1'],
             ['Autarkiegrad [%]', '31.5', '33.9'],
@@ -140,9 +159,9 @@ def update_table(option):
         ]
     }
     
-    data = options_data.get(option, [])
+    data1 = options_data1.get(option, [])
     
-    table_rows = [
+    table_rows1 = [
         html.Tr([
             html.Th('Solextron Simulationsdaten', style={'border': '1px solid black', 'padding': '8px'}),
             html.Th('Ohne Batterie', style={'border': '1px solid black', 'padding': '8px'}),
@@ -157,9 +176,67 @@ def update_table(option):
                     'font-weight': 'bold' if col_idx > 0 else 'normal'
                 }
             ) for col_idx, cell in enumerate(row)]
-        ) for row in data]
+        ) for row in data1]
     ]
-    return table_rows
+    return table_rows1
+
+
+@callback(
+    Output('table2', 'children'),
+    Input('dropdown', 'value')
+)
+def update_table2(option):
+    options_data2 = {
+        'option1': [
+            ['CAPEX [CHF]', 'A', 'B'],
+            ['CAPEX [CHF] mit EV', 'C', 'D'],
+            ['kWh/kWp', 'E', 'F'],
+            ['Stromkosten [CHF/kWh]', 'G', 'H'],
+            ['Table 2 - Data 5', 'I', 'J']
+        ],
+        'option2': [
+            ['CAPEX [CHF]', '1', '2'],
+            ['CAPEX [CHF] mit EV', '3', '4'],
+            ['kWh/kWp', '5', '6'],
+            ['Stromkosten [CHF/kWh]', '7', '8'],
+            ['Table 2 - Data 5', '9', '10']
+        ],
+        'option3': [
+            ['CAPEX [CHF]', 'X', 'Y'],
+            ['CAPEX [CHF] mit EV', 'Z', 'A'],
+            ['kWh/kWp', 'B', 'C'],
+            ['Stromkosten [CHF/kWh]', 'D', 'E'],
+            ['Table 2 - Data 5', 'F', 'G']
+        ],
+        'option4': [
+            ['CAPEX [CHF]', '!', '@'],
+            ['CAPEX [CHF] mit EV', '#', '$'],
+            ['kWh/kWp', '%', '^'],
+            ['Stromkosten [CHF/kWh]', '&', '*'],
+            ['Table 2 - Data 5', '(', ')']
+        ]
+    }
+
+    data2 = options_data2.get(option, [])
+
+    table_rows2 = [
+        html.Tr([
+            html.Th('Kosten aus der Simulation', style={'border': '1px solid black', 'padding': '8px'}),
+            html.Th('Ohne Batterie', style={'border': '1px solid black', 'padding': '8px'}),
+            html.Th('Mit Batterie', style={'border': '1px solid black', 'padding': '8px'})
+        ]),
+        *[html.Tr([
+            html.Td(
+                cell,
+                style={
+                    'border': '1px solid black',
+                    'padding': '8px',
+                    'font-weight': 'bold' if col_idx > 0 else 'normal'
+                }
+            ) for col_idx, cell in enumerate(row)]
+        ) for row in data2]
+    ]
+    return table_rows2
 
 
 

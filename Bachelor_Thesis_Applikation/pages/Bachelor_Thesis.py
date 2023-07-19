@@ -5,13 +5,13 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 
 
-dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', order=3) # is a subpage of the home page
+dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', order=4) # is a subpage of the home page
 
 
 # Define the layout for the PDF page
 layout = html.Div([
     html.Div([
-        html.H1("Bachelor Thesis", style={"text-align": "center"}),
+        html.H1("Bachelor Thesis", style={"text-align": "center", 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
         html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", style={"text-align": "center"})
     ], style={"margin": "auto", "width": "50%"}),  # Centered text
 

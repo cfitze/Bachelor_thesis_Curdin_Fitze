@@ -1,6 +1,7 @@
 import random
 import pickle
 import dash
+import flask
 import pandas as pd
 from dash import html, dcc
 import dash_bootstrap_components as dbc
@@ -14,9 +15,24 @@ def open_browser():
     if not webbrowser.get().open('http://127.0.0.1:8050/', new=2):
         print("Browser is already open.")
 
+def show_cache_directory():
+    with app.server.app_context():
+        cache_directory = app.server.config['CACHE_DIR']
+        return f"Cache Directory: {cache_directory}"
+
+# Initialize the Flask server
+server = flask.Flask(__name__)
+
+# Set the cache directory
+server.config['CACHE_DIR'] = 'cache_directory'
+
 
 #initialise the app
-app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
+app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.LITERA]) #, assets_folder='assets') #dbc.themes.SPACELAB
+#CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
+
+#initialise the app
+# app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
 
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
@@ -24,19 +40,21 @@ cache = Cache(app.server, config={
     'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds
 })
 
-@cache.cached()
+
+
+# @cache.cached()
 def expensive_computation():
 
     # Check if the data is already cached
     cached_data = cache.get('expensive_computation_data')
     if cached_data is not None:
 
-        # Access the cache directory path
-        cache_directory = cache.cache_dir
-        print("Cache Directory:", cache_directory)
+        # # Access the cache directory path
+        # cache_directory = cache.cache_dir
+        # print("Cache Directory:", cache_directory)
         return cached_data
     
-    
+
     #Import the data from the Excel file from Solextron via a pickle file
     import_excel = pickle.load(open("BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle", "rb"))
 
@@ -105,13 +123,11 @@ def expensive_computation():
     # Store the dictionary in the cache
     cache.set('expensive_computation_data', results)
 
-    # Access the cache directory path
-    cache_directory = cache.cache_dir
-    print("Cache Directory:", cache_directory)
-
     # Return the results
     return results
 
+#call the function for the expensive computation
+expensive_computation()
 
 
 sidebar = dbc.Nav(
@@ -135,7 +151,7 @@ sidebar = dbc.Nav(
 app.layout = dbc.Container([
     dbc.Row([
         dbc.Col(html.Div("Python Dash Application meiner Bachelor Thesis",
-                         style={'fontSize':30, 'textAlign':'center'}))
+                         style={'fontSize':35, 'textAlign':'center', 'fontWeight': 'bold', 'fontFamily': 'Arial'}))
     ]),
 
     html.Hr(),
@@ -167,9 +183,21 @@ app.layout = dbc.Container([
     # ),
 ], fluid=True)
 
+
+# Define routes
+@server.route("/open-browser")
+def route_open_browser():
+    open_browser()
+    return "Browser opened!"
+
+@server.route("/cache-directory")
+def route_cache_directory():
+    return show_cache_directory()
+
+
 if __name__ == "__main__":
     open_browser()  # Open the browser window without delay
-    app.run(debug=False, dev_tools_ui=False)  # Run the app
+    app.run(debug=True, dev_tools_ui=True)  # Run the app
 
     # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, ll dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
     # dev_tools_silence_routes_logging=False,# mode='inline'# )
@@ -177,6 +205,16 @@ if __name__ == "__main__":
     # app.run_server(debug=True, mode='inline',dev_tools_ui=True,)
 
 
+# # Get the path of the current file
+# current_file_path = os.path.abspath(__file__)
+
+# # Get the parent directory of the current file
+# parent_directory = os.path.dirname(current_file_path)
+
+# # Build the cache directory path
+# cache_directory = os.path.join(parent_directory, ".dash-cache")
+
+# print("Cache Directory:", cache_directory)
 
 # import webapp2
 # import webapp2_profiler
