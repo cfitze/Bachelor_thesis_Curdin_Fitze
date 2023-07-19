@@ -156,17 +156,17 @@ layout = html.Div(children=[
         style={'color': 'blue', 'font-size': '10px'}
     ),
     html.Br(),
-    # dcc.Graph(
-    #     id='bar-plot',
-    #     # figure=create_plot_figure(initial_data_without_datetime, datetime_column ,initial_first_date, initial_last_date, initial_selected_columns, color_list)  # Pass the initial date and empty dataset list
-    # ),
-    # html.Div(id='graphs-container'),
-    # html.Br(),
 
     dcc.Loading(
         id="loading",
-        type="circle",  # or "cube", "default"
+        type="graph",
+        style={'marginTop': '100px'},  # Adjust the marginTop value as desired
         children=[
+            # html.Div(
+            #     className="loading-text",
+            #     children="Berechnungen werden ausgeführt",
+            #     style={'text-align': 'center', 'font-weight': 'bold'}
+            # ),
             html.Div(id='graphs-container')
         ]
     ),
@@ -278,7 +278,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
             y=average_value * np.ones(len(filtered_data_dates)),
             mode='lines',
             line=dict(color='black', dash='dash'),
-            name=f'{column}-Mittelwert: <b>{average_value:.3f}</b>'
+            name=f'Mittelwert: <b>{average_value:.3f}</b>'
         )
         figure['data'].append(average_line)
 
@@ -305,6 +305,29 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         )
         figure['data'].append(max_scatter)
 
+
+        # Calculate the moving average with the selected range
+        range_start = start_date
+        range_end = end_date
+        selected_dates = filtered_data_dates[(filtered_data_dates >= range_start) & (filtered_data_dates <= range_end)]
+        selected_data = filtered_data_columns[column][(filtered_data_dates >= range_start) & (filtered_data_dates <= range_end)]
+        window_size = len(selected_dates)  # Window size based on the selected range
+        moving_average = selected_data.rolling(window_size, min_periods=1).mean()
+        amount_of_days = round(window_size / (4 * 24), 1)
+
+        # Add the moving average line
+        moving_average_line = go.Scatter(
+            x=filtered_data_dates,
+            y=moving_average,
+            mode='lines',
+            line=dict(color='blue'),  # Adjust the color as desired
+            name=f'Gleitender Durchschnitt über ({amount_of_days} Tage)',
+            visible='legendonly'
+        )
+        figure['data'].append(moving_average_line)
+
+        
+    return figure
         # # Add annotations for the minimum and maximum values
         # figure['layout']['annotations'] = [
         #     dict(
@@ -334,7 +357,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         # ]
 
 
-    return figure
+    # return figure
 
 
 

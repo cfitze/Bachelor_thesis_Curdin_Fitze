@@ -1,16 +1,42 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // // Use IntelliSense to learn about possible attributes.
+    // // Hover to view descriptions of existing attributes.
+    // // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // "version": "0.2.0",
+    // "configurations": [
+    //     {
+    //         "name": "Python: Current File",
+    //         "type": "python",
+    //         "request": "launch",
+    //         "program": "${file}",
+    //         "console": "integratedTerminal",
+    //         "justMyCode": true
+    //     }
+    // ]
+
     "version": "0.2.0",
     "configurations": [
         {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/Bachelor_Thesis_Applikation/Bachelor_Thesis_app.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Open Dash App",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://127.0.0.1:8050/",
+            "webRoot": "${workspaceFolder}"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Dash Debugging",
+            "configurations": ["Python: Current File", "Open Dash App"]
         }
     ]
 }

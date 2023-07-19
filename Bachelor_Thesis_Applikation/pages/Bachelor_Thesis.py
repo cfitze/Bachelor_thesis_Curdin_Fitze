@@ -15,7 +15,7 @@ layout = html.Div([
         html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", style={"text-align": "center"})
     ], style={"margin": "auto", "width": "50%"}),  # Centered text
 
-    html.Iframe(src="data:application/pdf;base64," + base64.b64encode(open('Bachelor_Thesis_app/assets/Bachelorthesis_EUT_P6_FS23_Curdin_Fitze-2.pdf', "rb").read()).decode('utf-8'),
+    html.Iframe(src="data:application/pdf;base64," + base64.b64encode(open('Bachelor_Thesis_Applikation/assets/Bachelorthesis_EUT_P6_FS23_Curdin_Fitze-2.pdf', "rb").read()).decode('utf-8'),
                 style={"width": "90%", "height": "700px", "zoom": "80%"})
                 # style={"width": "100%", "height": "500px"})
 ])
