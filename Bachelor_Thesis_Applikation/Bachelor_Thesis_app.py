@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 import webbrowser
 from threading import Timer
 from flask_caching import Cache
+from dash_bootstrap_templates import load_figure_template
 
 
 def open_browser():
@@ -28,12 +29,13 @@ server.config['CACHE_DIR'] = 'cache_directory'
 
 
 #initialise the app
-app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.LITERA]) #, assets_folder='assets') #dbc.themes.SPACELAB
+app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
 #initialise the app
 # app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
-
+load_figure_template('LUX')
+                     
 cache = Cache(app.server, config={
     'CACHE_TYPE': 'filesystem',
     'CACHE_DIR': 'cache_directory',
@@ -143,16 +145,29 @@ sidebar = dbc.Nav(
             ],
             vertical=True,
             pills=True,
-            className="bg-light",
+            className="bg-transparent",
 )
 
 
 
-app.layout = dbc.Container([
-    dbc.Row([
-        dbc.Col(html.Div("Python Dash Application meiner Bachelor Thesis",
-                         style={'fontSize':35, 'textAlign':'center', 'fontWeight': 'bold', 'fontFamily': 'Arial'}))
-    ]),
+app.layout = dbc.Container(
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        "Python Dash Application meiner Bachelor Thesis",
+                        style={
+                            "fontSize": 35,
+                            "textAlign": "center",
+                            "fontWeight": "bold",
+                            "fontFamily": "Arial",
+                            "background-color": "transparent",
+                        },
+                    )
+                )
+            ]
+        ),
 
     html.Hr(),
 
@@ -181,7 +196,10 @@ app.layout = dbc.Container([
     #         'initial_selected_columns': initial_selected_columns
     #     }
     # ),
-], fluid=True)
+    ], 
+    fluid=True,
+    # style={'backgroundColor': 'white'}  # Set the background color to white
+)
 
 
 # Define routes

@@ -37,7 +37,7 @@ trace = go.Pie(
 # Create layout for the chart
 chart_layout = go.Layout(
     title='Kreisdiagramm des jährlichen Stromverbrauchs der Liegenschaften (kWh)',
-    title_font=dict(size=20, color='black', family='Arial'),
+    title_font=dict(size=18, color='black', family='Arial'),
     title_x=0.5,  # Center the title horizontally
     title_y=0.9,  # Adjust the vertical position of the title
     showlegend=True,
@@ -51,7 +51,9 @@ chart_layout = go.Layout(
             font=dict(size=15),
             align='center'
         )
-    ]
+    ],
+    paper_bgcolor='rgba(0,0,0,0)',  # Set the background of the entire chart to transparent
+    # plot_bgcolor='rgba(0,0,0,0)'  # Set the background of the plot area to transparent
 )
 
 
@@ -65,7 +67,7 @@ layout = html.Div(children=[
             style={'text-align': 'center', 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
     html.Div([
         dcc.Graph(id='pie-chart', figure=figure)
-    ], style={'width': '50%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '20px'}),
+    ], style={'width': '45%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '20px', 'margin-right': '20px','background-color': 'transparent'}),
     html.Div([
         dcc.Dropdown(
             id='dropdown',
@@ -77,9 +79,10 @@ layout = html.Div(children=[
             ],
             value='option1',
             clearable=False,  # This will disable the clearable 'x' option
-            style={'width': '270px', 'margin-right': '20px', 'margin-top': '30px'}
+            style={'color': 'black','font-weight': 'bold', 'font-size': '16px','width': '270px', 'margin-right': '20px', 'margin-top': '30px','background-color': 'transparent'},
+
         ),
-        html.Div(
+        html.Div( 
             id='table-container',
             children=[
                 html.Table(
@@ -119,8 +122,8 @@ layout = html.Div(children=[
             ],
             style={'overflow': 'auto'}
         )
-    ], style={'width': '50%', 'display': 'inline-block'})
-])
+    ], style={'width': '50%', 'display': 'inline-block', 'background-color': 'transparent'})
+]),
 
 
 @callback(
