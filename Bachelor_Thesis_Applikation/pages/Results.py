@@ -28,7 +28,10 @@ trace = go.Pie(
     hoverinfo= 'label+text+percent',  # Display label, percentage, and value on hover
     hovertemplate='%{label}: %{text} kWh (%{percent})',  # Customize the hover template
     name='',  # Empty string for the trace name
-    textfont=dict(size=13, family='Arial'),
+    # insidetextfont=dict(color='black', size=13, family='Arial'),  # Set the color and size of the labels outside the pie
+    textfont=dict(color='black', size=13, family='Arial'),
+    # textfont=dict(size=13, family='Arial',),
+    # marker=dict(colors=['#FF0000', '#00FF00', '#0000FF'])  # Set the colors of the trace
 )
 
 
@@ -36,7 +39,7 @@ trace = go.Pie(
 
 # Create layout for the chart
 chart_layout = go.Layout(
-    title='Kreisdiagramm des jährlichen Stromverbrauchs der Liegenschaften (kWh)',
+    title='<b>Kreisdiagramm des jährlichen Stromverbrauchs der Liegenschaften (kWh)</b>',
     title_font=dict(size=18, color='black', family='Arial'),
     title_x=0.5,  # Center the title horizontally
     title_y=0.9,  # Adjust the vertical position of the title
@@ -48,17 +51,23 @@ chart_layout = go.Layout(
             x=0.5,
             y=-0.15,
             showarrow=False,
-            font=dict(size=15),
+            font=dict(size=17, color='black', family='Arial'),
             align='center'
         )
     ],
     paper_bgcolor='rgba(0,0,0,0)',  # Set the background of the entire chart to transparent
-    # plot_bgcolor='rgba(0,0,0,0)'  # Set the background of the plot area to transparent
+    plot_bgcolor='rgba(0,0,0,0)',  # Set the background of the plot area to transparent
+    # outsidetextfont=dict(color='black', size=13, family='Arial')  # Set the color and size of the labels outside the pie
 )
 
 
 # Create figure using the trace and layout
 figure = go.Figure(data=[trace], layout=chart_layout)
+
+# # Customize the CSS style for the chart
+# figure.update_layout(
+#     plotly_html_template='<style>.glabel {fill: black !important;}</style>{plotly_html}'
+# )
 
 
 # Define the layout of the Dash application

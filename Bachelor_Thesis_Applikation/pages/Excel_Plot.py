@@ -10,6 +10,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import pickle # to save the import_excel Data from the Excel-file into a binary pickle file
+import scipy.stats as stats # for the normal distribution
 
 # import cProfile # to profile the code and see where it takes the most time
 
@@ -17,7 +18,7 @@ from flask_caching import Cache
 
 
 
-dash.register_page(__name__, path='/excel-plotting', name='Excel-Plotting', order=3) # is a subpage of the home page
+dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=3) # is a subpage of the home page
 
 # Define the layout for the home page
 # home_page_layout = html.Div([
@@ -28,9 +29,10 @@ layout = html.Div([
     # html.A('Open PDF', href='/pdf')
 ])
 
+filename_excel = "BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
+filename_user = "Riedgrabenstrasse 5/7/9/11/13"
 
-
-import_excel = pickle.load(open("BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle", "rb"))
+import_excel = pickle.load(open(filename_excel, "rb"))
 
 columns_available = import_excel.columns.tolist()
 
@@ -153,7 +155,7 @@ layout = html.Div(children=[
         persistence=True,
         persistence_type='session',
         inline=True,
-        style={'color': 'blue', 'font-size': '10px'}
+        style={'color': 'blue', 'font-size': '10px','opacity': '0.8'}
     ),
     html.Br(),
 
@@ -183,7 +185,7 @@ layout = html.Div(children=[
 )
 def display_selected_dates(selected_date_range, stored_data):
     start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
-    return html.Div(f"Selected Date Range: {start_date.strftime('%d-%m-%Y')} to {end_date.strftime('%d-%m-%Y')}", style={'color': 'black', 'fontWeight': 'bold', 'fontSize': '20px'})
+    return html.Div(f"Zeitbereich von: {start_date.strftime('%d-%m-%Y')} bis {end_date.strftime('%d-%m-%Y')} für {filename_user}", style={'color': 'black', 'fontWeight': 'bold', 'fontSize': '20px'})
 
 
 # Define the callbacks
@@ -261,12 +263,62 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
             bordercolor='rgba(100, 100, 200, 0.5)',  # Make the legend border transparent
             borderwidth=2,  # Make the legend border width 1
             ),
-            plot_bgcolor='white',
-            paper_bgcolor='white'
+            plot_bgcolor='rgba(255, 255, 255, 0.2)',  # Set the plot background to 20% opaque white
+            paper_bgcolor='rgba(255, 255, 255, 0.2)'  # Set the paper (outside plot) background to 20% opaque white
+    
+            # plot_bgcolor='white',
+            # paper_bgcolor='white'
         )
     }
 
     if len(selected_columns) == 1:
+
+        column = selected_columns[0]
+
+        # # Calculate the parameters of the normal distribution
+        # mu, sigma = stats.norm.fit(filtered_data_columns)
+
+        # # Calculate the x-values for the normal distribution within the selected date range
+        # x_norm = np.linspace(min(filtered_data_columns), max(filtered_data_columns), len(filtered_data_dates))
+
+        # # Calculate the y-values for the normal distribution within the selected date range
+        # y_norm = stats.norm.pdf(x_norm, mu, sigma)
+
+        # # Scale the y-values to fill the entire plot area
+        # y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
+
+            
+        # # # Additional code for adding normal distribution trace
+        # # mu, sigma = stats.norm.fit(filtered_data_columns[column])
+        # # x_norm = np.linspace(min(filtered_data_columns[column]), max(filtered_data_columns[column]), len(filtered_data_dates))
+        # # y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
+        # normal_distribution_trace = go.Scatter(
+        #     x=x_norm,
+        #     y=y_norm_scaled,
+        #     mode='lines',
+        #     line=dict(color='red', width=2),
+        #     name=f'{column}-Normalverteilung',
+        #     visible='legendonly',
+        #     fill='tozeroy'  # Fill the area under the curve
+        # )
+        # figure['data'].append(normal_distribution_trace)
+
+        # # Add normal distribution fill trace
+        # fill_trace = go.Scatter(
+        #     x=np.concatenate([x_norm, x_norm[::-1]]),
+        #     y=np.concatenate([y_norm, np.zeros_like(y_norm)]),
+        #     mode='lines',
+        #     fill='tozeroy',
+        #     fillcolor='rgba(255, 0, 0, 0.2)',
+        #     line=dict(color='rgba(0, 0, 0, 0)'),
+        #     name='Normalverteilung (Fläche)',
+        #     visible='legendonly',
+        #     # showlegend=False
+        # )
+        # figure['data'].append(fill_trace)
+
+        # Additional code for adding other distribution traces as desired
+
         # Add average line for single column plot
         column = selected_columns[0]
         average_value = np.mean(filtered_data_columns[column])
@@ -398,3 +450,28 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 #         return '/'
 #     else:
 #         return current_pathname
+
+
+# When working with 15-minute energy consumption, solar energy production, battery, and export/import data over a whole year, there are several statistical analysis and data exploration techniques you can consider. Here are some options:
+
+# 1. Time Series Analysis: Perform time series analysis to identify patterns, trends, and seasonality in the data. You can use techniques such as decomposition, autocorrelation analysis, and spectral analysis to gain insights into the temporal behavior of the energy data.
+
+# 2. Descriptive Statistics: Calculate descriptive statistics such as mean, median, variance, and standard deviation to summarize the central tendency, variability, and distribution of the energy data. This can provide insights into the average energy consumption, production, and fluctuations over the year.
+
+# 3. Data Visualization: Create various plots and charts to visualize the energy data. Line plots, area plots, and stacked area plots can show the energy consumption, production, and other variables over time. Heatmaps can display patterns and correlations between different variables. Box plots can provide information about the distribution and variability of the data.
+
+# 4. Correlation Analysis: Calculate correlation coefficients between different energy variables (e.g., consumption and production) to examine their relationships. Scatter plots can help visualize the correlation and identify any linear or nonlinear associations.
+
+# 5. Seasonal Analysis: Perform seasonal analysis to identify recurring patterns or cycles in the energy data. This can involve techniques such as seasonal decomposition of time series, seasonal subseries plots, and seasonal indices.
+
+# 6. Forecasting: Use time series forecasting methods (e.g., ARIMA, SARIMA, or exponential smoothing models) to predict future energy consumption, production, or other relevant variables. This can assist in capacity planning, demand management, and decision-making.
+
+# 7. Anomaly Detection: Apply anomaly detection algorithms to identify unusual or anomalous energy consumption or production patterns. This can help detect energy efficiency issues, equipment malfunctions, or unusual events that require attention.
+
+# 8. Energy Balance Analysis: Analyze the energy balance between consumption, production, battery storage, and export/import to assess energy self-sufficiency, grid interaction, and overall energy management.
+
+# 9. Regression Analysis: Perform regression analysis to understand the relationship between energy consumption/production and other factors such as weather variables, time of day, or occupancy. This can help identify significant predictors and quantify their impact on energy usage.
+
+# 10. Data Mining and Machine Learning: Apply data mining and machine learning techniques to discover hidden patterns, build predictive models, and uncover insights from the energy data. This could involve clustering analysis, decision trees, random forests, or neural networks.
+
+# It's important to select the appropriate techniques based on the specific goals, characteristics of the data, and the insights you want to gain. Consider the data's temporal nature, correlations, trends, and seasonality when choosing the best options for analysis.

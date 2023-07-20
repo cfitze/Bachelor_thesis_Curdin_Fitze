@@ -133,22 +133,29 @@ expensive_computation()
 
 
 sidebar = dbc.Nav(
+    [
+        dbc.NavLink(
             [
-                dbc.NavLink(
-                    [
-                        html.Div(page["name"], className="ms-2"),
-                    ],
-                    href=page["path"],
-                    active="exact",
-                )
-                for page in dash.page_registry.values()
+                html.Div(
+                    page["name"],
+                    className="ms-2",
+                    style={
+                        "font-weight": "bold",
+                        "font-size": "20px",
+                    },
+                ),
             ],
-            vertical=True,
-            pills=True,
-            className="bg-transparent",
+            href=page["path"],
+            active="exact",
+        )
+        for page in dash.page_registry.values()
+    ],
+    vertical=True,
+    pills=True,
+    className="bg-transparent",
 )
 
-
+#excel plotting en german is "Plotten"
 
 app.layout = dbc.Container(
     [
@@ -176,12 +183,29 @@ app.layout = dbc.Container(
             dbc.Col(
                 [
                     sidebar
-                ], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
+                ], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2,
+                style={
+                    "position": "fixed",  # Fix the position
+                    "top": "100px",  # Position below the title
+                    "left": "0",  # Position at the left
+                    "height": "calc(100vh - 100px)",  # Take full height minus title height
+                    "overflowY": "auto",  # Enable vertical scrolling
+                    "zIndex": "999",  # Set a high z-index to keep it on top
+                    },
 
+            ),
             dbc.Col(
                 [
                     dash.page_container
-                ], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10)
+                ],
+                # xs=12, sm=12, md=9, lg=10, xl=10, xxl=10,  # Adjust the column widths
+                xs=8, sm=8, md=10, lg=10, xl=10, xxl=10,  # Adjust the column widths
+                style={
+                    "marginLeft": "15%",  # Add left margin to accommodate the sidebar width
+                },
+                
+                
+            )
         ]
     ),
 
