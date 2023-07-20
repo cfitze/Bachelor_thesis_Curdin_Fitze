@@ -79,7 +79,7 @@ figure.update_layout(legend_font_size=13)
 # #set font weight of legend
 # figure.update_layout(legend_font_weight="bold")
   
-figure.show()
+# figure.show()
 
 # # Customize the CSS style for the chart
 # figure.update_layout(
