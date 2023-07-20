@@ -138,7 +138,7 @@ layout = html.Div(
                                     html.Tr([
                                         html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
                                         html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
-                                        # html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                                        html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
                                     ]),
                                 ]
                             ),
@@ -166,7 +166,7 @@ layout = html.Div(
                                         children=[
                                             dl.TileLayer(url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
                                             dl.Marker(
-                                                position=[47.462, 8.5195],
+                                                position=[47.46135, 8.51967],
                                                 children=[
                                                     dl.Tooltip(
                                                         children=[
@@ -200,32 +200,32 @@ layout = html.Div(
 def update_table1(option):
     options_data1 = {
         '5': [
-            ['Solarmodule', 'Longi Solar 440 Wp'],
-            ['Inverter', '31.5'],
-            ['Batterie', '9.1'],
-            ['MWh/Jahr', '24.8'],
-            ['kWp', '23.9']
+            ['Solarmodule', 'Longi Solar 440 Wp','1'],
+            ['Inverter', '31.5','1'],
+            ['Batterie', '9.1','1'],
+            ['MWh/Jahr', '24.8','1'],
+            ['kWp', '23.9','1']
         ],
         '7_9_11': [
-            ['Solarmodule', 'Longi Solar 440 Wp'],
-            ['Inverter', 'X'],
-            ['Batterie', '!'],
-            ['MWh/Jahr', 'A'],
-            ['kWp', '1']
+            ['Solarmodule', 'Longi Solar 440 Wp','1'],
+            ['Inverter', 'X','1'],
+            ['Batterie', '!','1'],
+            ['MWh/Jahr', 'A','1'],
+            ['kWp', '1','1']
         ],
         '13': [
-            ['Solarmodule', 'Longi Solar 440 Wp'],
-            ['Inverter', '!'],
-            ['Batterie', '1'],
-            ['MWh/Jahr', 'X'],
-            ['kWp', '5']
+            ['Solarmodule', 'Longi Solar 440 Wp','1'],
+            ['Inverter', '!','1'],
+            ['Batterie', '1','1'],
+            ['MWh/Jahr', 'X','1'],
+            ['kWp', '5','1']
         ],
         '5_7_9_11_13': [
-            ['Solarmodule', 'Longi Solar 440 Wp'],
-            ['Inverter', '5'],
-            ['Batterie', 'A'],
-            ['MWh/Jahr', '1'],
-            ['kWp', 'X']
+            ['Solarmodule', 'Longi Solar 440 Wp','1'],
+            ['Inverter', '5','1'],
+            ['Batterie', 'A','1'],
+            ['MWh/Jahr', '1','1'],
+            ['kWp', 'X','1']
         ]
     }
     
@@ -235,7 +235,7 @@ def update_table1(option):
         html.Tr([
             html.Th('Art der Komponenten', style={'border': '2px solid black', 'padding': '8px'}),
             html.Th('Komponenten', style={'border': '2px solid black', 'padding': '8px'}),
-            # html.Th('Mit Batterie', style={'border': '2px solid black', 'padding': '8px'})
+            html.Th('Anzahl', style={'border': '2px solid black', 'padding': '8px'})
         ]),
         *[html.Tr([
             html.Td(

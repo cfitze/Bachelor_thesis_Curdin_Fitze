@@ -20,15 +20,7 @@ from flask_caching import Cache
 
 dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=5) # is a subpage of the home page
 
-# Define the layout for the home page
-# home_page_layout = html.Div([
-    
-layout = html.Div([
-    html.H1('Bachelor Thesis Curdin Fitze'),
-    html.P('Willkommen auf der Startseite der Bachelor Thesis von Curdin Fitze / Testing.'),
-    # html.A('Open PDF', href='/pdf')
-])
-
+# Create a cache object and do some initial calculations
 filename_excel = "BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
 filename_user = "Riedgrabenstrasse 5/7/9/11/13"
 
@@ -102,7 +94,9 @@ layout = html.Div(children=[
         children=[
             html.Div(
                 children=[
-                    html.H1('Interactive Plotting', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'})
+                    html.H1('Interactive Plotting', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
+                    html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", style={'textAlign': 'center','fontSize': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
+                    
                 ],
                 style={'textAlign': 'center'}
             )
@@ -275,23 +269,24 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 
         column = selected_columns[0]
 
-        # # Calculate the parameters of the normal distribution
-        # mu, sigma = stats.norm.fit(filtered_data_columns)
+        # Calculate the parameters of the normal distribution
+        mu, sigma = stats.norm.fit(filtered_data_columns)
 
-        # # Calculate the x-values for the normal distribution within the selected date range
-        # x_norm = np.linspace(min(filtered_data_columns), max(filtered_data_columns), len(filtered_data_dates))
+        # Calculate the x-values for the normal distribution within the selected date range
+        x_norm = np.linspace(min(filtered_data_columns), max(filtered_data_columns), len(filtered_data_dates))
 
-        # # Calculate the y-values for the normal distribution within the selected date range
-        # y_norm = stats.norm.pdf(x_norm, mu, sigma)
+        # Calculate the y-values for the normal distribution within the selected date range
+        y_norm = stats.norm.pdf(x_norm, mu, sigma)
 
-        # # Scale the y-values to fill the entire plot area
-        # y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
+        # Scale the y-values to fill the entire plot area
+        y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
 
-            
-        # # # Additional code for adding normal distribution trace
-        # # mu, sigma = stats.norm.fit(filtered_data_columns[column])
-        # # x_norm = np.linspace(min(filtered_data_columns[column]), max(filtered_data_columns[column]), len(filtered_data_dates))
-        # # y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
+        # # Additional code for adding normal distribution trace
+
+        mu, sigma = stats.norm.fit(filtered_data_columns[column])
+        x_norm = np.linspace(min(filtered_data_columns[column]), max(filtered_data_columns[column]), len(filtered_data_dates))
+        y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
+
         # normal_distribution_trace = go.Scatter(
         #     x=x_norm,
         #     y=y_norm_scaled,

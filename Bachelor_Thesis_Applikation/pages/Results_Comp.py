@@ -9,7 +9,7 @@ import locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
 
 
-dash.register_page(__name__, path='/resultate-vergleichen', name='Resultate vergleichen', order=2) # is a subpage of the home page
+dash.register_page(__name__, path='/resultate-vergleichen', name='Resultate vergleichen', order=2) # '/' is the home page for this app
 
 
 # Define the layout for Results_Compare page
