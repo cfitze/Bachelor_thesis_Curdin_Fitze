@@ -5,7 +5,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 
 
-dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', order=4) # is a subpage of the home page
+dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', order=5) # is a subpage of the home page
 
 
 # Define the layout for the PDF page

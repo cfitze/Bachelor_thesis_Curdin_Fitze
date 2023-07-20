@@ -5,7 +5,7 @@ import dash_leaflet as dl
 import json
 
 # Register the subpage Physikalischer Aufbau
-dash.register_page(__name__, path='/aufbau', name='Physikalischer Aufbau', order=2)  # is a subpage of the home page
+dash.register_page(__name__, path='/aufbau', name='Physikalischer Aufbau', order=3)  # is a subpage of the home page
 
 # Define the layout for this page
 layout = html.Div([
@@ -38,10 +38,10 @@ layout = html.Div([
                     html.Div(
                         [
                         html.Button(
-                            html.Span(className='far fa-chevron-left', style={'margin-right': '10px', 'color': 'black', 'font-size': '20px'}),
+                            html.Span(className='far fa-chevron-left', style={'margin-right': '10px', 'color': 'black', 'font-size': '20px', 'background-color': 'transparent'}),
                             id='previous-button',
                             n_clicks=0,
-                            style={'display': 'inline-block', 'color': 'white', 'background-color': 'transparent', 'border': 'none'}
+                            style={'display': 'inline-block', 'color': 'black', 'border': 'none'}
                         ),
                         html.Span('Standort', style={'margin-right': '20px', 'font-size': '15px', 'font-weight': 'bold', 'color': 'white'}),
                         html.Span('Aufbau', style={'margin-left': '20px','font-size': '15px', 'color': 'white', 'font-weight': 'bold'}),

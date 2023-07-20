@@ -141,7 +141,7 @@ sidebar = dbc.Nav(
                     className="ms-2",
                     style={
                         "font-weight": "bold",
-                        "font-size": "20px",
+                        "font-size": "18px",
                     },
                 ),
             ],
@@ -201,7 +201,7 @@ app.layout = dbc.Container(
                 # xs=12, sm=12, md=9, lg=10, xl=10, xxl=10,  # Adjust the column widths
                 xs=8, sm=8, md=10, lg=10, xl=10, xxl=10,  # Adjust the column widths
                 style={
-                    "marginLeft": "15%",  # Add left margin to accommodate the sidebar width
+                    "marginLeft": "16%",  # Add left margin to accommodate the sidebar width
                 },
                 
                 

@@ -12,7 +12,7 @@ locale.setlocale(locale.LC_ALL, 'de_CH')
 dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the home page fo this app
 
 # Load data later from the Excel file from Solextron
-labels_yearly_consumption = ['Riedgrabenstrasse 5', 'Riedgrabenstrasse 7/9/11','Riedgrabenstrasse 13']
+labels_yearly_consumption = ['<b>Riedgrabenstrasse 5</b>', '<b>Riedgrabenstrasse 7/9/11</b>','<b>Riedgrabenstrasse 13</b>']
 values_yearly_consumption = [35300, 13100, 42000]
 
 
@@ -23,31 +23,37 @@ values_yearly_consumption_formatted = [locale.format('%.0f', value, grouping=Tru
 trace = go.Pie(
     labels=labels_yearly_consumption,
     values=values_yearly_consumption,
-    text=values_yearly_consumption_formatted,  # Use the formatted values as labels
+    text=[f'<span style="font-weight:bold;">{value}</span>' for value in values_yearly_consumption_formatted],  # Apply CSS styling to make the numbers bold
     textinfo='percent+text',  # Display label, percentage, and value
     hoverinfo= 'label+text+percent',  # Display label, percentage, and value on hover
     hovertemplate='%{label}: %{text} kWh (%{percent})',  # Customize the hover template
     name='',  # Empty string for the trace name
+    hole=0.2,  # Create a donut chart
+    marker=dict(line=dict(color='#000000', width=1.5)), # Set the colors of the trace and the width of the border
+    # pull=[0.2, 0.2, 0.2],
     # insidetextfont=dict(color='black', size=13, family='Arial'),  # Set the color and size of the labels outside the pie
-    textfont=dict(color='black', size=13, family='Arial'),
+    textfont=dict(color='black', size=15, family='Arial'),
+    
+    # textfont=dict(color='black', size=15, family='Arial', weight='bold'),  # Set the color, size, font family, and weight of the labels
     # textfont=dict(size=13, family='Arial',),
     # marker=dict(colors=['#FF0000', '#00FF00', '#0000FF'])  # Set the colors of the trace
 )
 
-
-
-
 # Create layout for the chart
 chart_layout = go.Layout(
     title='<b>Kreisdiagramm des jährlichen Stromverbrauchs der Liegenschaften (kWh)</b>',
-    title_font=dict(size=18, color='black', family='Arial'),
+    title_font=dict(size=17, color='black', family='Arial'),
     title_x=0.5,  # Center the title horizontally
     title_y=0.9,  # Adjust the vertical position of the title
     showlegend=True,
-    legend=dict(font=dict(size=15), orientation='h', x=0, y=-0.15),
+    legend=dict(orientation='h', x=0, y=-0.15),
+    # style={'legend': {'font-size': '15px', 'font-weight': 'bold', 'color': 'blue'}}, # Set the font size and color of the legend
+    # legend=dict(font=dict(color='black'), orientation='h', x=0, y=-0.15),
+    # legend=dict(orientation='h', x=0, y=-0.15, font=dict(size=15, weight='bold')),
+
     annotations=[
         dict(
-            text=f'<b>Summe: {locale.format("%.0f", sum(values_yearly_consumption), grouping=True)} kWh</b>',
+            text=f'<b>Summe: {locale.format("%.0f", sum(values_yearly_consumption), grouping=True)} kWh (5/7/9/11/13 zusammen)</b>',
             x=0.5,
             y=-0.15,
             showarrow=False,
@@ -63,6 +69,17 @@ chart_layout = go.Layout(
 
 # Create figure using the trace and layout
 figure = go.Figure(data=[trace], layout=chart_layout)
+
+# set legend color
+figure.update_layout(legend_font_color="black")
+  
+# set font size of legend
+figure.update_layout(legend_font_size=13)
+
+# #set font weight of legend
+# figure.update_layout(legend_font_weight="bold")
+  
+figure.show()
 
 # # Customize the CSS style for the chart
 # figure.update_layout(

@@ -18,7 +18,7 @@ from flask_caching import Cache
 
 
 
-dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=3) # is a subpage of the home page
+dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=4) # is a subpage of the home page
 
 # Define the layout for the home page
 # home_page_layout = html.Div([
@@ -257,10 +257,10 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
             barmode='group',
             title='Interactive Solextron Data Visualisation',
             margin=dict(l=0, r=0, t=40, b=0),
-            legend=dict(x=0, y=1.1, bgcolor='rgba(255, 255, 255, 0.8)',  # Make the legend background opaque
+            legend=dict(x=0, y=1.1, bgcolor='rgba(255, 255, 255, 0.4)',  # Make the legend background opaque
             # opacity=0.4,  # Make the legend entries semi-transparent
             font=dict(size=10),  # Change the legend text size to 14
-            bordercolor='rgba(100, 100, 200, 0.5)',  # Make the legend border transparent
+            bordercolor='rgba(100, 100, 200, 0.2)',  # Make the legend border transparent
             borderwidth=2,  # Make the legend border width 1
             ),
             plot_bgcolor='rgba(255, 255, 255, 0.2)',  # Set the plot background to 20% opaque white
