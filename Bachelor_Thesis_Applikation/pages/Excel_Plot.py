@@ -18,7 +18,7 @@ from flask_caching import Cache
 
 
 
-dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=4) # is a subpage of the home page
+dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=5) # is a subpage of the home page
 
 # Define the layout for the home page
 # home_page_layout = html.Div([
@@ -263,8 +263,8 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
             bordercolor='rgba(100, 100, 200, 0.2)',  # Make the legend border transparent
             borderwidth=2,  # Make the legend border width 1
             ),
-            plot_bgcolor='rgba(255, 255, 255, 0.2)',  # Set the plot background to 20% opaque white
-            paper_bgcolor='rgba(255, 255, 255, 0.2)'  # Set the paper (outside plot) background to 20% opaque white
+            plot_bgcolor='rgba(255, 255, 255, 0.3)',  # Set the plot background to 20% opaque white
+            paper_bgcolor='rgba(255, 255, 255, 0.3)'  # Set the paper (outside plot) background to 20% opaque white
     
             # plot_bgcolor='white',
             # paper_bgcolor='white'

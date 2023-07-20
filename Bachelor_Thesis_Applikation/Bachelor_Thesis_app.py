@@ -202,6 +202,7 @@ app.layout = dbc.Container(
                 xs=8, sm=8, md=10, lg=10, xl=10, xxl=10,  # Adjust the column widths
                 style={
                     "marginLeft": "16%",  # Add left margin to accommodate the sidebar width
+                    "marginRight": "5%",  # Add right margin to accommodate the sidebar width
                 },
                 
                 

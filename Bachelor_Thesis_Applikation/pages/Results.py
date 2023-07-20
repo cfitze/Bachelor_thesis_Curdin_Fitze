@@ -8,13 +8,12 @@ import locale
 # Set the locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
 
-
+#register the page Resultate
 dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the home page fo this app
 
 # Load data later from the Excel file from Solextron
 labels_yearly_consumption = ['<b>Riedgrabenstrasse 5</b>', '<b>Riedgrabenstrasse 7/9/11</b>','<b>Riedgrabenstrasse 13</b>']
 values_yearly_consumption = [35300, 13100, 42000]
-
 
 # Format the values with the thousands separator
 values_yearly_consumption_formatted = [locale.format('%.0f', value, grouping=True) for value in values_yearly_consumption]
@@ -29,12 +28,10 @@ trace = go.Pie(
     hovertemplate='%{label}: %{text} kWh (%{percent})',  # Customize the hover template
     name='',  # Empty string for the trace name
     hole=0.2,  # Create a donut chart
-    marker=dict(line=dict(color='#000000', width=1.5)), # Set the colors of the trace and the width of the border
+    marker=dict(line=dict(color='#000000', width=1)), # Set the colors of the trace and the width of the border
     # pull=[0.2, 0.2, 0.2],
     # insidetextfont=dict(color='black', size=13, family='Arial'),  # Set the color and size of the labels outside the pie
     textfont=dict(color='black', size=15, family='Arial'),
-    
-    # textfont=dict(color='black', size=15, family='Arial', weight='bold'),  # Set the color, size, font family, and weight of the labels
     # textfont=dict(size=13, family='Arial',),
     # marker=dict(colors=['#FF0000', '#00FF00', '#0000FF'])  # Set the colors of the trace
 )
@@ -47,9 +44,7 @@ chart_layout = go.Layout(
     title_y=0.9,  # Adjust the vertical position of the title
     showlegend=True,
     legend=dict(orientation='h', x=0, y=-0.15),
-    # style={'legend': {'font-size': '15px', 'font-weight': 'bold', 'color': 'blue'}}, # Set the font size and color of the legend
     # legend=dict(font=dict(color='black'), orientation='h', x=0, y=-0.15),
-    # legend=dict(orientation='h', x=0, y=-0.15, font=dict(size=15, weight='bold')),
 
     annotations=[
         dict(
@@ -63,23 +58,15 @@ chart_layout = go.Layout(
     ],
     paper_bgcolor='rgba(0,0,0,0)',  # Set the background of the entire chart to transparent
     plot_bgcolor='rgba(0,0,0,0)',  # Set the background of the plot area to transparent
-    # outsidetextfont=dict(color='black', size=13, family='Arial')  # Set the color and size of the labels outside the pie
 )
-
 
 # Create figure using the trace and layout
 figure = go.Figure(data=[trace], layout=chart_layout)
-
 # set legend color
-figure.update_layout(legend_font_color="black")
-  
+figure.update_layout(legend_font_color="black") 
 # set font size of legend
 figure.update_layout(legend_font_size=13)
 
-# #set font weight of legend
-# figure.update_layout(legend_font_weight="bold")
-  
-# figure.show()
 
 # # Customize the CSS style for the chart
 # figure.update_layout(
@@ -105,9 +92,19 @@ layout = html.Div(children=[
             ],
             value='option1',
             clearable=False,  # This will disable the clearable 'x' option
-            style={'color': 'black','font-weight': 'bold', 'font-size': '16px','width': '270px', 'margin-right': '20px', 'margin-top': '30px','background-color': 'transparent'},
+            style={'color': 'black','font-weight': 'bold', 'font-size': '16px','width': '270px', 'margin-right': '20px', 'margin-top': '30px',
+                #    'background-color': 'rgba(255, 255, 255, 0.8)'  # Set the background color to opaque white
+                   'background-color': 'transparent'
+                },
 
         ),
+        # html.Script(
+        #     """
+        #     document.getElementById('dropdown').addEventListener('click', function() {
+        #         this.style.backgroundColor = 'black';
+        #     });
+        #     """
+        # ),
         html.Div( 
             id='table-container',
             children=[
@@ -192,9 +189,9 @@ def update_table1(option):
     
     table_rows1 = [
         html.Tr([
-            html.Th('Solextron Simulationsdaten', style={'border': '1px solid black', 'padding': '8px'}),
-            html.Th('Ohne Batterie', style={'border': '1px solid black', 'padding': '8px'}),
-            html.Th('Mit Batterie', style={'border': '1px solid black', 'padding': '8px'})
+            html.Th('Solextron Simulationsdaten', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Ohne Batterie', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Mit Batterie', style={'border': '2px solid black', 'padding': '8px'})
         ]),
         *[html.Tr([
             html.Td(
@@ -250,9 +247,9 @@ def update_table2(option):
 
     table_rows2 = [
         html.Tr([
-            html.Th('Kosten aus der Simulation', style={'border': '1px solid black', 'padding': '8px'}),
-            html.Th('Ohne Batterie', style={'border': '1px solid black', 'padding': '8px'}),
-            html.Th('Mit Batterie', style={'border': '1px solid black', 'padding': '8px'})
+            html.Th('Kosten aus der Simulation', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Ohne Batterie', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Mit Batterie', style={'border': '2px solid black', 'padding': '8px'})
         ]),
         *[html.Tr([
             html.Td(

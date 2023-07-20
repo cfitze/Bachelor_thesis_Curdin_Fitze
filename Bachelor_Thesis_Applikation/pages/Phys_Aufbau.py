@@ -3,114 +3,252 @@ from dash import dcc, html, callback, Output, Input
 import plotly.graph_objs as go
 import dash_leaflet as dl
 import json
+import dash_bootstrap_components as dbc
 
 # Register the subpage Physikalischer Aufbau
 dash.register_page(__name__, path='/aufbau', name='Physikalischer Aufbau', order=3)  # is a subpage of the home page
 
 # Define the layout for this page
-layout = html.Div([
-    html.Div([
-        html.H1("Physikalischer Aufbau der Liegenschafen",
-                style={"text-align": "center", 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
-        html.P("Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.",
-               style={"text-align": "left"})
-    ], style={"margin": "auto", "width": "50%"}),  # Centered text
-    html.Div([
-        html.Div([
-            dcc.Dropdown(
-                id='dropdown',
-                options=[
-                    {'label': 'Riedgrabenstrasse 5', 'value': '5'},
-                    {'label': 'Riedgrabenstrasse 7/9/11', 'value': '7_9_11'},
-                    {'label': 'Riedgrabenstrasse 13', 'value': '13'},
-                    {'label': 'Riedgrabenstrasse 5/7/9/11/13', 'value': '5_7_9_11_13'}
-                ],
-                value='5',
-                clearable=False,
-                style={'color': 'black', 'font-weight': 'bold', 'font-size': '16px',
-                       'width': '270px', 'margin-right': '20px', 'margin-top': '20px', 'background-color': 'transparent'}
-            ),
-            html.Div(
-                id='image-slider-container',
-                children=[
-                    html.Img(id='image1', style={'max-width': '100%'}),
-                    html.Img(id='image2', style={'max-width': '100%'}),
+layout = html.Div(
+    [
+        html.Div(
+            [
+                html.H1(
+                    "Physikalischer Aufbau der Liegenschafen",
+                    style={"text-align": "center", "font-size": "35px", "font-weight": "bold", "font-family": "Arial"},
+                ),
+                html.P(
+                    "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.",
+                    style={"text-align": "left"},
+                ),
+            ],
+            style={"margin": "auto", "width": "100%", "text-align": "center"},
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
                     html.Div(
                         [
-                         html.Button(
-                            html.Span(className='arrow-button', children=['➜']),
-                            id='previous-button',
-                            title = 'Zeige den Standort im Bild',
-                            style={
-                                'font-size': '35px',
-                                'font-weight': 'bold',
-                                "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
-                                "transition": "background-color 0.3s ease-in-out",
-                                'padding': '25px 25px',
-                                'background-color': 'transparent',
-                                'color': 'black',
-                                'border': 'none',
-                                'border-radius': '10px',
-                                'cursor': 'pointer',
-                                'transform': 'rotate(180deg)',
-                            }
-                        ),
-                        html.Span('Standort', style={'margin-left': '20px', 'margin-right': '20px', 'font-size': '17px', 'font-weight': 'bold', 'color': 'white'}),
-                        html.Span('Aufbau', style={'margin-left': '20px', 'margin-right': '20px', 'font-size': '17px', 'color': 'white', 'font-weight': 'bold'}),
-
-                        html.Button(
-                            html.Span(className='arrow-button', children=['➜']),
-                            id='next-button',
-                            title = 'Zeige den Aufbau im Bild',
-                            style={
-                                'font-size': '35px',
-                                'font-weight': 'bold',
-                                "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
-                                "transition": "background-color 0.3s ease-in-out",
-                                'padding': '25px 25px',
-                                'background-color': 'transparent',
-                                'color': 'black',
-                                'border': 'none',
-                                'border-radius': '2px',
-                                'cursor': 'pointer',
-                            }
-                        )                   
-                        ],
-                        style={"text-align": "center",'margin-top': '10px'}
-                    )
-                ],
-                style={'margin-top': '15px'}
-            )
-
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '50%'}),
-        html.Div([
-            dl.Map(
-                id='map',
-                center=[47.4617372, 8.5202995],
-                zoom=15,
-                style={'width': '90%', 'height': '400px', 'margin-top': '20px'},
-                children=[
-                    dl.TileLayer(url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-                    dl.Marker(
-                        position=[47.462, 8.5195],
-                        children=[
-                            dl.Tooltip(
-                                children=[
-                                    html.Div(
-                                        "Riedgrabenstrasse 5/7/9/11/13, 8153 Rümlang",
-                                        className="custom-tooltip",
-                                        style={'font-size': '12px', 'font-weight': 'bold'}
-                                    )
+                            dcc.Dropdown(
+                                id="dropdown",
+                                options=[
+                                    {"label": "Riedgrabenstrasse 5", "value": "5"},
+                                    {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
+                                    {"label": "Riedgrabenstrasse 13", "value": "13"},
+                                    {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
                                 ],
-                                permanent=True
-                            )
+                                value="5",
+                                clearable=False,
+                                style={
+                                    "color": "black",
+                                    "font-weight": "bold",
+                                    "font-size": "16px",
+                                    "width": "270px",
+                                    "margin-right": "20px",
+                                    "margin-top": "20px",
+                                    "background-color": "transparent",
+                                },
+                            ),
+                            html.Div(
+                                id="image-slider-container",
+                                children=[
+                                    html.Img(id="image1", style={"max-width": "100%"}),
+                                    html.Img(id="image2", style={"max-width": "100%"}),
+                                    html.Div(
+                                        [
+                                            html.Button(
+                                                html.Span(className="arrow-button", children=["\u2190"], style={'font-size': '30px', 'font-weight': 'bold'}),
+                                                id="previous-button",
+                                                title="Zeige den Standort im Bild",
+                                                style={
+                                                    "font-size": "50px",
+                                                    "font-weight": "bold",
+                                                    "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                                                    "transition": "background-color 0.3s ease-in-out",
+                                                    "padding": "25px 25px",
+                                                    "background-color": "transparent",
+                                                    "color": "black",
+                                                    "border": "none",
+                                                    "border-radius": "1px",
+                                                    "cursor": "pointer",
+                                                    "transform": "rotate(180deg)",
+                                                },
+                                            ),
+                                            html.Span(
+                                                "Standort",
+                                                style={
+                                                    "margin-left": "20px",
+                                                    "margin-right": "20px",
+                                                    "font-size": "17px",
+                                                    "font-weight": "bold",
+                                                    "color": "white",
+                                                },
+                                            ),
+                                            html.Span(
+                                                "Aufbau",
+                                                style={
+                                                    "margin-left": "20px",
+                                                    "margin-right": "20px",
+                                                    "font-size": "17px",
+                                                    "color": "white",
+                                                    "font-weight": "bold",
+                                                },
+                                            ),
+                                            html.Button(
+                                                html.Span(className="arrow-button", children=["\u2192"], style={'font-size': '30px', 'font-weight': 'bold'}),
+                                                id="next-button",
+                                                title="Zeige den Aufbau im Bild",
+                                                style={
+                                                    "font-size": "50px",
+                                                    "font-weight": "bold",
+                                                    "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                                                    "transition": "background-color 0.3s ease-in-out",
+                                                    "padding": "25px 25px",
+                                                    "background-color": "transparent",
+                                                    "color": "black",
+                                                    "border": "none",
+                                                    "border-radius": "1px",
+                                                    "cursor": "pointer",
+                                                },
+                                            ),
+                                        ],
+                                        style={"text-align": "center", "margin-top": "10px"},
+                                    ),
+                                ],
+                                style={"margin-top": "15px"},
+                            ),
                         ]
-                    )
-                ]
-            )
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '40%', 'margin-right': '5px'}),
-    ], style={'text-align': 'left'})
-])
+                    ),
+                    width=5,
+                ),
+                dbc.Col(
+                    html.Div(
+                        id='table-container-phys',
+                        children=[
+                            html.Table(
+                                id='table-components',
+                                style={
+                                    'border': '1px solid black',
+                                    'border-collapse': 'collapse',
+                                    'width': '100%',
+                                    'margin': 'auto',
+                                    'margin-top': '20%'
+                                },
+                                children=[
+                                    html.Tr([
+                                        html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
+                                        html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
+                                        # html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                                    ]),
+                                ]
+                            ),
+                        ],
+                        style={'overflow': 'auto'}
+                    ),
+                    width=3,
+                ),
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.P("Standort der Solaranlage in Rümlang.", style={"text-align": "center", "font-weight": "bold", "font-size": "16px", "font-family": "Arial"}),
+                                ],
+                                style={"margin": "auto", "width": "50%", "margin-top":"15px"},  # Centered text
+                            ),
+                            html.Div(
+                                [
+                                    dl.Map(
+                                        id="map",
+                                        center=[47.4617372, 8.5202995],
+                                        zoom=15,
+                                        style={"width": "90%", "height": "400px", "margin-top": "15px", "margin-right": "5%"},
+                                        children=[
+                                            dl.TileLayer(url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
+                                            dl.Marker(
+                                                position=[47.462, 8.5195],
+                                                children=[
+                                                    dl.Tooltip(
+                                                        children=[
+                                                            html.Div(
+                                                                "Riedgrabenstrasse 5/7/9/11/13, 8153 Rümlang",
+                                                                className="custom-tooltip",
+                                                                style={"font-size": "12px", "font-weight": "bold"},
+                                                            )
+                                                        ],
+                                                        permanent=True,
+                                                    )
+                                                ],
+                                            ),
+                                        ],
+                                    )
+                                ]
+                            ),
+                        ],
+                        # width=4,
+                    ), width=4,
+                ),
+            ]
+        ),
+    ]
+)
+
+@callback(
+    Output('table-components', 'children'),
+    Input('dropdown', 'value')
+)
+def update_table1(option):
+    options_data1 = {
+        '5': [
+            ['Solarmodule', 'Longi Solar 440 Wp'],
+            ['Inverter', '31.5'],
+            ['Batterie', '9.1'],
+            ['MWh/Jahr', '24.8'],
+            ['kWp', '23.9']
+        ],
+        '7_9_11': [
+            ['Solarmodule', 'Longi Solar 440 Wp'],
+            ['Inverter', 'X'],
+            ['Batterie', '!'],
+            ['MWh/Jahr', 'A'],
+            ['kWp', '1']
+        ],
+        '13': [
+            ['Solarmodule', 'Longi Solar 440 Wp'],
+            ['Inverter', '!'],
+            ['Batterie', '1'],
+            ['MWh/Jahr', 'X'],
+            ['kWp', '5']
+        ],
+        '5_7_9_11_13': [
+            ['Solarmodule', 'Longi Solar 440 Wp'],
+            ['Inverter', '5'],
+            ['Batterie', 'A'],
+            ['MWh/Jahr', '1'],
+            ['kWp', 'X']
+        ]
+    }
+    
+    data1 = options_data1.get(option, [])
+    
+    table_rows1 = [
+        html.Tr([
+            html.Th('Art der Komponenten', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Komponenten', style={'border': '2px solid black', 'padding': '8px'}),
+            # html.Th('Mit Batterie', style={'border': '2px solid black', 'padding': '8px'})
+        ]),
+        *[html.Tr([
+            html.Td(
+                cell,
+                style={
+                    'border': '1px solid black',
+                    'padding': '8px',
+                    'font-weight': 'bold' if col_idx > 0 else 'normal'
+                }
+            ) for col_idx, cell in enumerate(row)]
+        ) for row in data1]
+    ]
+    return table_rows1
 
 
 @callback(
