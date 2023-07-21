@@ -14,7 +14,8 @@ import scipy.stats as stats # for the normal distribution
 
 # import cProfile # to profile the code and see where it takes the most time
 
-from flask_caching import Cache
+# from flask_caching import Cache
+# from main_app_module import get_cached_data
 
 
 
@@ -23,6 +24,7 @@ dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=
 # Create a cache object and do some initial calculations
 filename_excel = "BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
 filename_user = "Riedgrabenstrasse 5/7/9/11/13"
+plot_name_combined = "alle ausgewählten Simulationsdaten"
 
 import_excel = pickle.load(open(filename_excel, "rb"))
 
@@ -43,14 +45,22 @@ datetime_column_frame = import_excel.iloc[:,[0]]
 
 initial_selected_columns = ['Solar [kWh]','SelfConsumption [kWh]', 'Demand [kWh]', 'Net Grid Import/Export [kWh]', 'Battery [kWh]']  # Set the initial selected columns as a list
 initial_data_without_datetime = import_excel.iloc[:, 1:]  # Exclude the first column (DateTime)
+testing = initial_data_without_datetime.to_dict('records')
 
 
 # Get the first and last dates from the DateTime column
 initial_first_date = import_excel['DateTime'].iloc[0]
-initial_last_date = import_excel['DateTime'].iloc[10000]
+initial_last_date = import_excel['DateTime'].iloc[20000]
 
 initial_start_date_index = int(initial_first_date.timestamp())
 initial_end_date_index = int(initial_last_date.timestamp())
+
+# # Get the index of the first and last dates
+# initial_start_index = initial_first_date.index
+# initial_end_index = initial_last_date.index
+
+initial_start_index = datetime_column.index[0]
+initial_end_index = datetime_column.index[-1]
 
 # # Get the index of the first and last dates
 # initial_start_date_index = datetime_column.index[0]
@@ -73,17 +83,19 @@ color_list = ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', 
 # Year
 year = "2023"
 
-# Generate the marks for every month
-# marks = {i+1: {'label': month_names[i] + ' ' + year} for i in range(12)}
+# date_range = pd.date_range(initial_first_date, initial_last_date, freq='MS')  # 'MS' stands for Month Start
+# slider_marks = {date.timestamp(): {'label': date.strftime('%b %Y'), 'style': {'color': "#{:06x}".format(random.randint(0, 0xFFFFFF))}} for date in date_range}
 
 # Define the marks for the slider
 date_range = pd.date_range(initial_first_date, initial_last_date, freq='D')
-# # slider_marks = {date.timestamp(): date.strftime('%b %Y') for date in date_range}
+# slider_marks = {date.timestamp(): date.strftime('%b %Y') for date in date_range}
 
-# date_range = pd.date_range(initial_first_date, initial_last_date, freq='MS')  # 'MS' stands for Month Start
-slider_marks = {date.timestamp(): {'label': date.strftime('%b %Y'), 'style': {'color': "#{:06x}".format(random.randint(0, 0xFFFFFF))}} for date in date_range}
-
-# data_per_month = initial_data_without_datetime.set_index(datetime_column_frame['DateTime']).resample('M').sum()
+# # Update the marks with corresponding dates
+# for timestamp, mark in slider_marks.items():
+#     date = pd.Timestamp.fromtimestamp(timestamp)
+#     formatted_date = date.strftime('%d.%b.%Y')
+#     slider_marks[timestamp] = {'label': formatted_date}
+# # data_per_month = initial_data_without_datetime.set_index(datetime_column_frame['DateTime']).resample('M').sum()
 
 
 
@@ -94,7 +106,7 @@ layout = html.Div(children=[
         children=[
             html.Div(
                 children=[
-                    html.H1('Interactive Plotting', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
+                    html.H1('Interaktives Plotten', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "1%"}),
                     html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", style={'textAlign': 'center','fontSize': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
                     
                 ],
@@ -118,13 +130,13 @@ layout = html.Div(children=[
     dcc.RangeSlider(
         id='date-slider',
         step = None,    # If step=None, the slider will select the nearest step value.
-        marks = slider_marks,
+        # marks = slider_marks,
+        # marks = {initial_start_index: initial_start_date_index_swiss, initial_end_index: initial_end_date_index_swiss},
         included = True,
-        # marks = {i: {'label': month_names[i-1]} for i in range(1, 13)},
         min=initial_start_date_index,
         max=initial_end_date_index,
-        value=[initial_start_date_index, initial_end_date_index]  # Set initial range # step=10, # value=[30, 70],# allowCross=False,# pushable=20,
-        # tooltip={'always_visible': True, 'placement': 'bottom'}
+        value=[initial_start_date_index, initial_end_date_index],  # Set initial range # step=10, # value=[30, 70],# allowCross=False,# pushable=20,
+        tooltip={'always_visible': True, 'placement': 'bottom'}
     ),
     # html.Br(),
     html.Div(id='selected-dates-output', style={'fontWeight': 'bold','textAlign': 'center', 'fontSize': '22px'}),  # Placeholder for displaying selected start and end dates
@@ -195,7 +207,7 @@ def generate_plots(selected_date_range, selected_columns, stored_data):
     initial_data_without_datetime = pd.DataFrame(stored_data['initial_data_without_datetime'])
 
     # Generate combined plot
-    combined_figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list)
+    combined_figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list, plot_name = plot_name_combined)
     combined_plot = dcc.Graph(
             id='combined-bar-plot',
             figure=combined_figure
@@ -205,7 +217,7 @@ def generate_plots(selected_date_range, selected_columns, stored_data):
     plots = [combined_plot]  # Add combined plot to list first
     for i, column in enumerate(selected_columns):
         color = color_list[i % len(color_list)]  # This line chooses the color for each graph
-        figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, [column], color_list=[color])  # Here we pass the chosen color
+        figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, [column], color_list=[color], plot_name = column)  # Here we pass the chosen color
 
         plot = dcc.Graph(
             id=f'{column}-bar-plot',
@@ -216,7 +228,7 @@ def generate_plots(selected_date_range, selected_columns, stored_data):
     return plots
 
 # @cache.memoize(timeout=30)
-def create_plot_figure(data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list):
+def create_plot_figure(data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list, plot_name):
     # Filter the data based on the selected date range
     filtered_data_dates = datetime_column[(datetime_column >= start_date) & (datetime_column <= end_date)]
 
@@ -249,7 +261,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
             xaxis=dict(title='Date Time', showgrid=True, gridcolor='lightgray', gridwidth=0.5, tickwidth=1, ticks='inside'),
             yaxis=dict(title='[kWh]', showgrid=True, gridcolor='lightgray', gridwidth=0.5, tickwidth=1, ticks='inside'),
             barmode='group',
-            title='Interactive Solextron Data Visualisation',
+            title='Interaktives Plotten für ' + plot_name,
             margin=dict(l=0, r=0, t=40, b=0),
             legend=dict(x=0, y=1.1, bgcolor='rgba(255, 255, 255, 0.4)',  # Make the legend background opaque
             # opacity=0.4,  # Make the legend entries semi-transparent
@@ -267,36 +279,47 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 
     if len(selected_columns) == 1:
 
+        # Get the selected column name, actually not needed because we only have one column, but for shortness of code
         column = selected_columns[0]
 
         # Calculate the parameters of the normal distribution
-        mu, sigma = stats.norm.fit(filtered_data_columns)
+        mu, sigma = stats.norm.fit(filtered_data_columns[column])
 
+        # Get the first and last indices of the filtered data dates
+        first_index = filtered_data_columns.index[0]
+        last_index = filtered_data_columns.index[-1]
+        
         # Calculate the x-values for the normal distribution within the selected date range
-        x_norm = np.linspace(min(filtered_data_columns), max(filtered_data_columns), len(filtered_data_dates))
+        x_norm = np.linspace(first_index, last_index, len(filtered_data_dates))
+
+        x_pdf = filtered_data_columns[column]
 
         # Calculate the y-values for the normal distribution within the selected date range
-        y_norm = stats.norm.pdf(x_norm, mu, sigma)
+        y_norm = stats.norm.pdf(x_pdf, mu, sigma)
+
+        # print("y_norm: {}".format(y_norm))
 
         # Scale the y-values to fill the entire plot area
-        y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
+        # y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
+        # y_norm_scaled = y_norm * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
+
+        # print("y_norm_scaled: {}".format(y_norm_scaled))
 
         # # Additional code for adding normal distribution trace
 
-        mu, sigma = stats.norm.fit(filtered_data_columns[column])
-        x_norm = np.linspace(min(filtered_data_columns[column]), max(filtered_data_columns[column]), len(filtered_data_dates))
-        y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
+        # y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
 
-        # normal_distribution_trace = go.Scatter(
-        #     x=x_norm,
-        #     y=y_norm_scaled,
-        #     mode='lines',
-        #     line=dict(color='red', width=2),
-        #     name=f'{column}-Normalverteilung',
-        #     visible='legendonly',
-        #     fill='tozeroy'  # Fill the area under the curve
-        # )
-        # figure['data'].append(normal_distribution_trace)
+        normal_distribution_trace = go.Scatter(
+            x=x_norm,
+            # y=y_norm_scaled,
+            y=y_norm,
+            mode='lines',
+            line=dict(color='red', width=2),
+            name=f'{column}-Normalverteilung',
+            visible='legendonly',
+            fill='tozeroy'  # Fill the area under the curve
+        )
+        figure['data'].append(normal_distribution_trace)
 
         # # Add normal distribution fill trace
         # fill_trace = go.Scatter(

@@ -1,33 +1,58 @@
-
 {
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "Python: Current File",
+            "name": "Python: Flask",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/Bachelor_Thesis_Applikation/Bachelor_Thesis_app.py",
-            "console": "integratedTerminal",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "${workspaceFolder}/Bachelor_Thesis_Applikation/Bachelor_Thesis_app.py",
+                // "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run", 
+                "--no-debugger", 
+                "--no-reload"
+            ],
+            "jinja": true,
             "justMyCode": true,
-            "args": ["-Xfrozen_modules=off"]
-            // "args": ["--no-reload"]
-        },
-        {
-            "name": "Open Dash App",
-            "type": "firefox",
-            "request": "launch",
-            "reAttach": true,
-            "url": "http://127.0.0.1:8050/",
-            "webRoot": "${workspaceFolder}"
-        }
-    ],
-    "compounds": [
-        {
-            "name": "Dash Debugging",
-            "configurations": ["Python: Current File", "Open Dash App"]
-        }
+        }    
+
     ]
 }
+
+
+// "version": "0.2.0",
+// "configurations": [
+
+//     {
+//         "name": "Python: Current File",
+//         "type": "python",
+//         "request": "launch",
+//         "program": "${workspaceFolder}/Bachelor_Thesis_Applikation/Bachelor_Thesis_app.py",
+//         "console": "integratedTerminal",
+//         "justMyCode": true,
+//         "args": ["-Xfrozen_modules=off"]
+//         // "args": ["--no-reload"]
+//     },
+//     {
+//         "name": "Open Dash App",
+//         "type": "firefox",
+//         "request": "launch",
+//         "reAttach": true,
+//         "url": "http://127.0.0.1:8050/",
+//         "webRoot": "${workspaceFolder}"
+//     }
+// ],
+// "compounds": [
+//     {
+//         "name": "Dash Debugging",
+//         "configurations": ["Python: Current File", "Open Dash App"]
+//     }
+// ]
 
 
 

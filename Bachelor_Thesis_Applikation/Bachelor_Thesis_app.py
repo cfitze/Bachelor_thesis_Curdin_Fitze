@@ -2,6 +2,7 @@ import random
 import pickle
 import dash
 import flask
+import os  # Import the os module to access files
 import pandas as pd
 from dash import html, dcc
 import dash_bootstrap_components as dbc
@@ -24,8 +25,8 @@ def show_cache_directory():
 # Initialize the Flask server
 server = flask.Flask(__name__)
 
-# Set the cache directory
-server.config['CACHE_DIR'] = 'cache_directory'
+# # Set the cache directory
+# server.config['CACHE_DIR'] = 'cache_directory'
 
 
 #initialise the app
@@ -36,12 +37,11 @@ app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[d
 # app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
 load_figure_template('LUX')
                      
+# Initialize the cache object
 cache = Cache(app.server, config={
-    'CACHE_TYPE': 'filesystem',
-    'CACHE_DIR': 'cache_directory',
+    'CACHE_TYPE': 'simple',  # Use the simple cache type
     'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds
 })
-
 
 
 # @cache.cached()
@@ -51,9 +51,6 @@ def expensive_computation():
     cached_data = cache.get('expensive_computation_data')
     if cached_data is not None:
 
-        # # Access the cache directory path
-        # cache_directory = cache.cache_dir
-        # print("Cache Directory:", cache_directory)
         return cached_data
     
 
@@ -129,9 +126,29 @@ def expensive_computation():
     return results
 
 #call the function for the expensive computation
-expensive_computation()
+# expensive_computation()
+
+# Function to read CSV files and store them in the dcc.Store
+def read_and_store_csv_files():
+    csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
+    csv_files = os.listdir(csv_files_path)
+    data_frames = {}
+    for file in csv_files:
+        if file.endswith('.csv'):
+            file_path = os.path.join(csv_files_path, file)
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv(file_path)
+            # Store the DataFrame in the data_frames dictionary using the file name as the key
+            data_frames[file] = df.to_dict('records')
+
+    # Return the data_frames dictionary to be stored in the dcc.Store
+    return data_frames
+
+# Call the function to read CSV files and store them in the dcc.Store
+data_frames_to_store = read_and_store_csv_files()
 
 
+# define the layout for the sidebar navigation bar
 sidebar = dbc.Nav(
     [
         dbc.NavLink(
@@ -155,7 +172,6 @@ sidebar = dbc.Nav(
     className="bg-transparent",
 )
 
-#excel plotting en german is "Plotten"
 
 app.layout = dbc.Container(
     [
@@ -211,20 +227,26 @@ app.layout = dbc.Container(
     ),
 
     # Including the Store in the layout
-    # dcc.Store(
-    #     id='main_store', 
-    #     data={
-    #         'initial_data_without_datetime': initial_data_without_datetime.to_dict('records'),
-    #         'datetime_column': datetime_column_frame.to_dict('records'),
-    #         'initial_first_date': str(initial_first_date),
-    #         'initial_last_date': str(initial_last_date),
-    #         'initial_selected_columns': initial_selected_columns
-    #     }
-    # ),
+    dcc.Store(
+        id='main_store', 
+        data={
+
+            'data_frames': data_frames_to_store  # Store the CSV data_frames in the Store
+            # 'initial_data_without_datetime': initial_data_without_datetime.to_dict('records'),
+            # 'datetime_column': datetime_column_frame.to_dict('records'),
+            # 'initial_first_date': str(initial_first_date),
+            # 'initial_last_date': str(initial_last_date),
+            # 'initial_selected_columns': initial_selected_columns
+        }
+    ),
     ], 
     fluid=True,
     # style={'backgroundColor': 'white'}  # Set the background color to white
 )
+
+
+
+
 
 
 # Define routes
