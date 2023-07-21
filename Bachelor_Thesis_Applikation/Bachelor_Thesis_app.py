@@ -30,7 +30,7 @@ server = flask.Flask(__name__)
 
 
 #initialise the app
-app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ]) #, assets_folder='assets') #dbc.themes.SPACELAB
+app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
 #initialise the app
@@ -133,19 +133,22 @@ def read_and_store_csv_files():
     csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
     csv_files = os.listdir(csv_files_path)
     data_frames = {}
+    data_frames_stromdaten = pd.DataFrame()
     for file in csv_files:
         if file.endswith('.csv'):
             file_path = os.path.join(csv_files_path, file)
             # Read the CSV file into a DataFrame
             df = pd.read_csv(file_path)
             # Store the DataFrame in the data_frames dictionary using the file name as the key
+            data_frames_stromdaten[file] = df
+            data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
             data_frames[file] = df.to_dict('records')
 
     # Return the data_frames dictionary to be stored in the dcc.Store
-    return data_frames
+    return data_frames_stromdaten_dict
 
 # Call the function to read CSV files and store them in the dcc.Store
-data_frames_to_store = read_and_store_csv_files()
+data_frames_stromdaten_dict = read_and_store_csv_files()
 
 
 # define the layout for the sidebar navigation bar
@@ -180,13 +183,8 @@ app.layout = dbc.Container(
                 dbc.Col(
                     html.Div(
                         "Python Dash Application meiner Bachelor Thesis",
-                        style={
-                            "fontSize": 35,
-                            "textAlign": "center",
-                            "fontWeight": "bold",
-                            "fontFamily": "Arial",
-                            "background-color": "transparent",
-                        },
+                        className= "app-title"
+                        
                     )
                 )
             ]
@@ -202,7 +200,7 @@ app.layout = dbc.Container(
                 ], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2,
                 style={
                     "position": "fixed",  # Fix the position
-                    "top": "100px",  # Position below the title
+                    "top": "90px",  # Position below the title
                     "left": "0",  # Position at the left
                     "height": "calc(100vh - 100px)",  # Take full height minus title height
                     "overflowY": "auto",  # Enable vertical scrolling
@@ -231,7 +229,7 @@ app.layout = dbc.Container(
         id='main_store', 
         data={
 
-            'data_frames': data_frames_to_store  # Store the CSV data_frames in the Store
+            'data_frames': data_frames_stromdaten_dict  # Store the CSV data_frames in the Store
             # 'initial_data_without_datetime': initial_data_without_datetime.to_dict('records'),
             # 'datetime_column': datetime_column_frame.to_dict('records'),
             # 'initial_first_date': str(initial_first_date),
@@ -243,8 +241,6 @@ app.layout = dbc.Container(
     fluid=True,
     # style={'backgroundColor': 'white'}  # Set the background color to white
 )
-
-
 
 
 

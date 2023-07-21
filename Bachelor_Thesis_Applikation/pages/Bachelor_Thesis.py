@@ -11,7 +11,7 @@ dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', or
 # Define the layout for the PDF page
 layout = html.Div([
     html.Div([
-        html.H1("Bachelor Thesis", style={"text-align": "center", 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
+        html.H1("Bachelor Thesis", className="pages-header"),
         html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", style={"text-align": "center"})
     ], style={"margin": "auto", "width": "50%"}),  # Centered text
 

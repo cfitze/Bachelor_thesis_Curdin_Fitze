@@ -19,7 +19,7 @@ import scipy.stats as stats # for the normal distribution
 
 
 
-dash.register_page(__name__, path='/excel-plotten', name='Excel-Plotten', order=5) # is a subpage of the home page
+dash.register_page(__name__, path='/daten-analyse', name='Datenanalyse', order=5) # is a subpage of the home page
 
 # Create a cache object and do some initial calculations
 filename_excel = "BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
@@ -106,8 +106,8 @@ layout = html.Div(children=[
         children=[
             html.Div(
                 children=[
-                    html.H1('Interaktives Plotten', style={'textAlign': 'center','fontSize': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "1%"}),
-                    html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", style={'textAlign': 'center','fontSize': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
+                    html.H1('Daten-Visualisierung und Analyse', className="pages-header"),
+                    html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und analytische/statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", style={'textAlign': 'center','fontSize': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-top": "10px"}),
                     
                 ],
                 style={'textAlign': 'center'}
@@ -238,7 +238,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 
     figure = {
         'data': [
-            go.Scatter(
+            go.Scattergl(
                 x=filtered_data_dates,
                 y=filtered_data_columns[column],
                 mode='lines+markers',
@@ -282,58 +282,6 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         # Get the selected column name, actually not needed because we only have one column, but for shortness of code
         column = selected_columns[0]
 
-        # Calculate the parameters of the normal distribution
-        mu, sigma = stats.norm.fit(filtered_data_columns[column])
-
-        # Get the first and last indices of the filtered data dates
-        first_index = filtered_data_columns.index[0]
-        last_index = filtered_data_columns.index[-1]
-        
-        # Calculate the x-values for the normal distribution within the selected date range
-        x_norm = np.linspace(first_index, last_index, len(filtered_data_dates))
-
-        x_pdf = filtered_data_columns[column]
-
-        # Calculate the y-values for the normal distribution within the selected date range
-        y_norm = stats.norm.pdf(x_pdf, mu, sigma)
-
-        # print("y_norm: {}".format(y_norm))
-
-        # Scale the y-values to fill the entire plot area
-        # y_norm_scaled = y_norm * (max(filtered_data_columns) - min(filtered_data_columns))
-        # y_norm_scaled = y_norm * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
-
-        # print("y_norm_scaled: {}".format(y_norm_scaled))
-
-        # # Additional code for adding normal distribution trace
-
-        # y_norm = stats.norm.pdf(x_norm, mu, sigma) * (max(filtered_data_columns[column]) - min(filtered_data_columns[column]))
-
-        normal_distribution_trace = go.Scatter(
-            x=x_norm,
-            # y=y_norm_scaled,
-            y=y_norm,
-            mode='lines',
-            line=dict(color='red', width=2),
-            name=f'{column}-Normalverteilung',
-            visible='legendonly',
-            fill='tozeroy'  # Fill the area under the curve
-        )
-        figure['data'].append(normal_distribution_trace)
-
-        # # Add normal distribution fill trace
-        # fill_trace = go.Scatter(
-        #     x=np.concatenate([x_norm, x_norm[::-1]]),
-        #     y=np.concatenate([y_norm, np.zeros_like(y_norm)]),
-        #     mode='lines',
-        #     fill='tozeroy',
-        #     fillcolor='rgba(255, 0, 0, 0.2)',
-        #     line=dict(color='rgba(0, 0, 0, 0)'),
-        #     name='Normalverteilung (Fläche)',
-        #     visible='legendonly',
-        #     # showlegend=False
-        # )
-        # figure['data'].append(fill_trace)
 
         # Additional code for adding other distribution traces as desired
 
@@ -343,7 +291,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         min_value = np.min(filtered_data_columns[column])
         max_value = np.max(filtered_data_columns[column])
 
-        average_line = go.Scatter(
+        average_line = go.Scattergl(
             x=filtered_data_dates,
             y=average_value * np.ones(len(filtered_data_dates)),
             mode='lines',
@@ -352,8 +300,8 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         )
         figure['data'].append(average_line)
 
-        # Scatter trace for minimum value
-        min_scatter = go.Scatter(
+        # Scattergl trace for minimum value
+        min_scatter = go.Scattergl(
             x=filtered_data_dates,
             y=np.full(len(filtered_data_dates), min_value),
             mode='lines',
@@ -363,8 +311,8 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         )
         figure['data'].append(min_scatter)
 
-        # Scatter trace for maximum value
-        max_scatter = go.Scatter(
+        # Scattergl trace for maximum value
+        max_scatter = go.Scattergl(
             x=filtered_data_dates,
             y=np.full(len(filtered_data_dates), max_value),
             mode='lines',
@@ -386,7 +334,7 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
         amount_of_days = round(window_size / (4 * 24), 1)
 
         # Add the moving average line
-        moving_average_line = go.Scatter(
+        moving_average_line = go.Scattergl(
             x=filtered_data_dates,
             y=moving_average,
             mode='lines',
@@ -431,45 +379,6 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 
 
 
-# @callback(
-#     Output('url', 'pathname'),
-#     [Input('subpage-link', 'pathname')],
-#     [State('url', 'pathname')]
-# )
-# def navigate_to_page(subpage_pathname, current_pathname):
-#     if subpage_pathname != current_pathname:
-#         return subpage_pathname
-#     return current_pathname
-
-# @callback(
-#     Output('subpage-info', 'children'),
-#     [Input('url', 'pathname')]
-# )
-# def update_subpage_info(pathname):
-#     if pathname == '/subpage':
-#         return html.P("You are currently on the subpage.")
-#     else:
-#         return html.P("You are on the main page.")
-
-# @callback(
-#     Output('graphs-container', 'style'),
-#     [Input('url', 'pathname')]
-# )
-# def hide_graphs_container(pathname):
-#     if pathname == '/subpage':
-#         return {'display': 'none'}
-#     return {}
-
-
-    
-# @callback(Output('url', 'pathname'), [Input('url', 'pathname')], [State('url', 'pathname')])
-# def go_back_to_main_page(current_pathname, previous_pathname):
-#     if current_pathname == '/subpage' and previous_pathname == '/subpage':
-#         return '/'
-#     else:
-#         return current_pathname
-
-
 # When working with 15-minute energy consumption, solar energy production, battery, and export/import data over a whole year, there are several statistical analysis and data exploration techniques you can consider. Here are some options:
 
 # 1. Time Series Analysis: Perform time series analysis to identify patterns, trends, and seasonality in the data. You can use techniques such as decomposition, autocorrelation analysis, and spectral analysis to gain insights into the temporal behavior of the energy data.
@@ -493,3 +402,8 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 # 10. Data Mining and Machine Learning: Apply data mining and machine learning techniques to discover hidden patterns, build predictive models, and uncover insights from the energy data. This could involve clustering analysis, decision trees, random forests, or neural networks.
 
 # It's important to select the appropriate techniques based on the specific goals, characteristics of the data, and the insights you want to gain. Consider the data's temporal nature, correlations, trends, and seasonality when choosing the best options for analysis.
+
+
+
+
+# Anomaly Detection: Apply anomaly detection algorithms to identify unusual or anomalous energy consumption or production patterns

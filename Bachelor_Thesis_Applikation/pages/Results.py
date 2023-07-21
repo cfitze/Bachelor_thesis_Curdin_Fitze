@@ -76,8 +76,7 @@ figure.update_layout(legend_font_size=13)
 
 # Define the layout of the Dash application
 layout = html.Div(children=[
-    html.H1(children='Kennzahlen der Liegenschaften',
-            style={'text-align': 'center', 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
+    html.H1(children='Kennzahlen der Liegenschaften', className='pages-header'),
     html.Div([
         dcc.Graph(id='pie-chart', figure=figure)
     ], style={'width': '45%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '20px', 'margin-right': '20px','background-color': 'transparent'}),
@@ -159,29 +158,29 @@ def update_table1(option):
             ['Eigenverbrauch [%]', '40.1', '43.1'],
             ['Autarkiegrad [%]', '31.5', '33.9'],
             ['Amortisationszeit [Jahre]', '9.1', '12.8'],
-            ['MWh/Jahr', '24.8', '24.8'],
-            ['kWp', '23.9', '23.9']
+            ['Energieertrag [MWh/Jahr]', '24.8', '24.8'],
+            ['Installierte PV-Leistung [kWp]', '23.9', '23.9']
         ],
         'option2': [
             ['Eigenverbrauch [%]', '5', '6'],
             ['Autarkiegrad [%]', 'X', 'Y'],
             ['Amortisationszeit [Jahre]', '!', '@'],
-            ['MWh/Jahr', 'A', 'B'],
-            ['kWp', '1', '2']
+            ['Energieerzeugung [MWh/Jahr]', 'A', 'B'],
+            ['Installierte PV-Leistung [kWp]', '1', '2']
         ],
         'option3': [
             ['Eigenverbrauch [%]', 'A', 'B'],
             ['Autarkiegrad [%]', '!', '@'],
             ['Amortisationszeit [Jahre]', '1', '2'],
-            ['MWh/Jahr', 'X', 'Y'],
-            ['kWp', '5', '6']
+            ['Energieerzeugung [MWh/Jahr]', 'X', 'Y'],
+            ['Installierte PV-Leistung [kWp]', '5', '6']
         ],
         'option4': [
             ['Eigenverbrauch [%]', '!', '@'],
             ['Autarkiegrad [%]', '5', '6'],
             ['Amortisationszeit [Jahre]', 'A', 'B'],
-            ['MWh/Jahr', '1', '2'],
-            ['kWp', 'X', 'Y']
+            ['Energieerzeugung [MWh/Jahr]', '1', '2'],
+            ['Installierte PV-Leistung [kWp]', 'X', 'Y']
         ]
     }
     
@@ -214,29 +213,30 @@ def update_table1(option):
 def update_table2(option):
     options_data2 = {
         'option1': [
-            ['CAPEX [CHF]', 'A', 'B'],
-            ['CAPEX [CHF] mit EV', 'C', 'D'],
-            ['kWh/kWp', 'E', 'F'],
+            ['Ivestitionskosten/CAPEX [CHF]', 'A', 'B'],
+            ['CAPEX mit Einmalvergütung [CHF]', 'C', 'D'],
+            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
+            ['Spez. Ertrag [kWh/kWp] --> nach oben', 'E', 'F'],
             ['Stromkosten [CHF/kWh]', 'G', 'H'],
-            ['Table 2 - Data 5', 'I', 'J']
+            
         ],
         'option2': [
-            ['CAPEX [CHF]', '1', '2'],
-            ['CAPEX [CHF] mit EV', '3', '4'],
+            ['Ivestitionskosten/CAPEX [CHF]', '1', '2'],
+            ['CAPEX mit Einmalvergütung [CHF]', '3', '4'],
             ['kWh/kWp', '5', '6'],
             ['Stromkosten [CHF/kWh]', '7', '8'],
             ['Table 2 - Data 5', '9', '10']
         ],
         'option3': [
-            ['CAPEX [CHF]', 'X', 'Y'],
-            ['CAPEX [CHF] mit EV', 'Z', 'A'],
+            ['Ivestitionskosten/CAPEX [CHF]', 'X', 'Y'],
+            ['CAPEX mit Einmalvergütung [CHF]', 'Z', 'A'],
             ['kWh/kWp', 'B', 'C'],
             ['Stromkosten [CHF/kWh]', 'D', 'E'],
             ['Table 2 - Data 5', 'F', 'G']
         ],
         'option4': [
-            ['CAPEX [CHF]', '!', '@'],
-            ['CAPEX [CHF] mit EV', '#', '$'],
+            ['Ivestitionskosten/CAPEX [CHF]', '!', '@'],
+            ['CAPEX mit Einmalvergütung [CHF]', '#', '$'],
             ['kWh/kWp', '%', '^'],
             ['Stromkosten [CHF/kWh]', '&', '*'],
             ['Table 2 - Data 5', '(', ')']

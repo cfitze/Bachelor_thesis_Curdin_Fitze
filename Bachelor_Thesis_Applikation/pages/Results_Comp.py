@@ -15,7 +15,7 @@ dash.register_page(__name__, path='/resultate-vergleichen', name='Resultate verg
 # Define the layout for Results_Compare page
 layout = html.Div([
     html.Div([
-        html.H1("Resultate vergleichen", style={"text-align": "center", 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
+        html.H1("Resultate vergleichen", className="pages-header"),
         html.P("Auf dieser Seite kann der Nutzer die Resutate von zwei verschiedenen Varianten vergleichen.", style={"text-align": "center"})
     ], style={"margin": "auto", "width": "50%"}),  # Centered text
 ])

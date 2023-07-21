@@ -14,9 +14,7 @@ layout = html.Div(
         html.Div(
             [
                 html.H1(
-                    "Physikalischer Aufbau der Liegenschafen",
-                    style={"text-align": "center", "font-size": "35px", "font-weight": "bold", "font-family": "Arial"},
-                ),
+                    "Physikalischer Aufbau der Liegenschafen", className="pages-header"),
                 html.P(
                     "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.",
                     style={"text-align": "left"},
@@ -203,29 +201,33 @@ def update_table1(option):
             ['Solarmodule', 'Longi Solar 440 Wp','1'],
             ['Inverter', '31.5','1'],
             ['Batterie', '9.1','1'],
-            ['MWh/Jahr', '24.8','1'],
-            ['kWp', '23.9','1']
+            ['Energieertrag [MWh/Jahr]', '24.8','1'],
+            ['Installierte PV-Leistung [kWp]', '23.9','1'],
+            ['Spez. Ertrag [kWh/kWp]', '23.9','1']
         ],
         '7_9_11': [
             ['Solarmodule', 'Longi Solar 440 Wp','1'],
             ['Inverter', 'X','1'],
             ['Batterie', '!','1'],
             ['MWh/Jahr', 'A','1'],
-            ['kWp', '1','1']
+            ['kWp', '1','1'],
+            ['Spez. Ertrag [kWh/kWp]', '23.9','1']
         ],
         '13': [
             ['Solarmodule', 'Longi Solar 440 Wp','1'],
             ['Inverter', '!','1'],
             ['Batterie', '1','1'],
             ['MWh/Jahr', 'X','1'],
-            ['kWp', '5','1']
+            ['kWp', '5','1'],
+            ['Spez. Ertrag [kWh/kWp]', '23.9','1']
         ],
         '5_7_9_11_13': [
             ['Solarmodule', 'Longi Solar 440 Wp','1'],
             ['Inverter', '5','1'],
             ['Batterie', 'A','1'],
             ['MWh/Jahr', '1','1'],
-            ['kWp', 'X','1']
+            ['kWp', 'X','1'],
+            ['Spez. Ertrag [kWh/kWp]', '23.9','1']
         ]
     }
     

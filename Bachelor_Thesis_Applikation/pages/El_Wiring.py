@@ -18,7 +18,7 @@ layout = html.Div(
     [
         html.Div(
             [
-                html.H1("Elektrische Verschaltung", style={"text-align": "center", 'font-size': '35px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
+                html.H1("Elektrische Verschaltung", className="pages-header"),
                 html.P("Auf dieser Seite kann der Nutzer die elektrische Verschaltung für den momentanen Betrieb wie auch den ZEV anschauen. Dabei geht es um die Verschaltung des Transformators", style={"text-align": "left", 'font-size': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial', "margin-bottom" : "1%"})
             ],
             style={"margin": "auto", "width": "50%"}  # Centered text
