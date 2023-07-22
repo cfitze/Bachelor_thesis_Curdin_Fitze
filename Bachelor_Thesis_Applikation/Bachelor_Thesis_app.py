@@ -30,7 +30,7 @@ server = flask.Flask(__name__)
 
 
 #initialise the app
-app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
+app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
 #initialise the app
@@ -158,11 +158,7 @@ sidebar = dbc.Nav(
             [
                 html.Div(
                     page["name"],
-                    className="ms-2",
-                    style={
-                        "font-weight": "bold",
-                        "font-size": "18px",
-                    },
+                    className="sidebar"
                 ),
             ],
             href=page["path"],

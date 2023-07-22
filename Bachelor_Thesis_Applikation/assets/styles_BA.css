@@ -77,6 +77,29 @@ body {
     color: red;
 }
 
+.sidebar {
+    /* background-color: rgba(0, 0, 0, 0.5); */
+    color: white;
+    font-size: 19px;
+    font-weight: bold;
+    border: none;
+    border-radius: 0px;
+    margin-bottom: 0px;
+}
+
+
+/* Adjust the width of the active sidebar item color */
+.nav-pills .nav-link.active {
+    width: 80% !important; /* Adjust the width as needed */
+    text-overflow: ellipsis; /* Add ellipsis if the text overflows */
+    white-space: nowrap; /* Prevent wrapping of the text */
+    overflow: hidden; /* Hide any overflow of the text */
+
+    /* Change color and background color */
+    color: rgb(187, 23, 23, 0.2) !important; /* Text color for active item */
+    /* background-color: rgb(255, 0, 128, 0.2) !important; Background color for active item */
+}
+
 
 /* Change the behavious of the select box */
 .Select-control {

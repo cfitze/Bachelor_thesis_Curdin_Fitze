@@ -54,24 +54,31 @@ layout = html.Div(
                                     html.Img(id="image2", style={"max-width": "100%"}),
                                     html.Div(
                                         [
-                                            html.Button(
-                                                html.Span(className="arrow-button", children=["\u2190"], style={'font-size': '30px', 'font-weight': 'bold'}),
-                                                id="previous-button",
-                                                title="Zeige den Standort im Bild",
-                                                style={
-                                                    "font-size": "50px",
-                                                    "font-weight": "bold",
-                                                    "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
-                                                    "transition": "background-color 0.3s ease-in-out",
-                                                    "padding": "25px 25px",
-                                                    "background-color": "transparent",
-                                                    "color": "black",
-                                                    "border": "none",
-                                                    "border-radius": "1px",
-                                                    "cursor": "pointer",
-                                                    "transform": "rotate(180deg)",
-                                                },
-                                            ),
+                                        html.Button(
+                                            id="previous-button",
+                                            title="Zeige den Standort im Bild",
+                                            children=[
+                                                html.Span(className="animated-arrow"),
+                                            ]
+                                        ),
+                                            # html.Button(
+                                            #     html.Span(className="arrow-button", children=["\u2190"], style={'font-size': '30px', 'font-weight': 'bold'}),
+                                            #     id="previous-button",
+                                            #     title="Zeige den Standort im Bild",
+                                            #     style={
+                                            #         "font-size": "50px",
+                                            #         "font-weight": "bold",
+                                            #         "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                                            #         "transition": "background-color 0.3s ease-in-out",
+                                            #         "padding": "25px 25px",
+                                            #         "background-color": "transparent",
+                                            #         "color": "black",
+                                            #         "border": "none",
+                                            #         "border-radius": "1px",
+                                            #         "cursor": "pointer",
+                                            #         "transform": "rotate(180deg)",
+                                            #     },
+                                            # ),
                                             html.Span(
                                                 "Standort",
                                                 style={
@@ -92,8 +99,8 @@ layout = html.Div(
                                                     "font-weight": "bold",
                                                 },
                                             ),
-                                            html.Button(
-                                                html.Span(className="arrow-button", children=["\u2192"], style={'font-size': '30px', 'font-weight': 'bold'}),
+                                                                                        # html.Button(
+                                                html.Span(className="fat-button",
                                                 id="next-button",
                                                 title="Zeige den Aufbau im Bild",
                                                 style={
@@ -109,6 +116,25 @@ layout = html.Div(
                                                     "cursor": "pointer",
                                                 },
                                             ),
+                                            
+                                            
+                                            # html.Button(
+                                            #     html.Span(className="arrow-button", children=["\u2192"], style={'font-size': '30px', 'font-weight': 'bold'}),
+                                            #     id="next-button",
+                                            #     title="Zeige den Aufbau im Bild",
+                                            #     style={
+                                            #         "font-size": "50px",
+                                            #         "font-weight": "bold",
+                                            #         "box-shadow": "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                                            #         "transition": "background-color 0.3s ease-in-out",
+                                            #         "padding": "25px 25px",
+                                            #         "background-color": "transparent",
+                                            #         "color": "black",
+                                            #         "border": "none",
+                                            #         "border-radius": "1px",
+                                            #         "cursor": "pointer",
+                                            #     },
+                                            # ),
                                         ],
                                         style={"text-align": "center", "margin-top": "10px"},
                                     ),
