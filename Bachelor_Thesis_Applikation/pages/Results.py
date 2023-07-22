@@ -9,7 +9,7 @@ import locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
 
 #register the page Resultate
-dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the home page fo this app
+dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the home page for this app
 
 # Load data later from the Excel file from Solextron
 labels_yearly_consumption = ['<b>Riedgrabenstrasse 5</b>', '<b>Riedgrabenstrasse 7/9/11</b>','<b>Riedgrabenstrasse 13</b>']
@@ -28,10 +28,10 @@ trace = go.Pie(
     hovertemplate='%{label}: %{text} kWh (%{percent})',  # Customize the hover template
     name='',  # Empty string for the trace name
     hole=0.2,  # Create a donut chart
-    marker=dict(line=dict(color='#000000', width=1)), # Set the colors of the trace and the width of the border
+    marker=dict(line=dict(color='#000000', width=1.5)), # Set the colors of the trace and the width of the border
     # pull=[0.2, 0.2, 0.2],
     # insidetextfont=dict(color='black', size=13, family='Arial'),  # Set the color and size of the labels outside the pie
-    textfont=dict(color='black', size=15, family='Arial'),
+    textfont=dict(color='black', size=16, family='Arial'),
     # textfont=dict(size=13, family='Arial',),
     # marker=dict(colors=['#FF0000', '#00FF00', '#0000FF'])  # Set the colors of the trace
 )
@@ -43,26 +43,51 @@ chart_layout = go.Layout(
     title_x=0.5,  # Center the title horizontally
     title_y=0.9,  # Adjust the vertical position of the title
     showlegend=True,
-    legend=dict(orientation='h', x=0, y=-0.15),
+    legend=dict(orientation='h', x=0, y=-0.25),
     # legend=dict(font=dict(color='black'), orientation='h', x=0, y=-0.15),
 
     annotations=[
         dict(
             text=f'<b>Summe: {locale.format("%.0f", sum(values_yearly_consumption), grouping=True)} kWh (5/7/9/11/13 zusammen)</b>',
             x=0.5,
-            y=-0.15,
+            y=-0.17,
             showarrow=False,
             font=dict(size=17, color='black', family='Arial'),
             align='center'
-        )
+        ),
     ],
     paper_bgcolor='rgba(0,0,0,0)',  # Set the background of the entire chart to transparent
-    plot_bgcolor='rgba(0,0,0,0)',  # Set the background of the plot area to transparent
+    plot_bgcolor='rgba(0,0,0,0)',  # Set the background of the plot area to transparent  
+    
 )
+
 
 # Create figure using the trace and layout
 figure = go.Figure(data=[trace], layout=chart_layout)
-# set legend color
+
+# Add double lines below the annotation text
+figure.update_layout(
+    shapes=[
+        go.layout.Shape(
+            type='line',
+            x0=0.18,  # Adjust the position of the lines based on the x-axis
+            y0=-0.16,
+            x1=0.475,
+            y1=-0.16,
+            line=dict(color='black', width=1)
+        ),
+        go.layout.Shape(
+            type='line',
+            x0=0.18,  # Adjust the position of the lines based on the x-axis
+            y0=-0.175,
+            x1=0.475,
+            y1=-0.175,
+            line=dict(color='black', width=1)
+        )
+    ]
+)
+
+# set font color of legend
 figure.update_layout(legend_font_color="black") 
 # set font size of legend
 figure.update_layout(legend_font_size=13)
@@ -77,6 +102,7 @@ figure.update_layout(legend_font_size=13)
 # Define the layout of the Dash application
 layout = html.Div(children=[
     html.H1(children='Kennzahlen der Liegenschaften', className='pages-header'),
+    html.P(children='Auf dieser Seite kann der Nutzer die Kennzahlen der Liegenschaften anschauen.', className= 'subheader'),
     html.Div([
         dcc.Graph(id='pie-chart', figure=figure)
     ], style={'width': '45%', 'display': 'inline-block', 'vertical-align': 'top', 'margin-top': '20px', 'margin-right': '20px','background-color': 'transparent'}),
@@ -157,30 +183,30 @@ def update_table1(option):
         'option1': [
             ['Eigenverbrauch [%]', '40.1', '43.1'],
             ['Autarkiegrad [%]', '31.5', '33.9'],
-            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
             ['Energieertrag [MWh/Jahr]', '24.8', '24.8'],
-            ['Installierte PV-Leistung [kWp]', '23.9', '23.9']
+            ['Installierte PV-Leistung [kWp]', '23.9', '23.9'],
+            ['Spez. Ertrag [kWh/kWp]', 'E', 'F'],
         ],
         'option2': [
             ['Eigenverbrauch [%]', '5', '6'],
             ['Autarkiegrad [%]', 'X', 'Y'],
-            ['Amortisationszeit [Jahre]', '!', '@'],
-            ['Energieerzeugung [MWh/Jahr]', 'A', 'B'],
-            ['Installierte PV-Leistung [kWp]', '1', '2']
+            ['Energieertrag [MWh/Jahr]', '24.8', '24.8'],
+            ['Installierte PV-Leistung [kWp]', '1', '2'],
+            ['Spez. Ertrag [kWh/kWp]', 'E', 'F'],
         ],
         'option3': [
             ['Eigenverbrauch [%]', 'A', 'B'],
             ['Autarkiegrad [%]', '!', '@'],
-            ['Amortisationszeit [Jahre]', '1', '2'],
-            ['Energieerzeugung [MWh/Jahr]', 'X', 'Y'],
-            ['Installierte PV-Leistung [kWp]', '5', '6']
+            ['Energieertrag [MWh/Jahr]', '24.8', '24.8'],
+            ['Installierte PV-Leistung [kWp]', '5', '6'],
+            ['Spez. Ertrag [kWh/kWp]', 'E', 'F'],
         ],
         'option4': [
             ['Eigenverbrauch [%]', '!', '@'],
             ['Autarkiegrad [%]', '5', '6'],
-            ['Amortisationszeit [Jahre]', 'A', 'B'],
-            ['Energieerzeugung [MWh/Jahr]', '1', '2'],
-            ['Installierte PV-Leistung [kWp]', 'X', 'Y']
+            ['Energieertrag [MWh/Jahr]', '24.8', '24.8'],
+            ['Installierte PV-Leistung [kWp]', 'X', 'Y'],
+            ['Spez. Ertrag [kWh/kWp]', 'E', 'F'],
         ]
     }
     
@@ -215,31 +241,35 @@ def update_table2(option):
         'option1': [
             ['Ivestitionskosten/CAPEX [CHF]', 'A', 'B'],
             ['CAPEX mit Einmalvergütung [CHF]', 'C', 'D'],
+            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
             ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
-            ['Spez. Ertrag [kWh/kWp] --> nach oben', 'E', 'F'],
+            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
             ['Stromkosten [CHF/kWh]', 'G', 'H'],
             
         ],
         'option2': [
             ['Ivestitionskosten/CAPEX [CHF]', '1', '2'],
             ['CAPEX mit Einmalvergütung [CHF]', '3', '4'],
-            ['kWh/kWp', '5', '6'],
-            ['Stromkosten [CHF/kWh]', '7', '8'],
-            ['Table 2 - Data 5', '9', '10']
+            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
+            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
+            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
+            ['Stromkosten [CHF/kWh]', '9', '10']
         ],
         'option3': [
             ['Ivestitionskosten/CAPEX [CHF]', 'X', 'Y'],
             ['CAPEX mit Einmalvergütung [CHF]', 'Z', 'A'],
-            ['kWh/kWp', 'B', 'C'],
-            ['Stromkosten [CHF/kWh]', 'D', 'E'],
-            ['Table 2 - Data 5', 'F', 'G']
+            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
+            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
+            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
+            ['Stromkosten [CHF/kWh]', 'F', 'G']
         ],
         'option4': [
             ['Ivestitionskosten/CAPEX [CHF]', '!', '@'],
             ['CAPEX mit Einmalvergütung [CHF]', '#', '$'],
-            ['kWh/kWp', '%', '^'],
-            ['Stromkosten [CHF/kWh]', '&', '*'],
-            ['Table 2 - Data 5', '(', ')']
+            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
+            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
+            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
+            ['Stromkosten [CHF/kWh]', '(', ')']
         ]
     }
 

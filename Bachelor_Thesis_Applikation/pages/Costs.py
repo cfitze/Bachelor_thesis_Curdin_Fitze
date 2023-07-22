@@ -17,21 +17,22 @@ layout = html.Div(
         html.Div(
             [
                 html.H1("Kostenberechnung", className="pages-header"),
-                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", style={"text-align": "center"}),
-                html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif", style={"text-align": "left"}),
-                html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat", style={"text-align": "left"}),
+                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", className= 'subheader'),
+                html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif",className= 'regular-text', style={"text-align": "left"}),
+                html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat",className= 'regular-text', style={"text-align": "left"}),
             ],
-            style={"margin": "auto", "width": "50%"}
+            style={"margin": "auto", "width": "70%"}
         ),  # Centered text
         dbc.Row(
             [
                 dbc.Col(
                     html.Div(
                         [
+                            html.P("Plotten der Kosten der Liegenschaften:",className= 'plot-title', style={"text-align": "left", "margin-left": "5%", "margin-right": "5%"}),
                             dcc.Loading(
                                 id="loading",
                                 type="graph",
-                                style={'marginTop': '100px'},  # Adjust the marginTop value as desired
+                                style={'marginTop': '80px'},  # Adjust the marginTop value as desired
                                 children=[
                                     # html.Div(
                                     #     className="loading-text",
@@ -50,7 +51,7 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Wählen Sie den Bezugscharakter aus:", style={'font-size': '16px', 'font-weight': 'bold', 'fontFamily': 'Arial', "text-align": "left", "margin-top": "5%", "margin-left": "5%", "margin-right": "5%"}),
+                            html.P("Wählen Sie den Bezugscharakter aus:",className= 'table-title', style={"text-align": "left", "margin-left": "5%", "margin-right": "5%"}),
                             dcc.Dropdown(
                                 id='dropdown-el-cost',
                                 options=[
@@ -62,7 +63,7 @@ layout = html.Div(
                                 ],
                                 value='option1',
                                 clearable=False,  # This will disable the clearable 'x' option
-                                style={'color': 'black', 'font-weight': 'bold', 'font-size': '16px', 'width': '450px', 'margin-right': '20px', 'margin-top': '30px', 'background-color': 'transparent'},
+                                style={'color': 'black', 'font-weight': 'bold', 'font-size': '16px', 'width': '450px', 'margin-right': '20px', 'margin-top': '20px', 'background-color': 'transparent'},
                             ),
                             html.Div(
                                 id='table-container',
@@ -110,7 +111,7 @@ def update_table1(option):
             ['Grundpreis', '2.69 Fr./Mt.', 'inkl. 7.7% MwSt.'],
             ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
             ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
-            ['Tarifzeiten HT', 'Monatag-Freitag<br>Samstag', '07:00-20:00<br>07:00-13:00'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
             ['Tarifzeiten NT', 'übrige Zeit', '']
         ],
         'option2': [
@@ -118,7 +119,7 @@ def update_table1(option):
             ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
             ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
             ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Tarifzeiten HT', 'Monatag-Freitag<br>Samstag', '07:00-20:00<br>07:00-13:00'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
             ['Tarifzeiten NT', 'übrige Zeit', ''],
             ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)']
         ],
@@ -127,7 +128,7 @@ def update_table1(option):
             ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
             ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
             ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Tarifzeiten HT', 'Monatag-Freitag<br>Samstag', '07:00-20:00<br>07:00-13:00'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
             ['Tarifzeiten NT', 'übrige Zeit', ''],
             ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)']
         ],
@@ -191,7 +192,7 @@ def generate_cost_plots(main_store_data):
     cost_plot = go.Figure(data=traces)
     cost_plot.update_layout(
         title=dict(
-            text="Verbrauch/Kosten plotten",
+            text="Verbrauch/Kosten plotten --> DateTime einfügen",
             x=0.5,  # Set the title's horizontal position to the middle (0.5)
             y=0.95,  # Set the title's vertical position closer to the top
             font=dict(

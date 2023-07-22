@@ -16,8 +16,7 @@ layout = html.Div(
                 html.H1(
                     "Physikalischer Aufbau der Liegenschafen", className="pages-header"),
                 html.P(
-                    "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.",
-                    style={"text-align": "left"},
+                    "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.", className='subheader', style={'text-align': 'left'}
                 ),
             ],
             style={"margin": "auto", "width": "100%", "text-align": "center"},
@@ -27,8 +26,9 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
+                            # html.P("Wählen sie eine Liegenschaft aus.", className='picture-title', style={"text-align": "left"}),
                             dcc.Dropdown(
-                                id="dropdown",
+                                id="dropdown-phys",
                                 options=[
                                     {"label": "Riedgrabenstrasse 5", "value": "5"},
                                     {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
@@ -150,9 +150,9 @@ layout = html.Div(
                         [
                             html.Div(
                                 [
-                                    html.P("Standort der Solaranlage in Rümlang.", style={"text-align": "center", "font-weight": "bold", "font-size": "16px", "font-family": "Arial"}),
+                                    html.P("Standort der Solaranlage in Rümlang",className= 'picture-title', style={"text-align": "center"}),
                                 ],
-                                style={"margin": "auto", "width": "50%", "margin-top":"15px"},  # Centered text
+                                style={"margin": "auto", "width": "80%", "margin-top":"15px"},  # Centered text
                             ),
                             html.Div(
                                 [
@@ -160,7 +160,7 @@ layout = html.Div(
                                         id="map",
                                         center=[47.4617372, 8.5202995],
                                         zoom=15,
-                                        style={"width": "90%", "height": "400px", "margin-top": "15px", "margin-right": "5%"},
+                                        style={"width": "90%", "height": "400px", "margin-top": "15px", "margin-right": "5px"},
                                         children=[
                                             dl.TileLayer(url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
                                             dl.Marker(
@@ -183,7 +183,7 @@ layout = html.Div(
                                 ]
                             ),
                         ],
-                        # width=4,
+
                     ), width=4,
                 ),
             ]
@@ -193,7 +193,7 @@ layout = html.Div(
 
 @callback(
     Output('table-components', 'children'),
-    Input('dropdown', 'value')
+    Input('dropdown-phys', 'value')
 )
 def update_table1(option):
     options_data1 = {
@@ -258,7 +258,7 @@ def update_table1(option):
     Output('image2', 'src'),
     Output('previous-button', 'style'),
     Output('next-button', 'style'),
-    Input('dropdown', 'value'),
+    Input('dropdown-phys', 'value'),
     Input('previous-button', 'n_clicks'),
     Input('next-button', 'n_clicks')
 )
@@ -325,7 +325,7 @@ def update_images(value, prev_clicks, next_clicks):
 # # Option 3: Using custom JavaScript
 # @callback(
 #     Output('map-custom-js', 'children'),
-#     Input('dropdown', 'value')
+#     Input('dropdown-phys', 'value')
 # )
 # def update_custom_js(value):
 #     if value == 'option2':

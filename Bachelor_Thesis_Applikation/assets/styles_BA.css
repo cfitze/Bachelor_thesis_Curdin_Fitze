@@ -1,36 +1,73 @@
 /* styles.css */
+
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
 .app-title {
     text-align: center;
     font-size: 40px;
     font-weight: bold;
-    font-family: Arial, sans-serif;
+    /* font-family: Arial, serif; */
     background-color: transparent;
     color: white;
     margin-bottom: -30px;
 }
 
 .pages-header {
+    
     text-align: center;
     font-size: 35px;
     font-weight: bold;
-    font-family: "Helvetica Neue", sans-serif;
+    /* font-family: "Helvetica Neue", serif; */
     color: white;
     margin-top: -10px;
 }
 
 .subheader {
-    font-size: 24px;
+    
+    text-align: center;
+    font-size: 19px;
     font-weight: 600;
-    font-family: "Times New Roman", serif;
-    color: purple;
+    margin-bottom: 0px;
+    /* font-family: "Times New Roman", serif; */
+    color: white;
 }
 
 .regular-text {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: lighter;
-    font-family: Verdana, Geneva, sans-serif;
-    color: black;
+    /* font-family: Verdana, Geneva, sans-serif; */
+    color: white;
     text-align: justify;
+    margin-top: 10px;
+}
+
+.picture-title {
+    font-size: 19px;
+    font-weight: bold;
+    /* font-family: Verdana, Geneva, sans-serif; */
+    color: white;
+    text-align: justify;
+    margin-top: 10px;
+}
+
+.table-title {
+    font-size: 19px;
+    font-weight: bold;
+    /* font-family: Verdana, Geneva, sans-serif; */
+    color: white;
+    text-align: justify;
+    margin-top: 10px;
+}
+
+.plot-title {
+    font-size: 19px;
+    font-weight: bold;
+    /* font-family: Verdana, Geneva, sans-serif; */
+    color: white;
+    text-align: justify;
+    margin-top: 10px;
 }
 
 .markdown-title {
@@ -39,3 +76,69 @@
     font-family: "Courier New", monospace;
     color: red;
 }
+
+
+/* Change the behavious of the select box */
+.Select-control {
+    background-color: rgb(245, 238, 238, 0.2) !important;
+    color:white;
+  }
+  
+.Select-menu-outer {
+    background-color: rgb(245, 238, 238, 0.8);
+    color: black;
+}
+
+.Select-value-label {
+    color: white !important;
+}
+
+
+
+#dropdown-phys .Select-control {
+    background-color: rgba(40, 200, 228, 0.2);
+    color: white;
+}
+
+#dropdown-phys .Select-menu-outer {
+    background-color: hsla(173, 19%, 91%, 0.6);
+    color: black;
+}
+
+/* changes the text color of input box */ */
+#dropdown-phys .Select-value-label {
+    color: rgb(231, 224, 224) !important;
+}
+
+
+#dropdown-el-cost .Select-control {
+    background-color: rgba(40, 200, 228, 0.2);
+    color: white;
+}
+
+#dropdown-el-cost .Select-menu-outer {
+    background-color: rgba(214, 71, 155, 0.9);
+    color: black;
+}
+
+/* changes the text color of input box */ */
+#dropdown-el-cost .Select-value-label {
+    color: rgb(231, 224, 224) !important;
+}
+
+/* Same but with a specific id */
+
+/* #langue_dropdown .Select-control {
+    background-color: red !important;
+    color:white;
+  }
+  
+#langue_dropdown .Select-menu-outer {
+    background-color: rgb(25, 25, 25);
+    color: white;
+}
+
+/* changes the text color of input box */
+/* #langue_dropdown .Select-value-label {
+    color: rgb(37, 224, 37) !important;
+} 

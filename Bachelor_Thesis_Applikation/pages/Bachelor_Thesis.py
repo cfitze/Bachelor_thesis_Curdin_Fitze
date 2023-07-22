@@ -12,7 +12,7 @@ dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', or
 layout = html.Div([
     html.Div([
         html.H1("Bachelor Thesis", className="pages-header"),
-        html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", style={"text-align": "center"})
+        html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", className= 'subheader')
     ], style={"margin": "auto", "width": "50%"}),  # Centered text
 
     html.Iframe(src="data:application/pdf;base64," + base64.b64encode(open('Bachelor_Thesis_Applikation/assets/Bachelorthesis_EUT_P6_FS23_Curdin_Fitze-2.pdf', "rb").read()).decode('utf-8'),

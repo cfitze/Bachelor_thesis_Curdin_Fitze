@@ -14,7 +14,7 @@ from dash_bootstrap_templates import load_figure_template
 
 def open_browser():
     # Check if the browser is already open
-    if not webbrowser.get().open('http://127.0.0.1:8050/', new=2):
+    if not webbrowser.get().open('http://127.0.0.1:8050/', new=0):
         print("Browser is already open.")
 
 def show_cache_directory():
@@ -245,19 +245,19 @@ app.layout = dbc.Container(
 
 
 
-# Define routes
-@server.route("/open-browser")
-def route_open_browser():
-    open_browser()
-    return "Browser opened!"
+# # Define routes
+# @server.route("/open-browser")
+# def route_open_browser():
+#     open_browser()
+#     return "Browser opened!"
 
-@server.route("/cache-directory")
-def route_cache_directory():
-    return show_cache_directory()
+# @server.route("/cache-directory")
+# def route_cache_directory():
+#     return show_cache_directory()
 
 
 if __name__ == "__main__":
-    open_browser()  # Open the browser window without delay
+    # open_browser()  # Open the browser window without delay
     app.run(debug=True, dev_tools_ui=True)  # Run the app
 
     # debug=True, # port=8050, # host='0.0.0.0', # dev_tools_ui=True, ll dev_tools_hot_reload=True, # ev_tools_hot_reload_interval=1000,
