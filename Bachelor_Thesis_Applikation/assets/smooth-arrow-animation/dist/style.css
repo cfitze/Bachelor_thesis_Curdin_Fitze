@@ -1,0 +1,98 @@
+body {
+    background-color: rgb(41, 131, 233, 0.9);
+}
+
+/* Arrow to the left */
+.arrow-left {
+    background-color: transparent;
+    border: none;
+    /* outline: none; */
+    position: relative;
+    top: 40%;
+    left: -5%;
+    transform: translate(-50%, -50%);
+    transform: rotate(90deg);
+    cursor: pointer;
+}
+
+.arrow-left span {
+    display: block;
+    width: 1.5vw;
+    height: 1.5vw;
+    border-bottom: 6px solid white;
+    border-right: 6px solid white;
+    transform: rotate(45deg);
+    margin: -10px;
+    animation: animate 3s infinite;
+    /* Make the span box fully transparent */
+    /* opacity: 0; */
+}
+
+.arrow-left span:nth-child(2) {
+    animation-delay: -0.4s;
+}
+
+.arrow-left span:nth-child(3) {
+    animation-delay: -0.8s;
+}
+
+@keyframes animate {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) translate(-20px, -20px);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.1;
+        transform: rotate(45deg) translate(10px, 10px);
+    }
+}
+
+
+/* Arrow to the right */
+.arrow-right {
+    background-color: transparent;
+    border: none;
+    /* outline: none; */
+    position: relative;
+    top: 40%;
+    left: 5%;
+    transform: translate(-50%, -50%);
+    transform: rotate(270deg);
+    cursor: pointer;
+}
+
+.arrow-right span {
+    display: block;
+    width: 1.5vw;
+    height: 1.5vw;
+    border-bottom: 6px solid white;
+    border-right: 6px solid white;
+    transform: rotate(45deg);
+    margin: -10px;
+    animation: animate 3s infinite;
+}
+
+.arrow-right span:nth-child(2) {
+    animation-delay: -0.4s;
+}
+
+.arrow-right span:nth-child(3) {
+    animation-delay: -0.8s;
+}
+
+@keyframes animate {
+    0% {
+        opacity: 0;
+        transform: rotate(45deg) translate(-20px, -20px);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.1;
+        transform: rotate(45deg) translate(10px, 10px);
+    }
+}

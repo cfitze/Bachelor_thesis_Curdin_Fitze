@@ -30,7 +30,7 @@ server = flask.Flask(__name__)
 
 
 #initialise the app
-app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
+app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css", "assets/smooth-arrow-animation/dist/style.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
 #initialise the app
@@ -151,6 +151,58 @@ def read_and_store_csv_files():
 data_frames_stromdaten_dict = read_and_store_csv_files()
 
 
+def set_el_cost():
+    options_data_el_cost_calc = {
+        'option1': [
+            ['Grundpreis', '2.69 Fr./Mt.', 'inkl. 7.7% MwSt.'],
+            ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+            ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+            ['Tarifzeiten NT', 'übrige Zeit', '']
+        ],
+        'option2': [
+            ['Grundpreis', '5.5 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+            ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+            ['Tarifzeiten NT', 'übrige Zeit', ''],
+            ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)']
+        ],
+        'option3': [
+            ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+            ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+            ['Tarifzeiten NT', 'übrige Zeit', ''],
+            ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)']
+        ],
+        'option4': [
+            ['Grundpreis', '!', 'Fr./Mt. (ekl. MWST)'],
+            ['Arbeitspreise', '5', '6'],
+            ['Amortisationszeit [Jahre]', 'A', 'B'],
+            ['MWh/Jahr', '1', '2'],
+            ['kWp', 'X', 'Y']
+        ]
+    }
+
+    # New dictionary with labels as keys and values as numbers
+    options_data_el_cost_new = {}
+    for option, data_list in options_data_el_cost_calc.items():
+        option_data = {}
+        for data in data_list:
+            label, value = data[0], data[1]
+            option_data[label] = value
+        options_data_el_cost_new[option] = option_data
+
+    # Display the new dictionary
+    print(options_data_el_cost_new)
+
+    return options_data_el_cost_calc
+
+options_data_el_cost_calc = set_el_cost()
+
 # define the layout for the sidebar navigation bar
 sidebar = dbc.Nav(
     [
@@ -225,7 +277,8 @@ app.layout = dbc.Container(
         id='main_store', 
         data={
 
-            'data_frames': data_frames_stromdaten_dict  # Store the CSV data_frames in the Store
+            'data_frames': data_frames_stromdaten_dict,  # Store the CSV data_frames in the Store
+            'options_data_el_cost_calc' : options_data_el_cost_calc,
             # 'initial_data_without_datetime': initial_data_without_datetime.to_dict('records'),
             # 'datetime_column': datetime_column_frame.to_dict('records'),
             # 'initial_first_date': str(initial_first_date),

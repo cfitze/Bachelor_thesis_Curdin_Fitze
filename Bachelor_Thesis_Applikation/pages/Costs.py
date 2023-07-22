@@ -140,7 +140,7 @@ def update_table1(option):
             ['kWp', 'X', 'Y']
         ]
     }
-    
+
     data_el_cost = options_data_el_cost.get(option, [])
     
     table_rows_el_cost = [
