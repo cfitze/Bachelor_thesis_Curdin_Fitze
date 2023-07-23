@@ -107,7 +107,7 @@ layout = html.Div(children=[
             html.Div(
                 children=[
                     html.H1('Daten-Visualisierung und Analyse', className="pages-header"),
-                    html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und analytische/statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", className= 'subheader'),
+                    html.P("Auf dieser Seite werden die simulierten Daten grafisch dargestellt und analytische/statistische Elemente hinzugefügt. Es kann zu Verzögerungen wegen den Berechnungen führen...", className= 'subheader',style={'font-size': '18px', 'fontWeight': 'bold', 'fontFamily': 'Arial'}),
                     
                 ],
                 style={'textAlign': 'center'}

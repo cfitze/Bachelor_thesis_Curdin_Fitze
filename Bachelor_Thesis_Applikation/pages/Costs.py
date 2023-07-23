@@ -59,7 +59,7 @@ layout = html.Div(
                                     {'label': 'Bezugscharakter Netz „Industrie NS 50 bis 100 MWh“', 'value': 'option2'},
                                     {'label': 'Bezugscharakter Netz „Industrie NS über 100 MWh“', 'value': 'option3'},
                                     {'label': 'Eigenstrom X', 'value': 'option4'},
-                                    {'label': 'ZEV', 'value': 'option5'}
+                                    {'label': 'ZEV mit „Industrie NS über 100 MWh“ ', 'value': 'option5'}
                                 ],
                                 value='option1',
                                 clearable=False,  # This will disable the clearable 'x' option
@@ -103,46 +103,18 @@ layout = html.Div(
 
 @callback(
     Output('table-el-cost', 'children'),
-    Input('dropdown-el-cost', 'value')
+    [Input('dropdown-el-cost', 'value'),
+    Input('main_store', 'data')]
 )
-def update_table1(option):
-    options_data_el_cost = {
-        'option1': [
-            ['Grundpreis', '2.69 Fr./Mt.', 'inkl. 7.7% MwSt.'],
-            ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
-            ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
-            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-            ['Tarifzeiten NT', 'übrige Zeit', '']
-        ],
-        'option2': [
-            ['Grundpreis', '5.5 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-            ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-            ['Tarifzeiten NT', 'übrige Zeit', ''],
-            ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)']
-        ],
-        'option3': [
-            ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-            ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-            ['Tarifzeiten NT', 'übrige Zeit', ''],
-            ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)']
-        ],
-        'option4': [
-            ['Grundpreis', '!', 'Fr./Mt. (ekl. MWST)'],
-            ['Arbeitspreise', '5', '6'],
-            ['Amortisationszeit [Jahre]', 'A', 'B'],
-            ['MWh/Jahr', '1', '2'],
-            ['kWp', 'X', 'Y']
-        ]
-    }
+def update_table1(option, stored_data_el_cost_table):
 
+    #get the data from the table from the main_store
+    options_data_el_cost = stored_data_el_cost_table['options_data_el_cost_table']
+
+    #get the data for the selected option
     data_el_cost = options_data_el_cost.get(option, [])
     
+    # Create the table rows using the data from the table from the main_store
     table_rows_el_cost = [
         html.Tr([
             html.Th('Preisinformation', style={'border': '2px solid black', 'padding': '8px'}),
