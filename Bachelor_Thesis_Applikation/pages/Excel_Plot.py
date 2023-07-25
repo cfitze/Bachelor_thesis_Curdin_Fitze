@@ -118,7 +118,7 @@ layout = html.Div(children=[
         # style={'display': 'flex'}
     ),
     dcc.Store(
-        id='store', 
+        id='store' , storage_type='memory',
         data={
             'initial_data_without_datetime': initial_data_without_datetime.to_dict('records'),
             'datetime_column': datetime_column_frame.to_dict('records'),

@@ -5,6 +5,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import locale
+import json
 
 # Set the locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
@@ -19,7 +20,12 @@ financial_lifetime_produkt = 25 #the financial lifetime of the product is 25 yea
 # list of colors for the plots
 colors_el_cost = ['#1F77B4', '#9467BD', '#2CA02C', '#D62728']
 #name of the options in the dictionary for the electrical costs for the chosen character
-option_list = ['option1', 'option2', 'option3', 'option4']
+option_list = ['option1', 'option1', 'option2', 'option2'] #option1 = 'Bezugscharakter Energie „Klassik"', option2 = 'Bezugscharakter Netz „Industrie NS 50 bis 100 MWh“', option3 = 'Bezugscharakter Netz „Industrie NS über 100 MWh“', option4 = 'Eigenstrom X', option5 = 'ZEV mit „Industrie NS über 100 MWh“ '
+
+property_el_cost_character = {
+''
+
+}
 
 # Define the layout for Results_Compare page
 layout = html.Div(
@@ -213,7 +219,7 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
     # Sample list of German day names
     german_days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
     # Create a CategoricalDtype with German day names
-    german_days_dtype = pd.CategoricalDtype(categories=german_days, ordered=True)
+    # german_days_dtype = pd.CategoricalDtype(categories=german_days, ordered=True)
 
 
     # Initialize lists to store cumulative and non-cumulative y values
@@ -267,9 +273,12 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
 )
 def generate_cost_plots(option_dropdown_el_cost, main_store_data):
 
+    # print(type(main_store_data['data_frames']))
+    # print(main_store_data['data_frames'])
+
     # Create a DataFrame from the data stored in the main_store
     main_store_data_cost_column = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
-
+    
     # get the name for the chosen column through the dropdown option
     name_chosen_column = main_store_data_cost_column.columns[int(option_dropdown_el_cost)]
 
@@ -338,8 +347,8 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
 )
 def generate_usage_plots(option_dropdown_el_cost, main_store_data):
 
-    # Create a DataFrame from the data stored in the main_store
-    main_store_data_cost_df = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
+
+    main_store_data_cost_df = pd.DataFrame(main_store_data['data_frames'])
 
     datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
 

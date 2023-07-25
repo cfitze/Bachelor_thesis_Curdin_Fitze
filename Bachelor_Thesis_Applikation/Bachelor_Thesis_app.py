@@ -200,7 +200,6 @@ def expensive_computation(dummy_trigger):
         # Return the results
         return results
 
-
     # Function to sort the csv files for the dcc.Store
     def custom_sort_key(filename):
         # Define the desired order of filenames
@@ -220,19 +219,22 @@ def expensive_computation(dummy_trigger):
         # Sort the list of files using the custom_sort_key function
         csv_files.sort(key=custom_sort_key)
 
-        data_frames_stromdaten = {}
+        # Initialize an empty DataFrame to store all the data from the CSV files
+        data_frames_stromdaten = pd.DataFrame()
+
         for file in csv_files:
             if file.endswith('.csv'):
                 file_path = os.path.join(csv_files_path, file)
                 # Read the CSV file into a DataFrame
                 df = pd.read_csv(file_path)
-                # Store the DataFrame in the data_frames_stromdaten dictionary using the file name as the key
-                data_frames_stromdaten[file] = df.to_json(orient='records')
+                # Store the DataFrame in the data_frames dictionary using the file name as the key
+                data_frames_stromdaten[file] = df
+                data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
 
-        # Return the data_frames_stromdaten to be stored in the dcc.Store
-        return data_frames_stromdaten
+        # Return the data_frames dictionary to be stored in the dcc.Store
+        return data_frames_stromdaten_dict
 
-    
+
     # # Function to sort the csv files for the dcc.Store
     # def custom_sort_key(filename):
     #     # Define the desired order of filenames
@@ -252,18 +254,57 @@ def expensive_computation(dummy_trigger):
     #     # Sort the list of files using the custom_sort_key function
     #     csv_files.sort(key=custom_sort_key)
 
+    #     # Initialize an empty DataFrame to store all the data from the CSV files
+    #     data_frames_stromdaten = pd.DataFrame()
+
+    #     for file in csv_files:
+    #         if file.endswith('.csv'):
+    #             file_path = os.path.join(csv_files_path, file)
+    #             # Read the CSV file into a DataFrame
+    #             df = pd.read_csv(file_path)
+    #             # Append the DataFrame to the data_frames_stromdaten DataFrame
+    #             data_frames_stromdaten = data_frames_stromdaten.append(df)
+
+    #     # Convert the combined DataFrame to a dictionary with 'list' orientation
+    #     data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
+
+    #     # Return the data_frames_stromdaten_dict to be stored in the dcc.Store
+    #     return data_frames_stromdaten_dict
+
+    # # Function to sort the csv files for the dcc.Store
+    # def custom_sort_key(filename):
+    #     # Define the desired order of filenames
+    #     order = {
+    #         'Riedgrabenstrasse5_Lastgang_15min.csv': 0,
+    #         'Riedgrabenstrasse7_9_11_Lastgang_15min.csv': 1,
+    #         'Riedgrabenstrasse13_Lastgang_15min.csv': 2,
+    #         'Riedgrabenstrasse5_7_9_11_13_Lastgang_15min.csv': 3,
+    #     }
+    #     # Return the corresponding order for the filename
+    #     return order.get(filename, 999)  # Use 999 as a default value if the filename is not in the order dictionary
+
+    # # Function to read CSV files and store them in the dcc.Store
+    # def read_and_store_csv_files():
+    #     csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
+    #     csv_files = os.listdir(csv_files_path)
+    #     # Sort the list of files using the custom_sort_key function
+    #     csv_files.sort(key=custom_sort_key)
+
+    #     # data_frames_stromdaten = {}
+    #     data_frames = {}
     #     data_frames_stromdaten = pd.DataFrame()
     #     for file in csv_files:
     #         if file.endswith('.csv'):
     #             file_path = os.path.join(csv_files_path, file)
     #             # Read the CSV file into a DataFrame
     #             df = pd.read_csv(file_path)
-    #             # Store the DataFrame in the data_frames_stromdaten DataFrame using the file name as a column
-    #             data_frames_stromdaten[file] = df.to_dict('records')
+    #             # Store the DataFrame in the data_frames dictionary using the file name as the key
+    #             data_frames_stromdaten[file] = df
+    #             data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
+    #             data_frames[file] = df.to_dict('records')
 
-    #     # Return the data_frames_stromdaten to be stored in the dcc.Store
-    #     return data_frames_stromdaten
-
+    #         # Return the data_frames dictionary to be stored in the dcc.Store
+    #         return data_frames_stromdaten_dict
 
     # Function to split the time range into start and end time, now outiside of the set_el_cost function
     def split_time_range(time_range):
@@ -511,6 +552,8 @@ def expensive_computation(dummy_trigger):
     # Call the function to get all the values
     all_values = get_all_values(options_data_el_cost_dict)
     # print(all_values)
+
+    # testing = read_and_store_csv_files()
 
     data_to_store = { 
         'options_data_el_cost_table': options_data_el_cost_table, 
