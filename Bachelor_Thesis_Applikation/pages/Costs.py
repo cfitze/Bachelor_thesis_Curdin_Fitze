@@ -17,8 +17,9 @@ operating_costs = 1.01 # operating costs are 1% of the investment costs
 taxes_deduction = 1 #the deduction of the taxes is 100% of the investment costs
 financial_lifetime_produkt = 25 #the financial lifetime of the product is 25 years
 # list of colors for the plots
-# colors_el_cost = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728']
 colors_el_cost = ['#1F77B4', '#9467BD', '#2CA02C', '#D62728']
+#name of the options in the dictionary for the electrical costs for the chosen character
+option_list = ['option1', 'option2', 'option3', 'option4']
 
 # Define the layout for Results_Compare page
 layout = html.Div(
@@ -26,16 +27,16 @@ layout = html.Div(
         html.Div(
             [
                 html.H1("Kostenberechnung", className="pages-header"),
-                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", className= 'subheader',style={"margin-bottom:": "10px"}),
+                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", className= 'subheader',style={"margin-bottom:": "15px"}),
             ],
-            style={"margin": "auto", "width": "80%"}
+            style={"margin": "auto", "width": "80%", 'margin-bottom': '15px'}
         ),  # Centered text
         dbc.Row(
             [
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Plotten der Kosten der Liegenschaften:", className = 'subheader', style={"text-align": "left"}),
+                            html.P("Wählen Sie die gewünschte Liegenschaft aus:", className = 'subheader', style={"text-align": "left"}),
                             dcc.Dropdown(
                                 id='dropdown-costs',
                                 options=[
@@ -57,6 +58,7 @@ layout = html.Div(
                                     "background-color": "transparent",
                                 },
                             ),
+                            html.P("Plotten der Kosten und des Verbrauchs der Liegenschaften:", className = 'subheader', style={"text-align": "left"}),
                             dcc.Loading(
                                 id="loading1",
                                 type="graph",
@@ -141,6 +143,7 @@ layout = html.Div(
                 ),
             ]
         ),
+        html.Br(),
         html.P(f"Laut Annahme ist die Inflation der Strompreise ist auf {inflation_el_cost*100-100} % angesetzt (hoch angesetzt). Die Inflation der Rückspeisungsvergütung hat den gleichen Wert.",className= 'regular-text', style={"text-align": "left"}),
         html.P(f"Die Betriebkosten wurden auf {operating_costs*100-100} % der Investitionskosten (CAPEX) angesetzt. Den Abzug von den Steuern ist in den meisten Kantonen bei {taxes_deduction*100} % des CAPEX angesetzt.",className= 'regular-text', style={"text-align": "left"}),
         html.P(f"Die Lebensdauer der Anlage wurde auf {financial_lifetime_produkt} Jahre angesetzt.",className= 'regular-text', style={"text-align": "left"}),
@@ -183,6 +186,37 @@ def update_table1(option, stored_data_el_cost_table):
     ]
     return table_rows_el_cost
 
+#call the function to calculate the electrical costs for the chosen character, is defined outside of the callback to be able to use it in the other callback
+def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict):
+
+    # # Function to check if a date string falls on a certain day of the week
+    # def is_day_of_week(date_string, day_of_week):
+    #     date_obj = datetime.strptime(date_string, '%d-%m-%Y %H:%M')
+    #     return date_obj.weekday() == day_of_week
+
+    #get the dictionary for the chosen character from the dropdown option
+    data_el_cost_dict_selected = data_el_cost_dict[option_list[int(option_dropdown_el_cost)]]
+    #get the keys from the dictionary for the chosen character from the dropdown option
+    key_dict_secleceted_list = list(data_el_cost_dict_selected.keys())
+    #get the keys from the keys list
+    key_el_cost_HT_dict_selected, key_el_cost_NT_dict_selected, key_el_time_HT_dict_selected, key_el_time_NT_dict_selected  = key_dict_secleceted_list[1],key_dict_secleceted_list[2],key_dict_secleceted_list[3],key_dict_secleceted_list[4]
+    #get the values and mathematical factors for the electrical host for the high tariff, low tariff and high tariff time; low tariff time equals the rest of the time
+    value_el_cost_HT_dict_selected, factor_el_cost_HT_dict_slected = float(data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['factor_el_calc']
+    value_el_cost_NT_dict_selected, factor_el_cost_NT_dict_slected = float(data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['factor_el_calc']
+    value_el_time_HT_dict_selected, factor_el_time_HT_dict_slected = data_el_cost_dict_selected[key_el_time_HT_dict_selected]['value'], data_el_cost_dict_selected[key_el_time_HT_dict_selected]['factor_el_calc']
+    #get the start and end day for the high tariff time during the week
+    start_weekday_el_time_HT_dict_selected, end_weekday_el_time_HT_dict_selected = value_el_time_HT_dict_selected[0].split('-')
+    #get the start day for the high tariff time during the weekend
+    weekend_el_time_HT_dict_selected = value_el_time_HT_dict_selected[1]
+    #get the start and end time for the high tariff time during the week
+    start_time_weekday_el_time_HT_dict_selected, end_time_weekday_el_time_HT_dict_selected = factor_el_time_HT_dict_slected[0][0], factor_el_time_HT_dict_slected[0][1]
+    #get the start and end time for the high tariff time during the weekend
+    start_time_weekend_el_time_HT_dict_selected, end_time_weekend_el_time_HT_dict_selected = factor_el_time_HT_dict_slected[1][0], factor_el_time_HT_dict_slected[1][1]
+
+
+
+    testing = data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']
+
 
 # Define the callbacks
 @callback(
@@ -195,6 +229,12 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Create a DataFrame from the data stored in the main_store
     main_store_data_cost_column = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
 
+    # get the name for the chosen column through the dropdown option
+    name_chosen_column = main_store_data_cost_column.columns[int(option_dropdown_el_cost)]
+
+    # Extract the numeric values from the dictionary and create a separate list
+    y_values_chosen_column = main_store_data_cost_column.iloc[:, int(option_dropdown_el_cost)]
+
     datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
 
     datetime_column_costs_hours = main_store_data['results_excel_computation']['datetime_column_serialized_hours']
@@ -202,22 +242,16 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     #get the data from the dictionary from the main_store for the electrical costs
     data_el_cost_dict = main_store_data['options_data_el_cost_dict']
 
-    option_list = ['option1', 'option2', 'option3', 'option4']
-    data_el_cost_dict_selected = data_el_cost_dict[option_list[int(option_dropdown_el_cost)]]
+    #call the function to calculate the electrical costs for the chosen character
+    y_values_el_cost_character = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
 
     # Create a list to hold the traces for each array of data
     traces = []
 
     # Generate x-axis array based on the length of the first array
-    x_axis = list(range(1, len(main_store_data_cost_column)+1))
+    # x_axis = list(range(1, len(main_store_data_cost_column)+1))
 
-    chosen_column = main_store_data_cost_column.columns[int(option_dropdown_el_cost)]
-
-    # Iterate through the columns of the DataFrame
-    # for col in main_store_data_cost_row.columns:
-        # Extract the numeric values from the dictionary and create a separate list
-    y_values = main_store_data_cost_column.iloc[:, int(option_dropdown_el_cost)]
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values, mode='lines+markers', name=f'{chosen_column}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_chosen_column, mode='lines+markers', name=f'{name_chosen_column}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
 
     # Create the plot using Plotly
@@ -228,7 +262,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
             x=0.5,  # Set the title's horizontal position to the middle (0.5)
             y=0.95,  # Set the title's vertical position closer to the top
             font=dict(
-                family="Arial",  # Specify the font family
+                family="Montserrat, bold",  # Specify the font family
                 size=20,  # Set the title font size to 24
                 color="black",  # Set the title font color to blue
             ),
@@ -259,7 +293,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     [Input('dropdown-reference-character', 'value'),
     Input('main_store', 'data')]
 )
-def generate_cost_plots(option_dropdown_el_cost, main_store_data):
+def generate_usage_plots(option_dropdown_el_cost, main_store_data):
 
     # Create a DataFrame from the data stored in the main_store
     main_store_data_cost_df = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
@@ -291,7 +325,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
             x=0.5,  # Set the title's horizontal position to the middle (0.5)
             y=0.95,  # Set the title's vertical position closer to the top
             font=dict(
-                family="Arial",  # Specify the font family
+                family="Montserrat, bold",  # Specify the font family
                 size=20,  # Set the title font size to 24
                 color="black",  # Set the title font color to blue
             ),

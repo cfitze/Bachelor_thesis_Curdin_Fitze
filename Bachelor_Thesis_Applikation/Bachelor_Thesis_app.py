@@ -440,13 +440,8 @@ def expensive_computation(dummy_trigger):
             
         #return the options_data_el_cost and the options_data_el_cost_new from the 
         return tabel_costs_simulation, options_data_costs_simulation_new
-    #call the fuction excel_computation to get the results from the excel file
-    # results_excel_computation = excel_computation()
-
+    
     # print(results_excel_computation)
-
-    #call the fuction read_and_store_csv_files to read the csv files and store them in the dcc.Store
-    data_frames_stromdaten_dict = read_and_store_csv_files()
 
     # Call the function to set the el_cost_calc data
     options_data_el_cost_table, options_data_el_cost_dict = set_el_cost()
@@ -472,10 +467,10 @@ def expensive_computation(dummy_trigger):
     # print(all_values)
 
     data_to_store = {
-        'data_frames': data_frames_stromdaten_dict,
+        'data_frames': read_and_store_csv_files(),  #call the fuction read_and_store_csv_files to read the csv files and store them in the dcc.Store
         'options_data_el_cost_table': options_data_el_cost_table, 
         'options_data_el_cost_dict': options_data_el_cost_dict,
-        'results_excel_computation': excel_computation(),
+        'results_excel_computation': excel_computation(),   #call the fuction excel_computation to get the results from the excel file
         'costs_simulation_table' : costs_simulation_table,
         'options_data_costs_simulation_dict' : options_data_costs_simulation_dict,
         # Add other computed data as needed
