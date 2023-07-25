@@ -189,11 +189,8 @@ def update_table1(option, stored_data_el_cost_table):
 #call the function to calculate the electrical costs for the chosen character, is defined outside of the callback to be able to use it in the other callback
 def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict):
 
-    # # Function to check if a date string falls on a certain day of the week
-    # def is_day_of_week(date_string, day_of_week):
-    #     date_obj = datetime.strptime(date_string, '%d-%m-%Y %H:%M')
-    #     return date_obj.weekday() == day_of_week
-
+    # Convert the datetime_column_costs to pandas datetime objects with the format '%d-%m-%Y %H:%M'
+    datetime_column_costs_pd = pd.to_datetime(datetime_column_costs, format='%d-%m-%Y %H:%M')
     #get the dictionary for the chosen character from the dropdown option
     data_el_cost_dict_selected = data_el_cost_dict[option_list[int(option_dropdown_el_cost)]]
     #get the keys from the dictionary for the chosen character from the dropdown option
@@ -201,21 +198,65 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
     #get the keys from the keys list
     key_el_cost_HT_dict_selected, key_el_cost_NT_dict_selected, key_el_time_HT_dict_selected, key_el_time_NT_dict_selected  = key_dict_secleceted_list[1],key_dict_secleceted_list[2],key_dict_secleceted_list[3],key_dict_secleceted_list[4]
     #get the values and mathematical factors for the electrical host for the high tariff, low tariff and high tariff time; low tariff time equals the rest of the time
-    value_el_cost_HT_dict_selected, factor_el_cost_HT_dict_slected = float(data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['factor_el_calc']
-    value_el_cost_NT_dict_selected, factor_el_cost_NT_dict_slected = float(data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['factor_el_calc']
-    value_el_time_HT_dict_selected, factor_el_time_HT_dict_slected = data_el_cost_dict_selected[key_el_time_HT_dict_selected]['value'], data_el_cost_dict_selected[key_el_time_HT_dict_selected]['factor_el_calc']
+    value_el_cost_HT_dict_selected, factor_el_cost_HT_dict_selected = float(data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['factor_el_calc']
+    value_el_cost_NT_dict_selected, factor_el_cost_NT_dict_selected = float(data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['factor_el_calc']
+    value_el_time_HT_dict_selected, factor_el_time_HT_dict_selected = data_el_cost_dict_selected[key_el_time_HT_dict_selected]['value'], data_el_cost_dict_selected[key_el_time_HT_dict_selected]['factor_el_calc']
     #get the start and end day for the high tariff time during the week
     start_weekday_el_time_HT_dict_selected, end_weekday_el_time_HT_dict_selected = value_el_time_HT_dict_selected[0].split('-')
     #get the start day for the high tariff time during the weekend
     weekend_el_time_HT_dict_selected = value_el_time_HT_dict_selected[1]
     #get the start and end time for the high tariff time during the week
-    start_time_weekday_el_time_HT_dict_selected, end_time_weekday_el_time_HT_dict_selected = factor_el_time_HT_dict_slected[0][0], factor_el_time_HT_dict_slected[0][1]
+    start_time_weekday_el_time_HT_dict_selected, end_time_weekday_el_time_HT_dict_selected = factor_el_time_HT_dict_selected[0][0], factor_el_time_HT_dict_selected[0][1]
     #get the start and end time for the high tariff time during the weekend
-    start_time_weekend_el_time_HT_dict_selected, end_time_weekend_el_time_HT_dict_selected = factor_el_time_HT_dict_slected[1][0], factor_el_time_HT_dict_slected[1][1]
+    start_time_weekend_el_time_HT_dict_selected, end_time_weekend_el_time_HT_dict_selected = factor_el_time_HT_dict_selected[1][0], factor_el_time_HT_dict_selected[1][1]
+
+    # Sample list of German day names
+    german_days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+    # Create a CategoricalDtype with German day names
+    german_days_dtype = pd.CategoricalDtype(categories=german_days, ordered=True)
+
+
+    # Initialize lists to store cumulative and non-cumulative y values
+    y_values_cumulative = []
+    y_values_non_cumulative = []
+    y_values_cum_sum = 0  # Initialize the cumulative sum variable
+
+    # Iterate through the index and datetime values in datetime_column_costs_pd using enumerate
+    for index, dt in enumerate(datetime_column_costs_pd):
+        # Check if the day is within the high tariff time range
+        if dt.weekday() >= german_days.index(start_weekday_el_time_HT_dict_selected) and dt.weekday() <= german_days.index(end_weekday_el_time_HT_dict_selected):
+            # Check if the time is within the high tariff time range for weekdays
+            if dt.time() >= pd.to_datetime(start_time_weekday_el_time_HT_dict_selected).time() and dt.time() <= pd.to_datetime(end_time_weekday_el_time_HT_dict_selected).time():
+                # Apply high tariff calculation
+                y_value = y_values_chosen_column[index] * value_el_cost_HT_dict_selected * factor_el_cost_HT_dict_selected
+            else:
+                # Apply low tariff calculation
+                y_value = y_values_chosen_column[index] * value_el_cost_NT_dict_selected * factor_el_cost_NT_dict_selected
+        # Check if the day is a weekend day
+        elif dt.weekday() == german_days.index(weekend_el_time_HT_dict_selected):
+            # Check if the time is within the high tariff time range for weekends
+            if dt.time() >= pd.to_datetime(start_time_weekend_el_time_HT_dict_selected).time() and dt.time() <= pd.to_datetime(end_time_weekend_el_time_HT_dict_selected).time():
+                # Apply high tariff calculation
+                y_value = y_values_chosen_column[index] * value_el_cost_HT_dict_selected * factor_el_cost_HT_dict_selected
+            else:
+                # Apply low tariff calculation
+                y_value = y_values_chosen_column[index] * value_el_cost_NT_dict_selected * factor_el_cost_NT_dict_selected
+        else:
+            # Apply low tariff calculation for other days
+            y_value = y_values_chosen_column[index] * value_el_cost_NT_dict_selected * factor_el_cost_NT_dict_selected
+
+        # Update the cumulative sum variable
+        y_values_cum_sum += y_value
+        # Append the cumulative and non-cumulative y values to their respective lists
+        y_values_cumulative.append(y_values_cum_sum)
+        y_values_non_cumulative.append(y_value)
+
+    # Return both the cumulative and non-cumulative y values
+    return y_values_cumulative, y_values_non_cumulative
 
 
 
-    testing = data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']
+    # testing = data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']
 
 
 # Define the callbacks
@@ -243,7 +284,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     data_el_cost_dict = main_store_data['options_data_el_cost_dict']
 
     #call the function to calculate the electrical costs for the chosen character
-    y_values_el_cost_character = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
+    y_values_cumulative, y_values_non_cumulative = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
 
     # Create a list to hold the traces for each array of data
     traces = []
@@ -251,7 +292,9 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Generate x-axis array based on the length of the first array
     # x_axis = list(range(1, len(main_store_data_cost_column)+1))
 
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values_chosen_column, mode='lines+markers', name=f'{name_chosen_column}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{name_chosen_column} kumulierte Summe', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    traces.append(trace)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_non_cumulative, mode='lines+markers', name=f'{name_chosen_column} Kosten pro Zeit', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
 
     # Create the plot using Plotly

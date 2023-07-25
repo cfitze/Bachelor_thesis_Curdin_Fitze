@@ -119,7 +119,7 @@ app.layout = dbc.Container(
 
     # Including the Store in the layout
     dcc.Store(
-        id='main_store', 
+        id='main_store', storage_type='memory'
         # data={
 
         #     'data_frames': data_frames_stromdaten_dict,  # Store the CSV data_frames in the Store
@@ -200,24 +200,70 @@ def expensive_computation(dummy_trigger):
         # Return the results
         return results
 
+
+    # Function to sort the csv files for the dcc.Store
+    def custom_sort_key(filename):
+        # Define the desired order of filenames
+        order = {
+            'Riedgrabenstrasse5_Lastgang_15min.csv': 0,
+            'Riedgrabenstrasse7_9_11_Lastgang_15min.csv': 1,
+            'Riedgrabenstrasse13_Lastgang_15min.csv': 2,
+            'Riedgrabenstrasse5_7_9_11_13_Lastgang_15min.csv': 3,
+        }
+        # Return the corresponding order for the filename
+        return order.get(filename, 999)  # Use 999 as a default value if the filename is not in the order dictionary
+
     # Function to read CSV files and store them in the dcc.Store
     def read_and_store_csv_files():
         csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
         csv_files = os.listdir(csv_files_path)
-        data_frames = {}
-        data_frames_stromdaten = pd.DataFrame()
+        # Sort the list of files using the custom_sort_key function
+        csv_files.sort(key=custom_sort_key)
+
+        data_frames_stromdaten = {}
         for file in csv_files:
             if file.endswith('.csv'):
                 file_path = os.path.join(csv_files_path, file)
                 # Read the CSV file into a DataFrame
                 df = pd.read_csv(file_path)
-                # Store the DataFrame in the data_frames dictionary using the file name as the key
-                data_frames_stromdaten[file] = df
-                data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
-                data_frames[file] = df.to_dict('records')
+                # Store the DataFrame in the data_frames_stromdaten dictionary using the file name as the key
+                data_frames_stromdaten[file] = df.to_json(orient='records')
 
-        # Return the data_frames dictionary to be stored in the dcc.Store
-        return data_frames_stromdaten_dict
+        # Return the data_frames_stromdaten to be stored in the dcc.Store
+        return data_frames_stromdaten
+
+    
+    # # Function to sort the csv files for the dcc.Store
+    # def custom_sort_key(filename):
+    #     # Define the desired order of filenames
+    #     order = {
+    #         'Riedgrabenstrasse5_Lastgang_15min.csv': 0,
+    #         'Riedgrabenstrasse7_9_11_Lastgang_15min.csv': 1,
+    #         'Riedgrabenstrasse13_Lastgang_15min.csv': 2,
+    #         'Riedgrabenstrasse5_7_9_11_13_Lastgang_15min.csv': 3,
+    #     }
+    #     # Return the corresponding order for the filename
+    #     return order.get(filename, 999)  # Use 999 as a default value if the filename is not in the order dictionary
+
+    # # Function to read CSV files and store them in the dcc.Store
+    # def read_and_store_csv_files():
+    #     csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
+    #     csv_files = os.listdir(csv_files_path)
+    #     # Sort the list of files using the custom_sort_key function
+    #     csv_files.sort(key=custom_sort_key)
+
+    #     data_frames_stromdaten = pd.DataFrame()
+    #     for file in csv_files:
+    #         if file.endswith('.csv'):
+    #             file_path = os.path.join(csv_files_path, file)
+    #             # Read the CSV file into a DataFrame
+    #             df = pd.read_csv(file_path)
+    #             # Store the DataFrame in the data_frames_stromdaten DataFrame using the file name as a column
+    #             data_frames_stromdaten[file] = df.to_dict('records')
+
+    #     # Return the data_frames_stromdaten to be stored in the dcc.Store
+    #     return data_frames_stromdaten
+
 
     # Function to split the time range into start and end time, now outiside of the set_el_cost function
     def split_time_range(time_range):
@@ -258,19 +304,19 @@ def expensive_computation(dummy_trigger):
                 ['Grundpreis', '5.5 Fr./Mt.', 'exkl. 7.7% MwSt.'],
                 ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
                 ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)'],
                 feedback_costs
             ],
             'option3': [
                 ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
                 ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],           
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],             
                 ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
                 feedback_costs
             ],
@@ -278,19 +324,19 @@ def expensive_computation(dummy_trigger):
                 ['Grundpreis --> noch herausfinden', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
                 ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
                 ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
                 ['Rückspeisevergütung', 'noch herausfinden', 'unter 300kVA / gleich für HT und NT (exkl. 7.7% MWST))']
             ],
             'option5': [
                 ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
                 ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],  
                 ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
                 ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
                 ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
                 feedback_costs
                 # ['Preis für die Abrechnung','X X X [CHF]', 'Muss durch die Besitzer der Liegenschaften festgelegt werden.']
@@ -466,11 +512,11 @@ def expensive_computation(dummy_trigger):
     all_values = get_all_values(options_data_el_cost_dict)
     # print(all_values)
 
-    data_to_store = {
-        'data_frames': read_and_store_csv_files(),  #call the fuction read_and_store_csv_files to read the csv files and store them in the dcc.Store
+    data_to_store = { 
         'options_data_el_cost_table': options_data_el_cost_table, 
         'options_data_el_cost_dict': options_data_el_cost_dict,
         'results_excel_computation': excel_computation(),   #call the fuction excel_computation to get the results from the excel file
+        'data_frames': read_and_store_csv_files(),  #call the fuction read_and_store_csv_files to read the csv files and store them in the dcc.Store
         'costs_simulation_table' : costs_simulation_table,
         'options_data_costs_simulation_dict' : options_data_costs_simulation_dict,
         # Add other computed data as needed
