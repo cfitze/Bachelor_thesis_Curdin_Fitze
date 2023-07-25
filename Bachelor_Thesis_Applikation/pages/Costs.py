@@ -11,26 +11,54 @@ locale.setlocale(locale.LC_ALL, 'de_CH')
 
 dash.register_page(__name__, path='/kosten', name='Kosten berechnen', order=4) # is a subpage of the home page
 
+#set the parameters for the costs
+inflation_el_cost = 1.05 # inflation of the electrical costs by 5% per year
+operating_costs = 1.01 # operating costs are 1% of the investment costs
+taxes_deduction = 1 #the deduction of the taxes is 100% of the investment costs
+financial_lifetime_produkt = 25 #the financial lifetime of the product is 25 years
+# list of colors for the plots
+# colors_el_cost = ['#1F77B4', '#FF7F0E', '#2CA02C', '#D62728']
+colors_el_cost = ['#1F77B4', '#9467BD', '#2CA02C', '#D62728']
+
 # Define the layout for Results_Compare page
 layout = html.Div(
     [
         html.Div(
             [
                 html.H1("Kostenberechnung", className="pages-header"),
-                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", className= 'subheader'),
-                html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif",className= 'regular-text', style={"text-align": "left"}),
-                html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat",className= 'regular-text', style={"text-align": "left"}),
+                html.P("Auf dieser Seite kann der Nutzer die Kosten von zwei verschiedenen Varianten vergleichen.", className= 'subheader',style={"margin-bottom:": "10px"}),
             ],
-            style={"margin": "auto", "width": "70%"}
+            style={"margin": "auto", "width": "80%"}
         ),  # Centered text
         dbc.Row(
             [
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Plotten der Kosten der Liegenschaften:",className= 'plot-title', style={"text-align": "left", "margin-left": "5%", "margin-right": "5%"}),
+                            html.P("Plotten der Kosten der Liegenschaften:", className = 'subheader', style={"text-align": "left"}),
+                            dcc.Dropdown(
+                                id='dropdown-costs',
+                                options=[
+                                    {"label": "Riedgrabenstrasse 5", "value": "0"},
+                                    {"label": "Riedgrabenstrasse 7/9/11", "value": "1"},
+                                    {"label": "Riedgrabenstrasse 13", "value": "2"},
+                                    {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "3"},
+                                ],
+                                value="0",
+                                clearable=False,
+                                style={
+                                    "color": "black",
+                                    "font-weight": "bold",
+                                    "font-size": "16px",
+                                    "width": "270px",
+                                    "margin-right": "20px",
+                                    "margin-top": "20px",
+                                    "margin-bottom": "15px",
+                                    "background-color": "transparent",
+                                },
+                            ),
                             dcc.Loading(
-                                id="loading",
+                                id="loading1",
                                 type="graph",
                                 style={'marginTop': '80px'},  # Adjust the marginTop value as desired
                                 children=[
@@ -39,21 +67,36 @@ layout = html.Div(
                                     #     children="Berechnungen werden ausgeführt",
                                     #     style={'text-align': 'center', 'font-weight': 'bold'}
                                     # ),
-                                    html.Div(id='cost-graphs')
-                                ]
+                                    html.Div(id='cost-graphs'),
+                                    # html.P("Aufzeigen der Verbrauchsdaten der einzelnen Verbraucher --> Später mit Kosten verlinken.",className= 'regular-text', style={"text-align": "left"}),
+                                ]                            
                             ),
+                            dcc.Loading(
+                                id="loading2",
+                                type="graph",
+                                style={'marginTop': '80px'},  # Adjust the marginTop value as desired
+                                children=[
+                                    # html.Div(
+                                    #     className="loading-text",
+                                    #     children="Berechnungen werden ausgeführt",
+                                    #     style={'text-align': 'center', 'font-weight': 'bold'}
+                                    # ),
+                                    html.Div(id='usage-graphs'),
+                                    # html.P("Aufzeigen der Verbrauchsdaten der einzelnen Verbraucher --> Später mit Kosten verlinken.",className= 'regular-text', style={"text-align": "left"}),
+                                ]
                             # html.Img(src="assets/el_verschaltung/Trafo_el_Verschaltung_ist_Zustand_Eigenstrom_x.svg", style={"display": "block", "margin": "auto", "width": "85%", "margin-top" : "5%", "opacity": 0.95}),
-                            html.P("Aufzeigen der Verbrauchsdaten der einzelnen Verbraucher --> Später mit Kosten verlinken.", style={'font-size': '16px', 'font-weight': 'normal', 'fontFamily': 'Arial', "text-align": "left", "margin-top": "5%", "margin-left": "5%", "margin-right": "5%"})
+                            
+                            ),
                         ]
                     ),
-                    width=7,
+                    width=8,
                 ),
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Wählen Sie den Bezugscharakter aus:",className= 'table-title', style={"text-align": "left", "margin-left": "5%", "margin-right": "5%"}),
+                            html.P("Wählen Sie den Bezugscharakter aus:",className= 'subheader', style={"text-align": "left"}),
                             dcc.Dropdown(
-                                id='dropdown-el-cost',
+                                id='dropdown-reference-character',
                                 options=[
                                     {'label': 'Bezugscharakter Energie „Klassik"', 'value': 'option1'},
                                     {'label': 'Bezugscharakter Netz „Industrie NS 50 bis 100 MWh“', 'value': 'option2'},
@@ -94,16 +137,22 @@ layout = html.Div(
                         ],
                         style={'width': '100%', 'display': 'inline-block', 'background-color': 'transparent'}
                     ),
-                    width=5,
+                    width=4,
                 ),
             ]
         ),
+        html.P(f"Laut Annahme ist die Inflation der Strompreise ist auf {inflation_el_cost*100-100} % angesetzt (hoch angesetzt). Die Inflation der Rückspeisungsvergütung hat den gleichen Wert.",className= 'regular-text', style={"text-align": "left"}),
+        html.P(f"Die Betriebkosten wurden auf {operating_costs*100-100} % der Investitionskosten (CAPEX) angesetzt. Den Abzug von den Steuern ist in den meisten Kantonen bei {taxes_deduction*100} % des CAPEX angesetzt.",className= 'regular-text', style={"text-align": "left"}),
+        html.P(f"Die Lebensdauer der Anlage wurde auf {financial_lifetime_produkt} Jahre angesetzt.",className= 'regular-text', style={"text-align": "left"}),
+        html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif",className= 'regular-text', style={"text-align": "left"}),
+        html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat",className= 'regular-text', style={"text-align": "left"}),
     ]
 )
 
+
 @callback(
     Output('table-el-cost', 'children'),
-    [Input('dropdown-el-cost', 'value'),
+    [Input('dropdown-reference-character', 'value'),
     Input('main_store', 'data')]
 )
 def update_table1(option, stored_data_el_cost_table):
@@ -135,36 +184,47 @@ def update_table1(option, stored_data_el_cost_table):
     return table_rows_el_cost
 
 
-
-
 # Define the callbacks
 @callback(
-    dash.dependencies.Output('cost-graphs', 'children'),
-    dash.dependencies.Input('main_store', 'data')
+    Output('cost-graphs', 'children'),
+    [Input('dropdown-costs', 'value'),
+    Input('main_store', 'data')]
 )
-def generate_cost_plots(main_store_data):
+def generate_cost_plots(option_dropdown_el_cost, main_store_data):
 
     # Create a DataFrame from the data stored in the main_store
-    main_store_data_cost_df = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
+    main_store_data_cost_column = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
+
+    datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
+
+    datetime_column_costs_hours = main_store_data['results_excel_computation']['datetime_column_serialized_hours']
+
+    #get the data from the dictionary from the main_store for the electrical costs
+    data_el_cost_dict = main_store_data['options_data_el_cost_dict']
+
+    option_list = ['option1', 'option2', 'option3', 'option4']
+    data_el_cost_dict_selected = data_el_cost_dict[option_list[int(option_dropdown_el_cost)]]
 
     # Create a list to hold the traces for each array of data
     traces = []
 
     # Generate x-axis array based on the length of the first array
-    x_axis = list(range(1, len(main_store_data_cost_df)+1))
+    x_axis = list(range(1, len(main_store_data_cost_column)+1))
+
+    chosen_column = main_store_data_cost_column.columns[int(option_dropdown_el_cost)]
 
     # Iterate through the columns of the DataFrame
-    for col in main_store_data_cost_df.columns:
+    # for col in main_store_data_cost_row.columns:
         # Extract the numeric values from the dictionary and create a separate list
-        y_values = main_store_data_cost_df[col]
-        trace = go.Scattergl(x=x_axis, y=y_values, mode='lines+markers', name=f'{col} Data', marker=dict(size=0.5))
-        traces.append(trace)
+    y_values = main_store_data_cost_column.iloc[:, int(option_dropdown_el_cost)]
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values, mode='lines+markers', name=f'{chosen_column}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    traces.append(trace)
 
     # Create the plot using Plotly
     cost_plot = go.Figure(data=traces)
     cost_plot.update_layout(
         title=dict(
-            text="Verbrauch/Kosten plotten --> DateTime einfügen",
+            text="Kosten plotten",
             x=0.5,  # Set the title's horizontal position to the middle (0.5)
             y=0.95,  # Set the title's vertical position closer to the top
             font=dict(
@@ -176,7 +236,72 @@ def generate_cost_plots(main_store_data):
             # style="italic",  # Set the title font style to italic
         ),
         xaxis_title="Zeit [15min Abschnitte]",
+        xaxis_title_font=dict(color='black', size=16, family='Montserrat, bold'),  # Set the x-axis title font color to black
+        yaxis_title="Elektrizitätskosten [CHF/kwh]",
+        yaxis_title_font=dict(color='black', size=16, family='Montserrat, bold'),  # Set the x-axis title font color to black
+        legend=dict(
+            x=0, y=1.2, bgcolor='rgba(255, 255, 255, 0.5)',  # Make the legend background opaque
+            font=dict(size=10),  # Change the legend text size to 14
+            bordercolor='rgba(100, 100, 200, 0.2)',  # Make the legend border transparent
+            borderwidth=2,  # Make the legend border width 1
+        ),
+        plot_bgcolor='rgba(255, 255, 255, 0.3)',  # Set the plot background to 20% opaque white
+        paper_bgcolor='rgba(255, 255, 255, 0.1)',  # Set the paper (outside plot) background to 20% opaque white
+        margin=dict(l=25, r=10, t=20, b=15)  # Adjust the margins
+    )
+    # Return the plot as the children of the 'cost-graphs' div
+    return dcc.Graph(figure=cost_plot)
+
+
+# Define the callbacks
+@callback(
+    Output('usage-graphs', 'children'),
+    [Input('dropdown-reference-character', 'value'),
+    Input('main_store', 'data')]
+)
+def generate_cost_plots(option_dropdown_el_cost, main_store_data):
+
+    # Create a DataFrame from the data stored in the main_store
+    main_store_data_cost_df = pd.DataFrame(main_store_data['data_frames']).reset_index(drop=True)
+
+    datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
+
+    datetime_column_costs_hours = main_store_data['results_excel_computation']['datetime_column_serialized_hours']
+
+    data_el_cost_dict = main_store_data['options_data_el_cost_dict']
+
+    # Create a list to hold the traces for each array of data
+    traces = []
+
+    # Generate x-axis array based on the length of the first array
+    x_axis = list(range(1, len(main_store_data_cost_df)+1))
+
+    # Iterate through the columns of the DataFrame
+    for col in main_store_data_cost_df.columns:
+        # Extract the numeric values from the dictionary and create a separate list
+        y_values = main_store_data_cost_df[col]
+        trace = go.Scattergl(x=datetime_column_costs, y=y_values, mode='lines+markers', name=f'{col} Data', marker=dict(size=0.5),line=dict( width=1))
+        traces.append(trace)
+
+    # Create the plot using Plotly
+    cost_plot = go.Figure(data=traces)
+    cost_plot.update_layout(
+        title=dict(
+            text="Verbrauch plotten",
+            x=0.5,  # Set the title's horizontal position to the middle (0.5)
+            y=0.95,  # Set the title's vertical position closer to the top
+            font=dict(
+                family="Arial",  # Specify the font family
+                size=20,  # Set the title font size to 24
+                color="black",  # Set the title font color to blue
+            ),
+            # weight="bold",  # Set the title font weight to bold
+            # style="italic",  # Set the title font style to italic
+        ),
+        xaxis_title="Zeit [15min Abschnitte]",
+        xaxis_title_font=dict(color='black', size=16, family='Montserrat, bold'),  # Set the x-axis title font color to black
         yaxis_title="Verbrauchsdaten [kWh]",
+        yaxis_title_font=dict(color='black', size=16, family='Montserrat, bold'),  # Set the x-axis title font color to black
         legend=dict(
             x=0, y=1.2, bgcolor='rgba(255, 255, 255, 0.5)',  # Make the legend background opaque
             font=dict(size=10),  # Change the legend text size to 14

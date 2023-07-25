@@ -1,5 +1,6 @@
 import random
 import pickle
+import re
 from anyio import Event
 import dash
 import flask
@@ -144,224 +145,345 @@ app.layout = dbc.Container(
 )
 def expensive_computation(dummy_trigger):
 
-    # # Check if the data is already in the Store
-    # data_in_store = dash.callback_context.triggered[0]['prop_id'].split('.')[0] == 'main_store.data'
-    # if data_in_store:
-    #     # Data is already in the Store, no need to recompute
-    #     return dash.no_update
-    # else:
-    #     # Data is not in the Store, trigger the expensive computation
-    #     # ... (existing callback code)
+    # @cache.cached()
+    def excel_computation():
 
-        # @cache.cached()
-        def excel_computation():
+        # # Check if the data is already cached
+        # cached_data = cache.get('expensive_computation_data')
+        # if cached_data is not None:
 
-            # Check if the data is already cached
-            cached_data = cache.get('expensive_computation_data')
-            if cached_data is not None:
+        # return cached_data
 
-                return cached_data
+        #Import the data from the Excel file from Solextron via a pickle file
+        import_excel = pickle.load(open("BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle", "rb"))
+
+        # Get the column names of the imported Excel file
+        columns_available = import_excel.columns.tolist()
+
+        # columns_available_without_datetime_inital = columns_available[1:6]
+        columns_available_without_datetime = columns_available[1:]
+
+        # Convert DateTime column to datetime format
+        datetime_column = pd.to_datetime(import_excel['DateTime'])
+
+        # Create a new dataframe with only the DateTime column
+        datetime_column_frame = import_excel.iloc[:,[0]]
+
+        # Convert datetime_column_frame to a string in Swiss format
+        # datetime_column_frame_swiss_format = datetime_column_frame.dt.strftime('%d-%m-%Y %H:%M')
+
+        # Convert datetime_column to a list of strings in ISO format
+        datetime_column_serialized = datetime_column.dt.strftime('%d-%m-%Y %H:%M').tolist()
+        
+        # Convert datetime_column_frame to a dictionary with the DateTime column as a list
+        datetime_column_frame_serialized = datetime_column_frame.to_dict(orient='list')
+
+        # Convert datetime_column_frame to a dictionary with the DateTime column as a list with only the hours and minutes
+        datetime_column_serialized_hours = datetime_column.dt.strftime('%H:%M').tolist()
+
+
+
+        # Store the variables in a dictionary
+        results = {
+            'columns_available': columns_available,
+            'columns_available_without_datetime': columns_available_without_datetime,
+            'datetime_column': datetime_column_serialized,
+            'datetime_column_serialized_hours': datetime_column_serialized_hours, 
+            'datetime_column_frame': datetime_column_frame_serialized,
+        }
+
+        # print(columns_available)
+
+        # # Store the dictionary in the cache
+        # cache.set('expensive_computation_data', results)
+
+        # Return the results
+        return results
+
+    # Function to read CSV files and store them in the dcc.Store
+    def read_and_store_csv_files():
+        csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
+        csv_files = os.listdir(csv_files_path)
+        data_frames = {}
+        data_frames_stromdaten = pd.DataFrame()
+        for file in csv_files:
+            if file.endswith('.csv'):
+                file_path = os.path.join(csv_files_path, file)
+                # Read the CSV file into a DataFrame
+                df = pd.read_csv(file_path)
+                # Store the DataFrame in the data_frames dictionary using the file name as the key
+                data_frames_stromdaten[file] = df
+                data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
+                data_frames[file] = df.to_dict('records')
+
+        # Return the data_frames dictionary to be stored in the dcc.Store
+        return data_frames_stromdaten_dict
+
+    # Function to split the time range into start and end time, now outiside of the set_el_cost function
+    def split_time_range(time_range):
+        start_time, end_time = time_range.split('-')
+        start_time = start_time.strip()
+        end_time = end_time.strip()
+        return start_time, end_time
+    
+    # Function to extract numbers from a string
+    def extract_numbers_from_string(input_string):
+
+        # pattern = r'^[0-9]*[.,]{0,1}[0-9]*$'
+        # pattern = r'\d+\.\d+'
+        pattern = r'^[+-]?(\d+(\.\d+)?)'
+        # pattern = r'\b\d+(\.\d+)?\b'
+
+        numbers_list = re.findall(pattern, input_string)
+        numbers_list = numbers_list[0] #only take the first match of the regex pattern
+        # return [float(num) for num in numbers_list]
+        return numbers_list
+
+    # Function to set the electrical costs parameters
+    def set_el_cost():
+
+        #define the feedback costs, since they are all the same for the options
+        feedback_costs = ['Rückspeisevergütung', '15.15 Rp./kWh', 'unter 300kVA / gleich für HT und NT (exkl. 7.7% MWST))']
+        #define the options for the electrical costs
+        options_data_el_cost = {
+            'option1': [
+                ['Grundpreis', '2.69 Fr./Mt.', 'inkl. 7.7% MwSt.'],
+                ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+                ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Tarifzeiten NT', 'übrige Zeit', ''],
+                feedback_costs
+            ],
+            'option2': [
+                ['Grundpreis', '5.5 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+                ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)'],
+                feedback_costs
+            ],
+            'option3': [
+                ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+                ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
+                feedback_costs
+            ],
+            'option4': [
+                ['Grundpreis --> noch herausfinden', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+                ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
+                ['Rückspeisevergütung', 'noch herausfinden', 'unter 300kVA / gleich für HT und NT (exkl. 7.7% MWST))']
+            ],
+            'option5': [
+                ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
+                ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
+                ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+                ['Tarifzeiten NT', 'übrige Zeit', ''],
+                ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
+                feedback_costs
+                # ['Preis für die Abrechnung','X X X [CHF]', 'Muss durch die Besitzer der Liegenschaften festgelegt werden.']
+            ],
+
+        }
+        # print(options_data_el_cost.items())
+
+        options_data_el_cost_new = {}
+        for option, data_list in options_data_el_cost.items():
+            option_data = {}
+            for data in data_list:
+                label, value_text, information = data[0], data[1], data[2] #later also add the third column with the info
+
+                if label == 'Tarifzeiten HT':
+                    # Split the value_text by '/' to extract date and time information
+                    dates_HT, date_NT = value_text.split('/')
+                    time_range1, time_range2 = information.split('/')
+                    start_time1, end_time1 = split_time_range(time_range1)
+                    start_time2, end_time2 = split_time_range(time_range2)
+                    option_data[label] = {'value': [dates_HT.strip(), date_NT.strip()], 'factor_el_calc': [(start_time1, end_time1), (start_time2, end_time2)], 'info': information}
+                    # option_data[label]['timeframes'] = [(start_time1, end_time1), (start_time2, end_time2)]
+                elif label == 'Tarifzeiten NT':
+                    option_data[label] = {'value': value_text, 'factor_el_calc': '1', 'info': information}
             
+                else:
+                    
+                    try:
+                        value_text = value_text.replace(',', '.')  # Replace "," with "."
+                        value_number = extract_numbers_from_string(value_text)[0]  # Extract the number using regex
+                    except (ValueError, IndexError):
+                        value_number = value_text  # Return the original value_text if it cannot be converted to float
 
-            #Import the data from the Excel file from Solextron via a pickle file
-            import_excel = pickle.load(open("BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle", "rb"))
+                    # Determine the information (e.g., 'Rp./kWh', 'Fr./Mt.', 'Fr./kWh')
+                    if 'Rp./kWh' in value_text:
+                        factor_el_calc = 0.0025
+                        info = 'Rp./kWh'
+                    elif 'Fr./Mt.' in value_text:
+                        factor_el_calc = 1
+                        info = 'Fr./Mt.'
+                    elif 'Fr./kWh' in value_text:
+                        factor_el_calc = 0.25
+                        info = 'Fr./kWh'
+                    else:
+                        info = ''  # Replace with an appropriate default value if needed
 
-            # Get the column names of the imported Excel file
-            columns_available = import_excel.columns.tolist()
+                    option_data[label] = {'value': value_number, 'factor_el_calc': factor_el_calc, 'info': info}
 
-            # columns_available_without_datetime_inital = columns_available[1:6]
-            columns_available_without_datetime = columns_available[1:]
+            #store the option_data in the options_data_el_cost_new dictionary
+            options_data_el_cost_new[option] = option_data
 
-            # Convert DateTime column to datetime format
-            datetime_column = pd.to_datetime(import_excel['DateTime'])
-
-            # Create a new dataframe with only the DateTime column
-            datetime_column_frame = import_excel.iloc[:,[0]]
-
-            #Get the initial selected columns and the initail data without the DateTime column
-            initial_selected_columns = ['Solar [kWh]','SelfConsumption [kWh]', 'Demand [kWh]', 'Net Grid Import/Export [kWh]', 'Battery [kWh]']  # Set the initial selected columns as a list
-            initial_data_without_datetime = import_excel.iloc[:, 1:]  # Exclude the first column (DateTime)
-
-            # Get the first and last dates from the DateTime column
-            initial_first_date = import_excel['DateTime'].iloc[0]
-            initial_last_date = import_excel['DateTime'].iloc[10000]
-
-            initial_start_date_index = int(initial_first_date.timestamp())
-            initial_end_date_index = int(initial_last_date.timestamp())
-
-
-            # # Convert first and last dates to Swiss time format
-            swiss_time_format = '%d.%b.%Y'
-            initial_start_date_index_swiss = initial_first_date.strftime(swiss_time_format)
-            initial_end_date_index_swiss = initial_last_date.strftime(swiss_time_format)
-
-            # month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-            # Create marks dictionary with German month names
-            month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
-
-            # List of colors to be used in the bar plots
-            # color_list = ['#0000FF', '#FF0000', '#008000', '#FFFF00', '#800080', '#000000', '#FFA500']
-            color_list = ['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9A6324', '#800000']
-            # Year
-            year = "2023"
-            # Define the marks for the slider
-            date_range = pd.date_range(initial_first_date, initial_last_date, freq='D')
-            slider_marks = {date.timestamp(): {'label': date.strftime('%b %Y'), 'style': {'color': "#{:06x}".format(random.randint(0, 0xFFFFFF))}} for date in date_range}
-
-            # Store the variables in a dictionary
-            results = {
-                'columns_available': columns_available,
-                'columns_available_without_datetime': columns_available_without_datetime,
-                'datetime_column': datetime_column,
-                'datetime_column_frame': datetime_column_frame,
-                'initial_selected_columns': initial_selected_columns,
-                'initial_data_without_datetime': initial_data_without_datetime,
-                'initial_first_date': initial_first_date,
-                'initial_last_date': initial_last_date,
-                'initial_start_date_index': initial_start_date_index,
-                'initial_end_date_index': initial_end_date_index,
-                'initial_start_date_index_swiss': initial_start_date_index_swiss,
-                'initial_end_date_index_swiss': initial_end_date_index_swiss,
-                'month_names': month_names,
-                'color_list': color_list,
-                'year': year,
-                'slider_marks': slider_marks
-            }
-
-            # Store the dictionary in the cache
-            cache.set('expensive_computation_data', results)
-
-            # Return the results
-            return results
+            
+        #return the options_data_el_cost and the options_data_el_cost_new from the 
+        return options_data_el_cost, options_data_el_cost_new
 
         #call the function for the expensive computation
-        # results_excel_computation = excel_computation()
+    
+    def set_costs_simulation():
 
-        # Function to read CSV files and store them in the dcc.Store
-        def read_and_store_csv_files():
-            csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
-            csv_files = os.listdir(csv_files_path)
-            data_frames = {}
-            data_frames_stromdaten = pd.DataFrame()
-            for file in csv_files:
-                if file.endswith('.csv'):
-                    file_path = os.path.join(csv_files_path, file)
-                    # Read the CSV file into a DataFrame
-                    df = pd.read_csv(file_path)
-                    # Store the DataFrame in the data_frames dictionary using the file name as the key
-                    data_frames_stromdaten[file] = df
-                    data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
-                    data_frames[file] = df.to_dict('records')
+        #set the tabel_costs_simulation's first column names
+        capex = 'Ivestitionskosten/CAPEX [CHF]'
+        capex_EV = 'CAPEX mit Einmalvergütung [CHF]'
+        spez_capex = 'Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]'
+        opex = 'Betriebskosten/OPEX [CHF/Jahr]'
+        payback_time = 'Amortisationszeit [Jahre]'
+        el_costs = 'Stromkosten [CHF/kWh]'
 
-            # Return the data_frames dictionary to be stored in the dcc.Store
-            return data_frames_stromdaten_dict
-
-        # Call the function to read CSV files and store them in the dcc.Store
-        data_frames_stromdaten_dict = read_and_store_csv_files()
-
-        # Function to set the electrical costs parameters
-        def set_el_cost():
-            options_data_el_cost = {
-                'option1': [
-                    ['Grundpreis', '2.69 Fr./Mt.', 'inkl. 7.7% MwSt.'],
-                    ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
-                    ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
-                    ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-                    ['Tarifzeiten NT', 'übrige Zeit', '']
-                ],
-                'option2': [
-                    ['Grundpreis', '5.5 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-                    ['Arbeitspreise HT', '5.17 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Arbeitspreise NT', '3.6 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-                    ['Tarifzeiten NT', 'übrige Zeit', ''],
-                    ['Leistungspreis', '5.1 Fr./kWh' , '(exkl. 7.7% MWST)']
-                ],
-                'option3': [
-                    ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-                    ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-                    ['Tarifzeiten NT', 'übrige Zeit', ''],
-                    ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)']
-                ],
-                'option4': [
-                    ['Grundpreis --> noch herausfinden', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-                    ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-                    ['Tarifzeiten NT', 'übrige Zeit', ''],
-                    ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)']
-                ],
-                'option5': [
-                    ['Grundpreis', '59 Fr./Mt.', 'exkl. 7.7% MwSt.'],
-                    ['Arbeitspreise HT', '8.01 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Arbeitspreise NT', '5.30 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Systemdienstleistungspreis SDL', '0.46 Rp./kWh' , '(exkl. 7.7% MWST)'],
-                    ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
-                    ['Tarifzeiten NT', 'übrige Zeit', ''],
-                    ['Leistungspreis', '9.5 Fr./kWh' , '(exkl. 7.7% MWST)'],
-                    # ['Preis für die Abrechnung','X X X [CHF]', 'Muss durch die Besitzer der Liegenschaften festgelegt werden.']
-                ],
-
-            }
-
-            # New dictionary with labels as keys and values as numbers of the el_cost_calc table
-            options_data_el_cost_new = {}
-            for option, data_list in options_data_el_cost.items():
-                option_data = {}
-                for data in data_list:
-                    label, value_text = data[0], data[1]
-
-                    # Check if the row is 'Tarifzeiten HT' or 'Tarifzeiten NT'
-                    if label == 'Tarifzeiten HT' or label == 'Tarifzeiten NT':
-                        # Split the value_text by '/' to extract date and time information
-                        if value_text == 'übrige Zeit':
-                                pass # Do nothing for now
-                        else:
-                            date_info, time_info = value_text.split('/')
-
-                        # Store the date and time information as a list in the 'value' key
-                        option_data[label] = {'value': [date_info.strip(), time_info.strip()], 'info': ''}
-                    else:
-                        # Extract numeric value from the 'value_text' string
-                        value_number = float(''.join(filter(str.isdigit, value_text)))
-
-                        # Determine the information (e.g., 'Rp./kWh', 'Fr./Mt.', 'Fr./kWh')
-                        if 'Rp./kWh' in value_text:
-                            factor_el_calc = 0.0025
-                            info = 'Rp./kWh'
-                        elif 'Fr./Mt.' in value_text:
-                            factor_el_calc = 1
-                            info = 'Fr./Mt.'
-                        elif 'Fr./kWh' in value_text:
-                            factor_el_calc = 0.25
-                            info = 'Fr./kWh'
-                        else:
-                            info = ''  # Replace with an appropriate default value if needed
-
-                        # Store the numeric value and information in the option_data dictionary
-                        option_data[label] = {'value': value_number, 'factor_el_calc': factor_el_calc, 'info': info}
-
-                options_data_el_cost_new[option] = option_data
-
-            return options_data_el_cost, options_data_el_cost_new
-
-        # Call the function to set the el_cost_calc data
-        options_data_el_cost_table, options_data_el_cost_dict = set_el_cost()
-
-            # Store the computed data in the dcc.Store
-        data_to_store = {
-            'data_frames': data_frames_stromdaten_dict,  # Add the actual computed data_frames_stromdaten_dict
-            'options_data_el_cost_table': options_data_el_cost_table,  # Add the actual computed options_data_el_cost_table
-            'options_data_el_cost_dict': options_data_el_cost_dict,  # Add the actual computed options_data_el_cost_dict
-            # Add other computed data as needed
+        #define the options for the electrical simulation costs table
+        tabel_costs_simulation = {
+            'option1': [
+                [capex, '100', '100'],
+                [capex_EV, '100', '100'],
+                [spez_capex, '100', '100'],
+                [opex, '100', '100'],
+                [payback_time, '100', '100'],
+                [el_costs, '100', '100'],
+                
+            ],
+            'option2': [
+                [capex, '1', '2'],
+                [capex_EV, '100', '100'],
+                [spez_capex, '100', '100'],
+                [opex, '100', '100'],
+                [payback_time, '9.1', '12.8'],
+                [el_costs, '9', '10']
+            ],
+            'option3': [
+                [capex, 'X', 'Y'],
+                [capex_EV, '100', '100'],
+                [spez_capex, '100', '100'],
+                [opex, '100', '100'],
+                [payback_time, '9.1', '12.8'],
+                [el_costs, '100', '100']
+            ],
+            'option4': [
+                [capex, '!', '@'],
+                [capex_EV, '100', '100'],
+                [spez_capex, '100', '100'],
+                [opex, '100', '100'],
+                [payback_time, '9.1', '12.8'],
+                [el_costs, '100', '100']
+            ]
         }
-        return data_to_store
+        
+        options_data_costs_simulation_new = {}
+        for option, data_list in tabel_costs_simulation.items():
+            option_data = {}
+            for data in data_list:
+                label, value_battery, value_no_battery = data[0], data[1], data[2] #later also add the third column with the info
 
+                if label == capex:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'CAPEX'
+                    information = 'CHF'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                elif label == capex_EV:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'CAPEX EV'
+                    information = 'CHF'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                elif label == spez_capex:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'CAPEX/kWP'
+                    information = 'CHF/kWp'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                elif label == opex:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'OPEX'
+                    information = 'CHF/Jahr'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                elif label == payback_time:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'Amortisationszeit'
+                    information = 'Jahre'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                elif label == el_costs:
+                    #set the label_dict and information for the option_data
+                    label_dict = 'Stromkosten'
+                    information = 'CHF/kWh'
+                    option_data[label_dict] = {'value_battery': value_battery, 'value_no_battery': value_no_battery, 'info': information}
+                else:
+                    pass
+
+            #store the option_data in the options_data_el_cost_new dictionary
+            options_data_costs_simulation_new[option] = option_data
+
+            
+        #return the options_data_el_cost and the options_data_el_cost_new from the 
+        return tabel_costs_simulation, options_data_costs_simulation_new
+    #call the fuction excel_computation to get the results from the excel file
+    # results_excel_computation = excel_computation()
+
+    # print(results_excel_computation)
+
+    #call the fuction read_and_store_csv_files to read the csv files and store them in the dcc.Store
+    data_frames_stromdaten_dict = read_and_store_csv_files()
+
+    # Call the function to set the el_cost_calc data
+    options_data_el_cost_table, options_data_el_cost_dict = set_el_cost()
+
+    # Call the function to set the costs_simulation data
+    costs_simulation_table, options_data_costs_simulation_dict = set_costs_simulation()
+    # print(costs_simulation_table)
+    # print(options_data_costs_simulation_dict)
+
+    # print(options_data_el_cost_dict)
+    # Function to recursively get all values from a nested dictionary
+    def get_all_values(d):
+        all_values = []
+        for value in d.values():
+            if isinstance(value, dict):
+                all_values.extend(get_all_values(value))
+            else:
+                all_values.append(value)
+        return all_values
+
+    # Call the function to get all the values
+    all_values = get_all_values(options_data_el_cost_dict)
+    # print(all_values)
+
+    data_to_store = {
+        'data_frames': data_frames_stromdaten_dict,
+        'options_data_el_cost_table': options_data_el_cost_table, 
+        'options_data_el_cost_dict': options_data_el_cost_dict,
+        'results_excel_computation': excel_computation(),
+        'costs_simulation_table' : costs_simulation_table,
+        'options_data_costs_simulation_dict' : options_data_costs_simulation_dict,
+        # Add other computed data as needed
+    }
+    
+
+    #return the data to the dcc.Store
+    return data_to_store
 
 
 # # Define routes

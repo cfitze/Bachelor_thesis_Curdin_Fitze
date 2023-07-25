@@ -234,47 +234,16 @@ def update_table1(option):
 
 @callback(
     Output('table2', 'children'),
-    Input('dropdown', 'value')
+    [Input('dropdown', 'value'),
+     Input('main_store', 'data')]
 )
-def update_table2(option):
-    options_data2 = {
-        'option1': [
-            ['Ivestitionskosten/CAPEX [CHF]', 'A', 'B'],
-            ['CAPEX mit Einmalvergütung [CHF]', 'C', 'D'],
-            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
-            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
-            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
-            ['Stromkosten [CHF/kWh]', 'G', 'H'],
-            
-        ],
-        'option2': [
-            ['Ivestitionskosten/CAPEX [CHF]', '1', '2'],
-            ['CAPEX mit Einmalvergütung [CHF]', '3', '4'],
-            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
-            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
-            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
-            ['Stromkosten [CHF/kWh]', '9', '10']
-        ],
-        'option3': [
-            ['Ivestitionskosten/CAPEX [CHF]', 'X', 'Y'],
-            ['CAPEX mit Einmalvergütung [CHF]', 'Z', 'A'],
-            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
-            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
-            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
-            ['Stromkosten [CHF/kWh]', 'F', 'G']
-        ],
-        'option4': [
-            ['Ivestitionskosten/CAPEX [CHF]', '!', '@'],
-            ['CAPEX mit Einmalvergütung [CHF]', '#', '$'],
-            ['Spez. Investitionskosten (CAPEX/kWP) [CHF/kWp]', 'E', 'F'],
-            ['Betriebskosten/OPEX [CHF/Jahr]', 'I', 'J'],
-            ['Amortisationszeit [Jahre]', '9.1', '12.8'],
-            ['Stromkosten [CHF/kWh]', '(', ')']
-        ]
-    }
+def update_table2(option, stored_main_data):
 
-    data2 = options_data2.get(option, [])
-
+    #get the data from the main store for the costs simulation table
+    costs_simulation_table = stored_main_data.get('costs_simulation_table', [])
+    #get the data for the chosen option
+    data2 = costs_simulation_table.get(option, [])
+    #add the header to the data
     table_rows2 = [
         html.Tr([
             html.Th('Kosten aus der Simulation', style={'border': '2px solid black', 'padding': '8px'}),

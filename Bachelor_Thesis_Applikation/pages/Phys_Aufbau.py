@@ -18,6 +18,7 @@ layout = html.Div(
                 html.P(
                     "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.", className='subheader', style={'text-align': 'left'}
                 ),
+                html.P("Interaktiver 3D Link einbauen -->https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de", className='normal-text', style={'text-align': 'left'}),
             ],
             style={"margin": "auto", "width": "100%", "text-align": "center"},
         ),

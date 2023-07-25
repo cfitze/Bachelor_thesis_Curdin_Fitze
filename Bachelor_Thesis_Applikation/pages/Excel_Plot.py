@@ -75,6 +75,7 @@ initial_end_date_index_swiss = initial_last_date.strftime(swiss_time_format)
 # month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 # Create marks dictionary with German month names
 month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+days_names = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag','Sonntag']
 
 # List of colors to be used in the bar plots
 # color_list = ['#0000FF', '#FF0000', '#008000', '#FFFF00', '#800080', '#000000', '#FFA500']
@@ -140,7 +141,41 @@ layout = html.Div(children=[
     ),
     # html.Br(),
     html.Div(id='selected-dates-output', style={'fontWeight': 'bold','textAlign': 'center', 'fontSize': '22px'}),  # Placeholder for displaying selected start and end dates
-    html.Br(),
+    # html.Br(),
+            dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.P("Wählen sie die gewünschten Wochentage aus:", className='regular-text', style={"text-align": "left"}),
+
+                        ]
+                    ),
+                    width=3,
+                ),
+                dbc.Col(
+                    html.Div(
+                        dcc.Checklist(
+                            id='selected-days-checklist-items',
+                            options=[{'label': day, 'value': day} for day in days_names],
+                            value = days_names,
+                            # labelStyle={'display': 'block'},
+                            # labelStyle={ 'fontWeight': 'bold', 'fontSize': '15px'},
+                            labelStyle={'display': 'inline-block', 'fontWeight': 'bold', 'fontSize': '15px', 'text-align': 'left'},
+                            inputStyle={'margin-right': '5px'},
+                            inputClassName='check-input',
+                            className='check-container',
+                            persistence=True,
+                            persistence_type='session',
+                            inline=True,
+                            style={'color': 'blue', 'font-size': '10px','opacity': '0.8'}
+                        ),
+                    ),
+                    width=5,
+                ),
+                ]
+            ),
+    # html.Br(),
     # dcc.Dropdown(
     #     id='column-dropdown',
     #     options = [{'label': column, 'value': column} for column in initial_selected_columns],
@@ -281,7 +316,6 @@ def create_plot_figure(data_without_datetime, datetime_column, start_date, end_d
 
         # Get the selected column name, actually not needed because we only have one column, but for shortness of code
         column = selected_columns[0]
-
 
         # Additional code for adding other distribution traces as desired
 
