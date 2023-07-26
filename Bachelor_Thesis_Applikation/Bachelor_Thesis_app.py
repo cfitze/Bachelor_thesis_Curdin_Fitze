@@ -200,12 +200,28 @@ def expensive_computation(dummy_trigger):
         # Return the results
         return results
 
+    # Function to sort the csv files for the dcc.Store
+    def custom_sort_key(filename):
+        # Define the desired order of filenames
+        order = {
+            'Riedgrabenstrasse5_Lastgang_15min.csv': 0,
+            'Riedgrabenstrasse7_9_11_Lastgang_15min.csv': 1,
+            'Riedgrabenstrasse13_Lastgang_15min.csv': 2,
+            'Riedgrabenstrasse5_7_9_11_13_Lastgang_15min.csv': 3,
+        }
+        # Return the corresponding order for the filename
+        return order.get(filename, 999)  # Use 999 as a default value if the filename is not in the order dictionary
+
     # Function to read CSV files and store them in the dcc.Store
     def read_and_store_csv_files():
         csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
         csv_files = os.listdir(csv_files_path)
-        data_frames = {}
+        # Sort the list of files using the custom_sort_key function
+        csv_files.sort(key=custom_sort_key)
+
+        # Initialize an empty DataFrame to store all the data from the CSV files
         data_frames_stromdaten = pd.DataFrame()
+
         for file in csv_files:
             if file.endswith('.csv'):
                 file_path = os.path.join(csv_files_path, file)
@@ -214,7 +230,6 @@ def expensive_computation(dummy_trigger):
                 # Store the DataFrame in the data_frames dictionary using the file name as the key
                 data_frames_stromdaten[file] = df
                 data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
-                data_frames[file] = df.to_dict('records')
 
         # Return the data_frames dictionary to be stored in the dcc.Store
         return data_frames_stromdaten_dict
