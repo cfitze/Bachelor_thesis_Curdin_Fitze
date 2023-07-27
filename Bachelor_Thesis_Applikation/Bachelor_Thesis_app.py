@@ -52,9 +52,7 @@ server = flask.Flask(__name__)
 app = dash.Dash(__name__, background_callback_manager=background_callback_manager, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css", "assets/smooth-arrow-animation/dist/style.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
-#initialise the app
-# app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
-load_figure_template('LUX')
+# load_figure_template('LUX')
                      
 # # Initialize the cache object
 # cache = Cache(app.server, config={
@@ -138,7 +136,6 @@ app.layout = dbc.Container(
     dcc.Store(
         id='main_store', storage_type='memory'
         # data={
-
         #     'data_frames': data_frames_stromdaten_dict,  # Store the CSV data_frames in the Store
         #     'options_data_el_cost_table' : options_data_el_cost_table,
         #     'options_data_el_cost_dict' : options_data_el_cost_dict,
@@ -559,3 +556,75 @@ if __name__ == "__main__":
 # ], debug=True)
 
 # app = webapp2_profiler.ProfilerWSGIMiddleware(app)
+
+
+
+
+# Yes, it is possible to create a second layout in a Dash app specifically designed for mobile devices. Dash provides a way to define different layouts for different screen sizes using the dash_responsive_grid_layout module.
+
+# Here's how you can achieve this:
+
+#     Install the dash-responsive-grid-layout module:
+
+# bash
+
+# pip install dash-responsive-grid-layout
+
+#     Import the required modules in your Dash app:
+
+# python
+
+# import dash
+# import dash_html_components as html
+# from dash_responsive_grid_layout import DashResponsiveGridLayout
+
+#     Define the layout for desktop devices as usual:
+
+# python
+
+# # Define the layout for desktop devices
+# desktop_layout = html.Div(
+#     [
+#         # Your desktop layout components here...
+#     ]
+# )
+
+#     Define the layout for mobile devices using the DashResponsiveGridLayout:
+
+# python
+
+# # Define the layout for mobile devices using DashResponsiveGridLayout
+# mobile_layout = DashResponsiveGridLayout(
+#     id="mobile-layout",
+#     layout=[
+#         # Your mobile layout components here...
+#     ],
+#     cols=12,  # Number of columns for the grid
+#     rowHeight=100,  # Height of the rows
+#     breakpoints={
+#         # Specify breakpoints for different screen sizes
+#         "xs": 0,  # Mobile devices
+#         "sm": 576,  # Small tablets and larger mobile devices
+#         "md": 768,  # Tablets and larger devices
+#         "lg": 992,  # Desktops and larger devices
+#         "xl": 1200,  # Larger desktops
+#     },
+# )
+
+#     Create the Dash app and include both layouts:
+
+# python
+
+# app = dash.Dash(__name__)
+
+# app.layout = html.Div(
+#     [
+#         # Include both desktop and mobile layouts in the main layout
+#         desktop_layout,
+#         mobile_layout,
+#     ]
+# )
+
+# # ... (rest of the app code)
+
+# With this setup, the DashResponsiveGridLayout will automatically switch to the appropriate layout based on the screen size of the device. You can define the mobile layout to be more suitable for smaller screens, making your app responsive and user-friendly on mobile devices.

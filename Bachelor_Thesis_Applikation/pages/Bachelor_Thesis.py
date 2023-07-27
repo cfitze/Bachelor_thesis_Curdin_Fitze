@@ -12,12 +12,16 @@ dash.register_page(__name__, path='/bachelor-thesis', name='Bachelor Thesis', or
 layout = html.Div([
     html.Div([
         # html.H1("Bachelor Thesis", className="pages-header"),
-        html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze.", className= 'pages-header')
+        html.P("Willkommen bei der Bachelor Thesis von Curdin Fitze", className= 'pages-header')
     ], style={"margin": "auto", "width": "60%"}),  # Centered text
 
     html.Iframe(src="data:application/pdf;base64," + base64.b64encode(open('Bachelor_Thesis_Applikation/assets/Bachelorthesis_EUT_P6_FS23_Curdin_Fitze-2.pdf', "rb").read()).decode('utf-8'),
-                style={"width": "90%", "height": "700px", "zoom": "80%", 'margin-left': '5%', "zoom": "100%"}),
+                style={"width": "90%", "height": "700px", "zoom": "80%", 'margin-left': '5%', "zoom": "100%"},
                 # style={"width": "100%", "height": "500px"})
+                # sandbox="allow-scripts allow-same-origin",
+                # Set the scale parameter to control zoom (e.g., 1.0 for 100%)
+                # srcDoc='<embed type="application/pdf" src="data:application/pdf;base64,' + base64.b64encode(open('Bachelor_Thesis_Applikation/assets/Bachelorthesis_EUT_P6_FS23_Curdin_Fitze-2.pdf', "rb").read()).decode('utf-8') + '#view=FitH" width="100%" height="100%">',
+    ),
 ])
 
 

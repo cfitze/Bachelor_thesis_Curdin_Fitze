@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import locale
 import calendar
+from datetime import timedelta
 
 # Set the locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
@@ -182,11 +183,6 @@ layout = html.Div(
     Output('table-el-cost', 'children'),
     [Input('dropdown-reference-character', 'value'),
     Input('main_store', 'data')],
-    background=True,
-    cache_by=True,
-    running=[
-        (Output("dropdown-costs", "disabled"), True, False),
-    ],
 )
 def update_table1(option, stored_data_el_cost_table):
 
@@ -244,17 +240,20 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
     data_el_cost_dict_selected = data_el_cost_dict[selected_option]
     #get the keys from the dictionary for the chosen character from the dropdown option
     key_dict_secleceted_list = list(data_el_cost_dict_selected.keys())
-    #get the keys from the keys list
-    key_basic_price_dict_selected, key_el_cost_HT_dict_selected, key_el_cost_NT_dict_selected, key_el_time_HT_dict_selected, key_el_time_NT_dict_selected  = key_dict_secleceted_list[0],key_dict_secleceted_list[1],key_dict_secleceted_list[2],key_dict_secleceted_list[3],key_dict_secleceted_list[4]
-    if selected_option != 'option1': #if the selected option is not the first option, then the SDL price is also included
-        key_SDL_price_dict_selected = key_dict_secleceted_list[5]
+    #get the keys from the keys list fo roption 1
+    if selected_option == 'option1': #if the selected option is the first option, then the SDL price and the performance price is not included
+        key_basic_price_dict_selected, key_el_cost_HT_dict_selected, key_el_cost_NT_dict_selected, key_el_time_HT_dict_selected, key_el_time_NT_dict_selected, key_feedback_cost_dict_selected  = key_dict_secleceted_list[0],key_dict_secleceted_list[1],key_dict_secleceted_list[2],key_dict_secleceted_list[3],key_dict_secleceted_list[4], key_dict_secleceted_list[5]
+    else: #if the selected option is not the first option, then the SDL price is also included
+        key_basic_price_dict_selected, key_el_cost_HT_dict_selected, key_el_cost_NT_dict_selected, key_el_time_HT_dict_selected, key_el_time_NT_dict_selected, key_SDL_price_dict_selected, key_performance_price_dict_selected, key_feedback_cost_dict_selected = key_dict_secleceted_list[0],key_dict_secleceted_list[1],key_dict_secleceted_list[2],key_dict_secleceted_list[3],key_dict_secleceted_list[4], key_dict_secleceted_list[5], key_dict_secleceted_list[6], key_dict_secleceted_list[7]
         value_SDL_price_dict_selected, factor_SDL_price_dict_selected = float(data_el_cost_dict_selected[key_SDL_price_dict_selected]['value']), data_el_cost_dict_selected[key_SDL_price_dict_selected]['factor_el_calc']
-    
+        value_performance_price_dict_selected, factor_performance_price_dict_selected = float(data_el_cost_dict_selected[key_performance_price_dict_selected]['value']), data_el_cost_dict_selected[key_performance_price_dict_selected]['factor_el_calc']
     #get the values and mathematical factors for the electrical host for the high tariff, low tariff and high tariff time; low tariff time equals the rest of the time
     value_basic_price_dict_selected, factor_basic_price_dict_selected = float(data_el_cost_dict_selected[key_basic_price_dict_selected]['value']), data_el_cost_dict_selected[key_basic_price_dict_selected]['factor_el_calc']
     value_el_cost_HT_dict_selected, factor_el_cost_HT_dict_selected = float(data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_HT_dict_selected]['factor_el_calc']
     value_el_cost_NT_dict_selected, factor_el_cost_NT_dict_selected = float(data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['value']), data_el_cost_dict_selected[key_el_cost_NT_dict_selected]['factor_el_calc']
     value_el_time_HT_dict_selected, factor_el_time_HT_dict_selected = data_el_cost_dict_selected[key_el_time_HT_dict_selected]['value'], data_el_cost_dict_selected[key_el_time_HT_dict_selected]['factor_el_calc']
+    value_feedback_cost_dict_selected, factor_feedback_cost_dict_selected = float(data_el_cost_dict_selected[key_feedback_cost_dict_selected]['value']), data_el_cost_dict_selected[key_feedback_cost_dict_selected]['factor_el_calc']
+    
     #get the start and end day for the high tariff time during the week
     start_weekday_el_time_HT_dict_selected, end_weekday_el_time_HT_dict_selected = value_el_time_HT_dict_selected[0].split('-')
     #get the start day for the high tariff time during the weekend
@@ -263,7 +262,6 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
     start_time_weekday_el_time_HT_dict_selected, end_time_weekday_el_time_HT_dict_selected = factor_el_time_HT_dict_selected[0][0], factor_el_time_HT_dict_selected[0][1]
     #get the start and end time for the high tariff time during the weekend
     start_time_weekend_el_time_HT_dict_selected, end_time_weekend_el_time_HT_dict_selected = factor_el_time_HT_dict_selected[1][0], factor_el_time_HT_dict_selected[1][1]
-
     # Sample list of German day names
     german_days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
 
@@ -271,6 +269,13 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
     y_values_cumulative = []
     y_values_non_cumulative = []
     y_values_cum_sum = 0  # Initialize the cumulative sum variable
+
+    # Initialize lists to store previous month data and performance prices
+    performance_prices_datetime_ranges = []
+    performance_prices = []
+    cost_basic_prices = []
+    sdl_prices = []
+    previous_month_datetime_stamp_max_array = []
 
     # Check if the selected option is the first option
     if selected_option == 'option1':
@@ -301,12 +306,15 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
             # if dt.month != dt.shift(1).month and dt.day == calendar.monthrange(dt.year, dt.month)[1] and dt.hour == 23: #because the datetime_column_costs_pd from Solextron stops at the date 31.12.2023 23:00, so the last hour can not be used to check if it is the last day of the month
             if dt.day == calendar.monthrange(dt.year, dt.month)[1] and dt.hour == 23:    
                 # Calculate the cost for the basic price and add it to the cumulative sum for the remaining days
-                cost_remaining_days = value_basic_price_dict_selected * factor_basic_price_dict_selected
-                y_values_cum_sum += cost_remaining_days
+                cost_basic_price = value_basic_price_dict_selected * factor_basic_price_dict_selected
+                y_values_cum_sum += cost_basic_price
 
-                # Append the basic price cost to the cumulative and non-cumulative y values lists
-                y_values_cumulative[-1] = y_values_cum_sum
-                y_values_non_cumulative[-1] = cost_remaining_days
+                # Add the basic prices together
+                cost_basic_prices.append(cost_basic_price)
+
+                # Add the basic price cost to the cumulative and non-cumulative y values lists
+                y_values_cumulative[-1] = y_values_cum_sum  #y_values_cumulative[-1] += y_values_cum_sum
+                y_values_non_cumulative[-1] += cost_basic_price
                 # y_values_cumulative.append(y_values_cum_sum)
                 # y_values_non_cumulative.append(cost_remaining_days)
 
@@ -347,14 +355,56 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
                 cost_basic_price = value_basic_price_dict_selected * factor_basic_price_dict_selected
                 y_values_cum_sum += cost_basic_price
 
-                # Append the basic price cost to the cumulative and non-cumulative y values lists
-                y_values_cumulative[-1] = y_values_cum_sum
-                y_values_non_cumulative[-1] = cost_basic_price
+                # Add the basic prices together
+                cost_basic_prices.append(cost_basic_price)
+
+                # Add the basic price cost to the cumulative and non-cumulative y values lists
+                y_values_cumulative[-1] = y_values_cum_sum #y_values_cumulative[-1] += y_values_cum_sum
+                y_values_non_cumulative[-1] += cost_basic_price
+
+                # Calculate the previous month's start date (first day of the current month at midnight)
+                previous_month_start = dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+                # Get the index of the start of the month in datetime_column_costs_pd
+                start_index = datetime_column_costs_pd.get_loc(previous_month_start)
+
+                # Get the index of the last day of the month at 23:00 in datetime_column_costs_pd
+                end_index = datetime_column_costs_pd.get_loc(dt)
+
+                # Get the corresponding data from y_values_chosen_column for the previous month
+                previous_month_data = y_values_chosen_column[start_index:end_index]
+
+
+                # Get the index and the max value of the previous month
+                previous_month_max_index, previous_month_max_value = max(enumerate(previous_month_data), key=lambda x: x[1])
+                #get the datetime stamp of the previous month's max value with the format dd.mm.yy
+                previous_month_datetime_stamp_max = datetime_column_costs_pd[previous_month_max_index].strftime('%d.%m.%y')
+                # previous_month_datetime_stamp_max  = datetime_column_costs_pd.iloc[previous_month_max_index].strftime('%d.%m.%y')
+
+                previous_month_start_date = previous_month_start.strftime('%d.%m.%y')
+                previous_month_end_date = previous_month_start.replace(day=calendar.monthrange(previous_month_start.year, previous_month_start.month)[1]).strftime('%d.%m.%y')
+                previous_month_datetime_range = f"{previous_month_start_date} - {previous_month_end_date}"
+
+                # previous_month_datetime_stamp = previous_month_start + pd.TimedeltaIndex([previous_month_max_index], unit='D')
+
+                # Calculate the performance price for the previous month's max value
+                performance_price = previous_month_max_value * value_performance_price_dict_selected * factor_performance_price_dict_selected
+
+                # Append the previous month datetime stamp and performance price to their respective lists
+                performance_prices_datetime_ranges.append(previous_month_datetime_range)
+                previous_month_datetime_stamp_max_array.append(previous_month_datetime_stamp_max)
+                performance_prices.append(performance_price)
+                # Add the maximum value to the cumulative sum
+                # y_values_cum_sum += performance_price
+                y_value += performance_price
 
             # Calculate the SDL and performance price and add it to the cumulative sum
-            sdl_performance_price = y_values_chosen_column[index] * value_SDL_price_dict_selected * factor_SDL_price_dict_selected
+            sdl_price = y_values_chosen_column[index] * value_SDL_price_dict_selected * factor_SDL_price_dict_selected
+
+            # Append the SDL price to the list
+            sdl_prices.append(sdl_price)
             # y_values_cum_sum += sdl_performance_price
-            y_value += sdl_performance_price
+            y_value += sdl_price
 
             # # Update the last element of the cumulative and non-cumulative y values lists
             # y_values_cumulative[-1] = y_values_cum_sum
@@ -366,8 +416,12 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
             y_values_cumulative.append(y_values_cum_sum)
             y_values_non_cumulative.append(y_value)
 
+    # calculate the total cost of the basic price
+    total_basic_prices = sum(cost_basic_prices)
+    # calculate the total cost of the SDL prices
+    total_sdl_price = sum(sdl_prices)
     # Return both the cumulative and non-cumulative y values
-    return y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option
+    return y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option, performance_prices_datetime_ranges,previous_month_datetime_stamp_max_array, performance_prices, cost_basic_prices,total_basic_prices, sdl_prices, total_sdl_price
 
 
 
@@ -378,7 +432,12 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
 @callback(
     Output('cost-graphs', 'children'),
     [Input('dropdown-costs', 'value'),
-    Input('main_store', 'data')]
+    Input('main_store', 'data')],
+    background=True,
+    cache_by=True,
+    running=[
+        (Output("dropdown-costs", "disabled"), True, False),
+    ],
 )
 def generate_cost_plots(option_dropdown_el_cost, main_store_data):
 
@@ -402,7 +461,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     data_el_cost_dict = main_store_data['options_data_el_cost_dict']
 
     #call the function to calculate the electrical costs for the chosen character
-    y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
+    y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option, performance_prices_datetime_ranges,previous_month_datetime_stamp_max_array, performance_prices, cost_basic_prices,total_basic_prices, sdl_prices, total_sdl_price = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
 
     # Create a list to hold the traces for each array of data
     traces = []
@@ -420,7 +479,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Replace "Bezugscharakter" with "BC*"
     selected_label = selected_label.replace("Bezugscharakter", "BC*")
 
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kumulierte Summe für {selected_label} = {round(y_values_cum_sum,2)} CHF', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kum. Summe für {selected_label} = {round(y_values_cum_sum,2)} CHF', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
     trace = go.Scattergl(x=datetime_column_costs, y=y_values_non_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - Kosten pro Zeit für {selected_label}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
@@ -454,6 +513,21 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
         paper_bgcolor='rgba(255, 255, 255, 0.1)',  # Set the paper (outside plot) background to 20% opaque white
         margin=dict(l=25, r=10, t=20, b=15)  # Adjust the margins
     )
+    # # Add annotations for previous month datetime stamps and performance prices
+    # for i, stamp in enumerate(previous_month_datetime_stamp_max_array):
+    #     annotation_text = f"Datum max Wert: {stamp}<br>Leistungspreis: {performance_prices[i]}"
+    #     cost_plot.add_annotation(
+    #         x=stamp, y=performance_prices[i],
+    #         text=annotation_text,
+    #         showarrow=True,
+    #         arrowhead=2,
+    #         arrowsize=1,
+    #         arrowwidth=2,
+    #         arrowcolor='black',
+    #         ax=20,
+    #         ay=-30
+    #     )
+
     # Return the plot as the children of the 'cost-graphs' div
     return dcc.Graph(figure=cost_plot)
 
