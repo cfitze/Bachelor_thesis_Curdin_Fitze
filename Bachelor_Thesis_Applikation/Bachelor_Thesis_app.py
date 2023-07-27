@@ -12,6 +12,8 @@ import webbrowser
 from threading import Timer
 from flask_caching import Cache
 from dash_bootstrap_templates import load_figure_template
+from dash import DiskcacheManager, CeleryManager, Input, Output, html
+import time
 
 
 def open_browser():
@@ -24,6 +26,21 @@ def show_cache_directory():
         cache_directory = app.server.config['CACHE_DIR']
         return f"Cache Directory: {cache_directory}"
 
+if 'REDIS_URL' in os.environ:
+    # Use Redis & Celery if REDIS_URL set as an env variable
+    from celery import Celery
+    celery_app = Celery(__name__, broker=os.environ['REDIS_URL'], backend=os.environ['REDIS_URL'])
+    background_callback_manager = CeleryManager(celery_app,
+                                                # cache_by=[lambda: launch_uid], expire=60
+                                                )
+else:
+    # Diskcache for non-production apps when developing locally
+    import diskcache
+    cache = diskcache.Cache("./cache")
+    background_callback_manager = DiskcacheManager(cache,
+                                                    # cache_by=[lambda: launch_uid], expire=60
+                                                    )
+
 # Initialize the Flask server
 server = flask.Flask(__name__)
 
@@ -32,18 +49,18 @@ server = flask.Flask(__name__)
 
 
 #initialise the app
-app = dash.Dash(__name__, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css", "assets/smooth-arrow-animation/dist/style.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
+app = dash.Dash(__name__, background_callback_manager=background_callback_manager, server=server, use_pages=True, external_stylesheets=[dbc.themes.QUARTZ, "/assets/styles_BA.css", "/assets/items_BA.css", "/assets/animated_arrow.css", "assets/smooth-arrow-animation/dist/style.css"]) #, assets_folder='assets') #dbc.themes.SPACELAB
 #CERULEAN , COSMO , CYBORG , DARKLY , FLATLY , JOURNAL , LITERA , LUMEN , LUX , MATERIA , MINTY , MORPH , PULSE , QUARTZ , SANDSTONE , SIMPLEX , SKETCHY , SLATE , SOLAR , SPACELAB , SUPERHERO , UNITED , VAPOR , YETI , ZEPHYR 
 
 #initialise the app
 # app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB]) #, assets_folder='assets')
 load_figure_template('LUX')
                      
-# Initialize the cache object
-cache = Cache(app.server, config={
-    'CACHE_TYPE': 'simple',  # Use the simple cache type
-    'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds
-})
+# # Initialize the cache object
+# cache = Cache(app.server, config={
+#     'CACHE_TYPE': 'simple',  # Use the simple cache type
+#     'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds
+# })
 
 
 # define the layout for the sidebar navigation bar

@@ -45,26 +45,42 @@ layout = html.Div(
                     html.Div(
                         [
                             html.P("Wählen Sie die gewünschte Liegenschaft aus:", className = 'subheader', style={"text-align": "left"}),
-                            dcc.Dropdown(
-                                id='dropdown-costs',
-                                options=[
-                                    {"label": "Riedgrabenstrasse 5", "value": "0"},
-                                    {"label": "Riedgrabenstrasse 7/9/11", "value": "1"},
-                                    {"label": "Riedgrabenstrasse 13", "value": "2"},
-                                    {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "3"},
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dcc.Dropdown(
+                                            id='dropdown-costs',
+                                            options=[
+                                                {"label": "Riedgrabenstrasse 5", "value": "0"},
+                                                {"label": "Riedgrabenstrasse 7/9/11", "value": "1"},
+                                                {"label": "Riedgrabenstrasse 13", "value": "2"},
+                                                {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "3"},
+                                            ],
+                                            value="0",
+                                            clearable=False,
+                                            style={
+                                                "color": "black",
+                                                "font-weight": "bold",
+                                                "font-size": "16px",
+                                                "width": "270px",
+                                                "margin-right": "20px",
+                                                "margin-top": "12px",
+                                                "margin-bottom": "15px",
+                                                "background-color": "transparent",
+                                            },
+                                        ),
+                                        width=4  # Adjust the width as needed
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(id='button-start', children= "Berechnung starten", class_name= 'button-standard'),
+                                        width=2  # Adjust the width as needed
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(id='button-cancel', children= "Berechnung abbrechen", class_name= 'button-standard'),
+                                        width=2  # Adjust the width as needed
+                                    ),
                                 ],
-                                value="0",
-                                clearable=False,
-                                style={
-                                    "color": "black",
-                                    "font-weight": "bold",
-                                    "font-size": "16px",
-                                    "width": "270px",
-                                    "margin-right": "20px",
-                                    "margin-top": "20px",
-                                    "margin-bottom": "15px",
-                                    "background-color": "transparent",
-                                },
+                                style={"margin-bottom": "8px"}  # Adjust the margin as needed
                             ),
                             html.P("Plotten der Kosten und des Verbrauchs der Liegenschaften:", className = 'subheader', style={"text-align": "left"}),
                             dcc.Loading(
@@ -104,7 +120,7 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Wählen Sie den Bezugscharakter aus:",className= 'subheader', style={"text-align": "left"}),
+                            html.P("Liste der Bezugscharakter:",className= 'subheader', style={"text-align": "left"}),
                             dcc.Dropdown(
                                 id='dropdown-reference-character',
                                 options=[
@@ -116,7 +132,7 @@ layout = html.Div(
                                 ],
                                 value='option1',
                                 clearable=False,  # This will disable the clearable 'x' option
-                                style={'color': 'black', 'font-weight': 'bold', 'font-size': '16px', 'width': '450px', 'margin-right': '20px', 'margin-top': '20px', 'background-color': 'transparent'},
+                                style={'color': 'black', 'font-weight': 'bold', 'font-size': '16px', 'width': '450px', 'margin-right': '20px', 'margin-top': '12px', 'background-color': 'transparent'},
                             ),
                             html.Div(
                                 id='table-container',
@@ -152,12 +168,12 @@ layout = html.Div(
             ]
         ),
         html.Br(),
-        html.P("Für die Bestimmung des Bezugscharakter wird die Summe der kWh/Jahr genommen. ",className= 'regular-text', style={"text-align": "left"}),
-        html.P(f"Laut Annahme ist die Inflation der Strompreise ist auf {inflation_el_cost*100-100} % angesetzt (hoch angesetzt). Die Inflation der Rückspeisungsvergütung hat den gleichen Wert.",className= 'regular-text', style={"text-align": "left"}),
-        html.P(f"Die Betriebkosten wurden auf {operating_costs*100-100} % der Investitionskosten (CAPEX) angesetzt. Den Abzug von den Steuern ist in den meisten Kantonen bei {taxes_deduction*100} % des CAPEX angesetzt.",className= 'regular-text', style={"text-align": "left"}),
-        html.P(f"Die Lebensdauer der Anlage wurde auf {financial_lifetime_produkt} Jahre angesetzt.",className= 'regular-text', style={"text-align": "left"}),
-        html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif",className= 'regular-text', style={"text-align": "left"}),
-        html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat und wird am letzten Tag des Monates zum dynamischen Preis dazu addiert.",className= 'regular-text', style={"text-align": "left"}),
+        html.P("NS = Niederspannung, HT = Hochtarif, NT = Niedertarif",className= 'side-note-text', style={"text-align": "left"}),
+        html.P("Leistungspreis = Als Monatsmaximum gilt die während einer 15-minütigen Messperiode gemittelte, höchste Leistung. Für die Ermittlung des Monatsmaximums werden nur Leistungsbezüge während der Hochtarifzeit berücksichtigt. Gilt pro kW des Monatsmaximums, pro Monat und wird am letzten Tag des Monates zum dynamischen Preis dazu addiert.",className= 'side-note-text', style={"text-align": "left"}),
+        html.P("Für die Bestimmung des Bezugscharakter (BC*) wird die Summe der kWh/Jahr genommen. ",className= 'side-note-text', style={"text-align": "left"}),
+        html.P(f"Laut Annahme ist die Inflation pro Jahr der Strompreise ist auf {inflation_el_cost*100-100} % angesetzt (hoch angesetzt). Die Inflation der Rückspeisungsvergütung hat den gleichen Wert.",className= 'side-note-text', style={"text-align": "left"}),
+        html.P(f"Die Betriebkosten wurden auf {operating_costs*100-100} % der Investitionskosten (CAPEX) angesetzt. Den Abzug von den Steuern ist in den meisten Kantonen bei {taxes_deduction*100} % des CAPEX angesetzt.",className= 'side-note-text', style={"text-align": "left"}),
+        html.P(f"Die Lebensdauer der Anlage wurde auf {financial_lifetime_produkt} Jahre angesetzt.",className= 'side-note-text', style={"text-align": "left"}),
     ]
 )
 
@@ -165,7 +181,12 @@ layout = html.Div(
 @callback(
     Output('table-el-cost', 'children'),
     [Input('dropdown-reference-character', 'value'),
-    Input('main_store', 'data')]
+    Input('main_store', 'data')],
+    background=True,
+    cache_by=True,
+    running=[
+        (Output("dropdown-costs", "disabled"), True, False),
+    ],
 )
 def update_table1(option, stored_data_el_cost_table):
 
@@ -386,15 +407,22 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Create a list to hold the traces for each array of data
     traces = []
 
+    # Access the dropdown menu options directly from the layout
+    dropdown_costs_menu_options = layout['dropdown-reference-character'].options
+
     # Find the corresponding dictionary for the selected option
-    selected_option_dict = next((option for option in dropdown_menu_options if option['value'] == selected_option), None)
+    # selected_option_dict = next((option for option in dropdown_costs_menu_options if option['value'] == selected_option), None)
+    selected_option_dict = next((option for option in dropdown_costs_menu_options if option['value'] == selected_option))
 
-    # Generate x-axis array based on the length of the first array
-    # x_axis = list(range(1, len(main_store_data_cost_column)+1))
+    # Get the label of the chosen option
+    selected_label = selected_option_dict["label"] #if selected_option_dict is not None else "Default Label"  # Replace "Default Label" with your desired default value
 
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kumulierte Summe für {selected_option} = {round(y_values_cum_sum,2)} CHF', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    # Replace "Bezugscharakter" with "BC*"
+    selected_label = selected_label.replace("Bezugscharakter", "BC*")
+
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kumulierte Summe für {selected_label} = {round(y_values_cum_sum,2)} CHF', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values_non_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - Kosten pro Zeit für {selected_option}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_non_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - Kosten pro Zeit für {selected_label}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
 
     # Create the plot using Plotly
@@ -402,7 +430,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     cost_plot.update_layout(
         title=dict(
             text="Kosten plotten",
-            x=0.5,  # Set the title's horizontal position to the middle (0.5)
+            x=0.6,  # Set the title's horizontal position to the middle (0.5)
             y=0.95,  # Set the title's vertical position closer to the top
             font=dict(
                 family="Montserrat, bold",  # Specify the font family

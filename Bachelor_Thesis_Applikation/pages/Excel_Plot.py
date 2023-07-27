@@ -234,7 +234,15 @@ def display_selected_dates(selected_date_range, stored_data):
     dash.dependencies.Output('graphs-container', 'children'),
     [dash.dependencies.Input('date-slider', 'value'),
     dash.dependencies.Input('selected-date-checklist-items', 'value'),
-    dash.dependencies.Input('store', 'data')]
+    dash.dependencies.Input('store', 'data')],
+    background=True,
+    cache_by=True,
+    running=[
+        (Output("date-slider", "disabled"), True, False),
+        (Output("selected-days-checklist-items", "disabled"), True, False),
+        (Output("selected-date-checklist-items", "disabled"), True, False),
+        
+    ],
 )
 def generate_plots(selected_date_range, selected_columns, stored_data):
     datetime_column = pd.to_datetime([i['DateTime'] for i in stored_data['datetime_column']])
