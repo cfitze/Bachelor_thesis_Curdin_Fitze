@@ -58,14 +58,14 @@ body {
     /* font-family: Verdana, Geneva, sans-serif; */
     color: white;
     text-align: center;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 15px;
     background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%);
     border: none;
     border-radius: 20px; /* Adjust the border-radius value to make the corners more or less rounded */
-    width: 110%;
+    width: 90%;
     height: 65px;
     box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); /* Add a shadow to the button */
     transition: transform 0.5s; /* Add transition for a smooth hover effect */
@@ -73,7 +73,86 @@ body {
 
 .button-standard:hover {
     transform: translateY(-2px); /* Apply a slight translateY on hover to simulate 3D effect */
+
+} 
+
+.date-picker-cost-plot-css{
+    font-size: 14px;
+    font-weight: bold;
+    /* font-family: Verdana, Geneva, sans-serif; */
+    color: black;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: rgb(216, 16, 173, 0.4)!important; /* Set the background color to transparent */
+    /* background-color: transparent!important; */
+    background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%);
+    border: none;
+    border-radius: 20px; /* Adjust the border-radius value to make the corners more or less rounded */
+    width: 100%;
+    height: 65px;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); /* Add a shadow to the button */
+    transition: transform 0.5s; /* Add transition for a smooth hover effect */
 }
+
+.DateInput:hover{
+
+    transform: translateY(-2px); /* Apply a slight translateY on hover to simulate 3D effect */
+    transition: transform 0.5s; /* Add transition for a smooth hover effect */
+
+}
+
+.DateInput_input{
+    color: white;
+    /* background-color: rgb(216, 16, 173, 0.7)!important; */
+    background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%);
+    /* width: 50px; */
+    /* background: transparent!important;   */
+    border-radius: 20px; /* Adjust the border-radius value to make the corners more or less rounded */
+    border: none;
+    text-align: center;
+}
+.DateInput_input__focused{
+    background-color: rgb(216, 16, 173, 0.7)!important;
+    background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%);
+    /* background: transparent!important;   */
+    border-radius: 20px; /* Adjust the border-radius value to make the corners more or less rounded */
+    border: none;
+}
+
+
+.DateRangePickerInput_arrow_svg, .DateRangePickerInput_arrow_svg_1 {
+    Height: 50px !important;
+    Width: 40px !important;
+    color: black !important;;   
+  }
+
+.DateInput, .DateInput_1 {
+
+    background-color: rgb(216, 16, 173, 0.1)!important;
+    /* background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%); */
+    /* background: transparent!important;   */
+    border-radius: 20px; /* Adjust the border-radius value to make the corners more or less rounded */
+    border: none;
+
+}
+
+
+.DateRangePickerInput{
+    width: 100%;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    /* margin-right: 60px; */
+    /* background-color: rgb(216, 16, 173, 0.4)!important; */
+    background-color: transparent!important;
+    /* background: linear-gradient(180deg, rgba(206, 16, 121, 0.4) 0%, rgba(206, 16, 121, 0.8) 100%); */
+    /* box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); Add a shadow to the button */
+    /* transition: transform 0.5s; Add transition for a smooth hover effect */
+}
+
 
 .picture-title {
     font-size: 19px;

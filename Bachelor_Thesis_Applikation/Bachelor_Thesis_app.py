@@ -1,4 +1,3 @@
-import random
 import pickle
 import re
 from anyio import Event
@@ -13,7 +12,6 @@ from threading import Timer
 from flask_caching import Cache
 from dash_bootstrap_templates import load_figure_template
 from dash import DiskcacheManager, CeleryManager, Input, Output, html
-import time
 
 
 def open_browser():

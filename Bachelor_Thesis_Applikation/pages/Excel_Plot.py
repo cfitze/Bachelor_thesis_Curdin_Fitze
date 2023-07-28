@@ -137,6 +137,8 @@ layout = html.Div(children=[
         min=initial_start_date_index,
         max=initial_end_date_index,
         value=[initial_start_date_index, initial_end_date_index],  # Set initial range # step=10, # value=[30, 70],# allowCross=False,# pushable=20,
+        persistence=True,
+        persistence_type='session',
         tooltip={'always_visible': True, 'placement': 'bottom'}
     ),
     # html.Br(),

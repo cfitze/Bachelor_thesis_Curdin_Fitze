@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, html, callback, Output, Input
+from dash import dcc, html, callback, Output, Input, State
 import plotly.express as px
 import pandas as pd
 import dash_bootstrap_components as dbc
@@ -45,7 +45,7 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
-                            html.P("Wählen Sie die gewünschte Liegenschaft aus:", className = 'subheader', style={"text-align": "left"}),
+                            html.P("Wählen Sie die gewünschte Liegenschaft aus, wie auch ein Start- und Endmonat:", className = 'subheader', style={"text-align": "left"}),
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -59,6 +59,8 @@ layout = html.Div(
                                             ],
                                             value="0",
                                             clearable=False,
+                                            persistence=True,  # Store the data in the browser's session
+                                            persistence_type='session',  # Store selection in memory instead of a browser cookie
                                             style={
                                                 "color": "black",
                                                 "font-weight": "bold",
@@ -70,20 +72,61 @@ layout = html.Div(
                                                 "background-color": "transparent",
                                             },
                                         ),
-                                        width=4  # Adjust the width as needed
+                                        width=3  # Adjust the width as needed
                                     ),
                                     dbc.Col(
+                                        html.Div(
+                                            dcc.DatePickerRange(
+                                                id='date-picker-cost-plot',
+                                                # start_date_placeholder_text="Start Monat",
+                                                # end_date_placeholder_text="End Monat",
+                                                display_format='MMM.YYYY',  # Display date format in the input field
+                                                updatemode='bothdates', # Update both start and end dates when a user selects or clears a date
+                                                number_of_months_shown=3,  # Show 2 months in the date picker dropdown
+                                                with_portal=True,  # Show calendar in a portal to avoid z-index issues
+                                                first_day_of_week=1,  # Set Monday as the first day of the week (0 for Sunday, 1 for Monday, etc.)
+                                                month_format='MMMM, YYYY',  # Display month and year in full format
+                                                day_size=40,  # Set the size of a day element in the calendar
+                                                # minimum_nights=30,  # Require at least 3 nights between the start and end date
+                                                # minimum_nights_in_period={'months': 1},  # Require at least 1 month between the start and end date
+                                                clearable=False,  # Allow clearing the selected dates
+                                                persistence=True,  # Store the selected dates in the app's client-side cache
+                                                persistence_type='session',  # Store selection in memory instead of a browser cookie
+                                                style={
+                                                    'align-items': 'center',
+                                                    'font-size': '14px',
+                                                    'font-weight': 'bold',
+                                                    # Add other style attributes as needed
+                                                },
+                                                # className='date-picker-cost-plot-css',  # Set class name of the date picker div element
+                                            ),
+                                            style={
+                                                'text-align': 'center',
+                                                'align-items': 'center',
+                                                'margin-top': '5px',
+                                                'margin-bottom': '5px',
+                                                'margin-left': '5px',
+                                                'margin-right': '0px',
+                                                # 'width': '100%',
+                                            },
+                                        ),
+                                     width=5  # Adjust the width as needed   
+                                    ),
+
+                                    dbc.Col(
                                         dbc.Button(id='button-start', children= "Berechnung starten", class_name= 'button-standard'),
+                                        style={'text-align': 'left'},
                                         width=2  # Adjust the width as needed
                                     ),
                                     dbc.Col(
                                         dbc.Button(id='button-cancel', children= "Berechnung abbrechen", class_name= 'button-standard'),
+                                        style={'text-align': 'left', 'item-align': 'left'},
                                         width=2  # Adjust the width as needed
                                     ),
                                 ],
-                                style={"margin-bottom": "8px"}  # Adjust the margin as needed
+                                style={"margin-bottom": "5px"}  # Adjust the margin as needed
                             ),
-                            html.P("Plotten der Kosten und des Verbrauchs der Liegenschaften:", className = 'subheader', style={"text-align": "left"}),
+                            html.P("Plotten der Kosten und des Verbrauchs der Liegenschaften:", className = 'subheader', style={"text-align": "left", "margin-top": "0px"}),
                             dcc.Loading(
                                 id="loading1",
                                 type="graph",
@@ -513,20 +556,35 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
         paper_bgcolor='rgba(255, 255, 255, 0.1)',  # Set the paper (outside plot) background to 20% opaque white
         margin=dict(l=25, r=10, t=20, b=15)  # Adjust the margins
     )
-    # # Add annotations for previous month datetime stamps and performance prices
-    # for i, stamp in enumerate(previous_month_datetime_stamp_max_array):
-    #     annotation_text = f"Datum max Wert: {stamp}<br>Leistungspreis: {performance_prices[i]}"
-    #     cost_plot.add_annotation(
-    #         x=stamp, y=performance_prices[i],
-    #         text=annotation_text,
-    #         showarrow=True,
-    #         arrowhead=2,
-    #         arrowsize=1,
-    #         arrowwidth=2,
-    #         arrowcolor='black',
-    #         ax=20,
-    #         ay=-30
-    #     )
+
+    #     # Add the information box annotation
+    # # information_text = f'kumulierte Summe; {y_values_cum_sum} CHF'
+    # information_box = go.layout.Annotation(
+    #     x=1,  # x-coordinate of the annotation (1 means the right side of the plot)
+    #     y=1,  # y-coordinate of the annotation (1 means the top of the plot)
+    #     xanchor='right',  # Set the anchor point of the x-coordinate to the right
+    #     yanchor='top',  # Set the anchor point of the y-coordinate to the top
+    #     text=f'kumulierte Summe; {y_values_cum_sum} CHF',  # The text to be displayed in the information box
+    #     showarrow=False,  # Do not show an arrow
+    #     bgcolor='rgba(255, 255, 255, 0.7)',  # Set the background color of the information box (use rgba to specify transparency)
+    #     font=dict(size=12, color='black'),  # Set the font size and color of the text
+    #     bordercolor='black',  # Set the border color of the information box
+    #     borderwidth=1,  # Set the border width of the information box
+    # )
+
+    # # Add the annotation to the cost_plot figure
+    # cost_plot.update_layout(annotations=[information_box])
+    # cost_plot.add_annotation(
+    #     x=20, y=20,
+    #     text=f'kumulierte Summe; {y_values_cum_sum} CHF',
+    #     # showarrow=True,
+    #     # arrowhead=2,
+    #     # arrowsize=1,
+    #     # arrowwidth=2,
+    #     # arrowcolor='black',
+    #     # ax=20,
+    #     # ay=-30
+    # )
 
     # Return the plot as the children of the 'cost-graphs' div
     return dcc.Graph(figure=cost_plot)
@@ -595,26 +653,44 @@ def generate_usage_plots(main_store_data):
     return dcc.Graph(figure=cost_plot)
 
 
-    # # Create a trace for each array of data
-    # for i in range(1, 5):  # Replace 5 with the number of arrays you have (e.g., 4)
-    #     array_key = f'array_{i}'
-    #     if array_key in main_store_data_cost:
-    #         trace = go.Scatter(x=x_axis, y=main_store_data_cost[array_key], mode='lines+markers', name=f'Data {i}')
-    #         traces.append(trace)
+@callback(
+    [Output('date-picker-cost-plot', 'start_date'),
+     Output('date-picker-cost-plot', 'end_date'),
+     Output('date-picker-cost-plot', 'min_date_allowed'),
+     Output('date-picker-cost-plot', 'max_date_allowed'),
+     Output('date-picker-cost-plot', 'minimum_nights'),
+     Output('date-picker-cost-plot', 'initial_visible_month'),
+     Output('date-picker-cost-plot', 'disabled_days')],
+    # Input('button-start', 'n_clicks'),
+    Input('main_store', 'data')  # Access the data stored in 'main_store'
+)
+def update_date_picker_range(main_store_data):
+    # Get the datetime_column_costs data from the store
+    datetime_column_date_picker_range = main_store_data['results_excel_computation']['datetime_column']
 
-    # # Create a trace for each array of data
-    # for i, col_name in enumerate(main_store_data_cost_df.columns):
-    #     trace = go.Scatter(x=x_axis, y=main_store_data_cost[col_name], mode='lines+markers', name=f'Data {i+1}')
-    #     traces.append(trace)
+    # Convert the datetime_column_costs to pandas datetime objects with the format '%d-%m-%Y %H:%M'
+    datetime_column_costs_pd = pd.to_datetime(datetime_column_date_picker_range, format='%d-%m-%Y %H:%M')
 
 
-    # datetime_column = pd.to_datetime([i['DateTime'] for i in stored_data['datetime_column']])
-    # start_date, end_date = [pd.to_datetime(date, unit='s') for date in selected_date_range]  # convert timestamp to datetime
-    # initial_data_without_datetime = pd.DataFrame(stored_data['initial_data_without_datetime'])
 
-    # # Generate combined plot
-    # combined_figure = create_plot_figure(initial_data_without_datetime, datetime_column, start_date, end_date, selected_columns, color_list, plot_name = plot_name_combined)
-    # combined_plot = dcc.Graph(
-    #         id='combined-bar-plot',
-    #         figure=combined_figure
-    # )
+    # Use datetime_column_costs data to set the start and end dates for the DatePickerRange
+    # Here, we are assuming that datetime_column_costs is a list of datetime objects
+    start_date = min(datetime_column_costs_pd).date()
+    end_date = max(datetime_column_costs_pd).date()
+
+    # Create a date range between start_date and end_date
+    date_range_array = pd.date_range(start=start_date, end=end_date)
+
+    # Filter out the days that are not the first day of the month
+    disabled_days = [date_str for date_str in date_range_array if pd.to_datetime(date_str).day != 1]
+
+    # Set the minimum and maximum allowed dates for the DatePickerRange
+    min_date_allowed = start_date
+    max_date_allowed = end_date
+
+    minimum_nights = 30
+    # minimum_nights=min(30, (max_date_allowed - min_date_allowed).days),  # Minimum 30 days between start and end date
+
+    initial_visible_month = start_date
+
+    return start_date, end_date, min_date_allowed, max_date_allowed, minimum_nights, initial_visible_month, disabled_days
