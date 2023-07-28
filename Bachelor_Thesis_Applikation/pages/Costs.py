@@ -179,9 +179,9 @@ layout = html.Div(
                                         children=[
                                             html.Tr(
                                                 [
-                                                    html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
-                                                    html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
-                                                    html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'})
                                                 ]
                                             )
                                         ]
@@ -498,7 +498,7 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
 
 # Define the callbacks
 @callback(
-    [Output('cost-graphs', 'style'),
+    [Output('cost-graphs', 'children'),
     Output('table-el-cost-results', 'children'),],
     [Input('dropdown-costs', 'value'),
     Input('main_store', 'data')],
@@ -548,7 +548,7 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Replace "Bezugscharakter" with "BC*"
     selected_label = selected_label.replace("Bezugscharakter", "BC*")
 
-    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kum. Summe für {selected_label} = {round(y_values_cum_sum,2)} CHF', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
+    trace = go.Scattergl(x=datetime_column_costs, y=y_values_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - kum. Summe für {selected_label}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
     trace = go.Scattergl(x=datetime_column_costs, y=y_values_non_cumulative, mode='lines+markers', name=f'{cost_plot_names[int(option_dropdown_el_cost)]} - Kosten pro Zeit für {selected_label}', marker=dict(size=0.5),line=dict(color=colors_el_cost[int(option_dropdown_el_cost)], width=1), showlegend=True)
     traces.append(trace)
@@ -615,13 +615,15 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     # Calculate the necessary data for the table
     table_rows_el_cost_results = {
         'option1': [
-            ['Strompreis total', y_values_cum_sum, 'inkl. 7.7% MwSt.'],
+            ['Strompreis total', f'{round(y_values_cum_sum,2)} CHF', 'inkl. 7.7% MwSt.'],
             ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
             ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
             ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
             ['Tarifzeiten NT', 'übrige Zeit', ''],
         ],
     }
+
+    table_rows_el_cost_results = table_rows_el_cost_results.get('option1', [])
     # Create the HTML table
     table_el_cost_results = html.Table([
         html.Tr([
