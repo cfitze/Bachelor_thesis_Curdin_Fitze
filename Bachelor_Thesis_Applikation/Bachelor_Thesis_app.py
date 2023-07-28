@@ -1,5 +1,6 @@
 import pickle
 import re
+from uuid import uuid4
 from anyio import Event
 import dash
 import flask
@@ -10,8 +11,9 @@ import dash_bootstrap_components as dbc
 import webbrowser
 from threading import Timer
 from flask_caching import Cache
-from dash_bootstrap_templates import load_figure_template
+# from dash_bootstrap_templates import load_figure_template
 from dash import DiskcacheManager, CeleryManager, Input, Output, html
+from dash.long_callback import DiskcacheLongCallbackManager
 
 
 def open_browser():
@@ -27,16 +29,18 @@ def show_cache_directory():
 if 'REDIS_URL' in os.environ:
     # Use Redis & Celery if REDIS_URL set as an env variable
     from celery import Celery
+    launch_uid = uuid4()
     celery_app = Celery(__name__, broker=os.environ['REDIS_URL'], backend=os.environ['REDIS_URL'])
     background_callback_manager = CeleryManager(celery_app,
-                                                # cache_by=[lambda: launch_uid], expire=60
+                                                cache_by=[lambda: launch_uid], expire=60
                                                 )
 else:
     # Diskcache for non-production apps when developing locally
     import diskcache
+    launch_uid = uuid4()
     cache = diskcache.Cache("./cache")
     background_callback_manager = DiskcacheManager(cache,
-                                                    # cache_by=[lambda: launch_uid], expire=60
+                                                    cache_by=[lambda: launch_uid], expire=60
                                                     )
 
 # Initialize the Flask server

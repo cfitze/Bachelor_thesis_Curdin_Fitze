@@ -164,6 +164,31 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
+                            html.Div(
+                                id='table-cost-results-container',
+                                children=[
+                                    html.Table(
+                                        id='table-el-cost-results',
+                                        style={
+                                            'border': '1px solid black',
+                                            'border-collapse': 'collapse',
+                                            'width': '100%',
+                                            'margin': 'auto',
+                                            'margin-top': '5px'
+                                        },
+                                        children=[
+                                            html.Tr(
+                                                [
+                                                    html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                ],
+                                style={'overflow': 'auto', 'margin-right': '1%'}
+                            ),
                             html.P("Liste der Bezugscharakter:",className= 'subheader', style={"text-align": "left"}),
                             dcc.Dropdown(
                                 id='dropdown-reference-character',
@@ -193,9 +218,9 @@ layout = html.Div(
                                         children=[
                                             html.Tr(
                                                 [
-                                                    html.Th('Column 1', style={'border': '1px solid black', 'padding': '8px'}),
-                                                    html.Th('Column 2', style={'border': '1px solid black', 'padding': '8px'}),
-                                                    html.Th('Column 3', style={'border': '1px solid black', 'padding': '8px'})
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'}),
+                                                    html.Th('Resultate', style={'border': '1px solid black', 'padding': '8px'})
                                                 ]
                                             )
                                         ]
@@ -473,7 +498,8 @@ def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values
 
 # Define the callbacks
 @callback(
-    Output('cost-graphs', 'children'),
+    [Output('cost-graphs', 'style'),
+    Output('table-el-cost-results', 'children'),],
     [Input('dropdown-costs', 'value'),
     Input('main_store', 'data')],
     background=True,
@@ -586,8 +612,38 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
     #     # ay=-30
     # )
 
+    # Calculate the necessary data for the table
+    table_rows_el_cost_results = {
+        'option1': [
+            ['Strompreis total', y_values_cum_sum, 'inkl. 7.7% MwSt.'],
+            ['Verbrauchspreise HT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+            ['Verbrauchspreise NT', '17.39 Rp./kWh.', 'inkl. 7.7% MwSt.'],
+            ['Tarifzeiten HT', 'Montag-Freitag / Samstag', '07:00-20:00 / 07:00-13:00'],
+            ['Tarifzeiten NT', 'übrige Zeit', ''],
+        ],
+    }
+    # Create the HTML table
+    table_el_cost_results = html.Table([
+        html.Tr([
+            html.Th('Preisinformation', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Kosten', style={'border': '2px solid black', 'padding': '8px'}),
+            html.Th('Information', style={'border': '2px solid black', 'padding': '8px'})
+        ]),
+        *[html.Tr([
+            html.Td(
+                cell,
+                style={
+                    'border': '1px solid black',
+                    'padding': '8px',
+                    'font-weight': 'bold' if col_idx > 0 else 'normal'
+                }
+            ) for col_idx, cell in enumerate(row)]
+        ) for row in table_rows_el_cost_results]
+    ])
+    
+
     # Return the plot as the children of the 'cost-graphs' div
-    return dcc.Graph(figure=cost_plot)
+    return [dcc.Graph(figure=cost_plot),table_el_cost_results]
 
 
 # Define the callbacks

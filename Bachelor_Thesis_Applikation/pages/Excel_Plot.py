@@ -1,16 +1,16 @@
 import random
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import tkinter as tk
-from TkinterDnD2 import *
+# from TkinterDnD2 import *
 import dash # Dash application with interactivity
 from dash import dcc, html, callback, Output, Input  # import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import pickle # to save the import_excel Data from the Excel-file into a binary pickle file
-import scipy.stats as stats # for the normal distribution
+# import scipy.stats as stats # for the normal distribution
 
 # import cProfile # to profile the code and see where it takes the most time
 
