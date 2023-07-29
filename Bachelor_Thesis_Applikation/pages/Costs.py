@@ -281,7 +281,7 @@ def update_table1(option, stored_data_el_cost_table):
     return table_rows_el_cost
 
 #call the function to calculate the electrical costs for the chosen character, is defined outside of the callback to be able to use it in the other callback
-def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict):
+def calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, data_el_cost_dict):
 
     # Convert the datetime_column_costs to pandas datetime objects with the format '%d-%m-%Y %H:%M'
     datetime_column_costs_pd = pd.to_datetime(datetime_column_costs, format='%d-%m-%Y %H:%M')
@@ -524,13 +524,11 @@ def generate_cost_plots(option_dropdown_el_cost, main_store_data):
 
     datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
 
-    datetime_column_costs_hours = main_store_data['results_excel_computation']['datetime_column_serialized_hours']
-
     #get the data from the dictionary from the main_store for the electrical costs
     data_el_cost_dict = main_store_data['options_data_el_cost_dict']
 
     #call the function to calculate the electrical costs for the chosen character
-    y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option, performance_prices_datetime_ranges,previous_month_datetime_stamp_max_array, performance_prices, cost_basic_prices,total_basic_prices, sdl_prices, total_sdl_price = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, datetime_column_costs_hours ,data_el_cost_dict)
+    y_values_cumulative, y_values_non_cumulative, sum_y_values_chosen_column, y_values_cum_sum, selected_option, performance_prices_datetime_ranges,previous_month_datetime_stamp_max_array, performance_prices, cost_basic_prices,total_basic_prices, sdl_prices, total_sdl_price = calc_el_cost_character(option_dropdown_el_cost, name_chosen_column, y_values_chosen_column, datetime_column_costs, data_el_cost_dict)
 
     # Create a list to hold the traces for each array of data
     traces = []
@@ -660,7 +658,6 @@ def generate_usage_plots(main_store_data):
 
     datetime_column_costs = main_store_data['results_excel_computation']['datetime_column']
 
-    datetime_column_costs_hours = main_store_data['results_excel_computation']['datetime_column_serialized_hours']
 
     data_el_cost_dict = main_store_data['options_data_el_cost_dict']
 

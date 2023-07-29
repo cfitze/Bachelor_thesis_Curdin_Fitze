@@ -18,7 +18,7 @@ layout = html.Div(
                 html.P(
                     "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.", className='subheader', style={'text-align': 'left'}
                 ),
-                html.P("Interaktiver 3D Link einbauen -->https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de", className='normal-text', style={'text-align': 'left'}),
+                html.P("Interaktiver 3D Link einbaue nmit Callback von Liegenschaft Alle-->https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de     5-->https://vizview.solextron.com/?projectId=NTE3ZDVhMWEtZGZjMC0xMWVkLWFiY2EtYjlkNWJiYjY5MzM3XzIwMjMwOTI2&lang=en   7/9/11-->https://vizview.solextron.com/?projectId=ZDE0NmUyZDQtY2ZlNC0xMWVkLWFiYjQtZjdjNzk4Y2MyNTJiXzIwMjMwOTI2&lang=en     13--> https://vizview.solextron.com/?projectId=NzU1YWEwM2EtY2ZlMS0xMWVkLWFkNjktMmJmYzUzMTU5YTM4XzIwMjMwOTI2&lang=en", className='normal-text', style={'text-align': 'left'}),
             ],
             style={"margin": "auto", "width": "100%", "text-align": "center"},
         ),

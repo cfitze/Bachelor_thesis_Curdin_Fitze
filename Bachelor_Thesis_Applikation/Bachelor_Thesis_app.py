@@ -161,17 +161,48 @@ app.layout = dbc.Container(
 )
 def expensive_computation(dummy_trigger):
 
+
+    # Function to sort the csv files for the dcc.Store
+    def custom_sort_key_pickle(filename):
+        # Define the desired order of filenames
+        order = {
+            'BA_23FS_Curdin_Fitze_5_TSextract.pickle': 0,
+            'BA_23FS_Curdin_Fitze_7_9_11_TSextract.pickle': 1,
+            'BA_23FS_Curdin_Fitze_13_daily_TSextract.pickle': 2,
+            'BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle': 3,
+        }
+        # Return the corresponding order for the filename
+        return order.get(filename, 999)  # Use 999 as a default value if the filename is not in the order dictionary
+
     # @cache.cached()
     def excel_computation():
 
         # # Check if the data is already cached
         # cached_data = cache.get('expensive_computation_data')
         # if cached_data is not None:
-
         # return cached_data
 
+        pickel_files_path = 'Bachelor_Thesis_Applikation/assets/Solextron_export'
+        pickle_files_list = os.listdir(pickel_files_path)
+        # Sort the list of files using the custom_sort_key function
+        pickle_files_list.sort(key=custom_sort_key_pickle)
+
+        # Initialize an empty DataFrame to store all the data from the CSV files
+        data_frames_stromdaten = pd.DataFrame()
+
+        for file in pickle_files_list:
+            if file.endswith('.pickle'):
+                file_path_pickle = os.path.join(pickel_files_path, file)
+                # Read the CSV file into a DataFrame
+                pickle_load = pickle.load(open(file_path_pickle, "rb"))
+                # Store the DataFrame in the data_frames dictionary using the file name as the key
+            #     data_frames_stromdaten[file] = pickle_load
+            #     data_frames_stromdaten_dict = data_frames_stromdaten.to_dict('list')
+            # return data_frames_stromdaten_dict
+
+        import_excel_full_path = os.path.join(pickel_files_path, 'BA_23FS_Curdin_Fitze_5_TSextract.pickle')
         #Import the data from the Excel file from Solextron via a pickle file
-        import_excel = pickle.load(open("BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle", "rb"))
+        import_excel = pickle.load(open(import_excel_full_path, "rb"))
 
         # Get the column names of the imported Excel file
         columns_available = import_excel.columns.tolist()
@@ -194,8 +225,6 @@ def expensive_computation(dummy_trigger):
         # Convert datetime_column_frame to a dictionary with the DateTime column as a list
         datetime_column_frame_serialized = datetime_column_frame.to_dict(orient='list')
 
-        # Convert datetime_column_frame to a dictionary with the DateTime column as a list with only the hours and minutes
-        datetime_column_serialized_hours = datetime_column.dt.strftime('%H:%M').tolist()
 
 
 
@@ -204,7 +233,6 @@ def expensive_computation(dummy_trigger):
             'columns_available': columns_available,
             'columns_available_without_datetime': columns_available_without_datetime,
             'datetime_column': datetime_column_serialized,
-            'datetime_column_serialized_hours': datetime_column_serialized_hours, 
             'datetime_column_frame': datetime_column_frame_serialized,
         }
 
@@ -217,7 +245,7 @@ def expensive_computation(dummy_trigger):
         return results
 
     # Function to sort the csv files for the dcc.Store
-    def custom_sort_key(filename):
+    def custom_sort_key_csv(filename):
         # Define the desired order of filenames
         order = {
             'Riedgrabenstrasse5_Lastgang_15min.csv': 0,
@@ -233,7 +261,7 @@ def expensive_computation(dummy_trigger):
         csv_files_path = 'Bachelor_Thesis_Applikation/assets/Stromdaten'
         csv_files = os.listdir(csv_files_path)
         # Sort the list of files using the custom_sort_key function
-        csv_files.sort(key=custom_sort_key)
+        csv_files.sort(key=custom_sort_key_csv)
 
         # Initialize an empty DataFrame to store all the data from the CSV files
         data_frames_stromdaten = pd.DataFrame()

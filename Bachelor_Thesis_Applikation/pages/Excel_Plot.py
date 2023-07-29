@@ -22,7 +22,7 @@ import pickle # to save the import_excel Data from the Excel-file into a binary 
 dash.register_page(__name__, path='/daten-analyse', name='Datenanalyse', order=5) # is a subpage of the home page
 
 # Create a cache object and do some initial calculations
-filename_excel = "BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
+filename_excel = "Bachelor_Thesis_Applikation/assets/Solextron_export/BA_23FS_Curdin_Fitze_5_7_9_11_13_TSextract.pickle"
 filename_user = "Riedgrabenstrasse 5/7/9/11/13"
 plot_name_combined = "alle ausgewählten Simulationsdaten"
 
@@ -164,7 +164,7 @@ layout = html.Div(children=[
                             # labelStyle={'display': 'block'},
                             # labelStyle={ 'fontWeight': 'bold', 'fontSize': '15px'},
                             labelStyle={'display': 'inline-block', 'fontWeight': 'bold', 'fontSize': '15px', 'text-align': 'left'},
-                            inputStyle={'margin-right': '5px'},
+                            inputStyle={'margin-right': '5px','margin-bottom': '5px', 'margin-top': '15px'},
                             inputClassName='check-input',
                             className='check-container',
                             persistence=True,
@@ -174,6 +174,34 @@ layout = html.Div(children=[
                         ),
                     ),
                     width=5,
+                ),
+
+                dbc.Col(
+                    html.Div(
+                        html.P("Wählen sie eine Liegenschaft aus.", className='subheader', style={"text-align": "center"}),
+                        dcc.Dropdown(
+                            id="dropdown-phys",
+                            options=[
+                                {"label": "Riedgrabenstrasse 5", "value": "5"},
+                                {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
+                                {"label": "Riedgrabenstrasse 13", "value": "13"},
+                                {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
+                            ],
+                            value="5",
+                            clearable=False,
+                            style={
+                                "color": "black",
+                                "font-weight": "bold",
+                                "font-size": "16px",
+                                "width": "270px",
+                                "margin-right": "20px",
+                                "margin-top": "20px",
+                                "margin-bottom": "15px",
+                                "background-color": "transparent",
+                            },
+                        ),
+                    ),
+                    width=4,
                 ),
                 ]
             ),

@@ -13,7 +13,7 @@ dash.register_page(__name__, path='/', name='Resultate', order=1) # '/' is the h
 
 # Load data later from the Excel file from Solextron
 labels_yearly_consumption = ['<b>Riedgrabenstrasse 5</b>', '<b>Riedgrabenstrasse 7/9/11</b>','<b>Riedgrabenstrasse 13</b>']
-values_yearly_consumption = [35300, 13100, 42000]
+values_yearly_consumption = [31517, 13115, 45600]  #later replace with data from Excel file
 
 # Format the values with the thousands separator
 values_yearly_consumption_formatted = [locale.format('%.0f', value, grouping=True) for value in values_yearly_consumption]
