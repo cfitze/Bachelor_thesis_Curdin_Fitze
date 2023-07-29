@@ -62,7 +62,6 @@ app = dash.Dash(__name__, background_callback_manager=background_callback_manage
 #     'CACHE_DEFAULT_TIMEOUT': 3600  # Cache timeout in seconds
 # })
 
-
 # define the layout for the sidebar navigation bar
 sidebar = dbc.Nav(
     [
@@ -527,7 +526,7 @@ def expensive_computation(dummy_trigger):
 
     # testing = read_and_store_csv_files()
 
-    data_to_store = { 
+    data_to_store = {
         'options_data_el_cost_table': options_data_el_cost_table, 
         'options_data_el_cost_dict': options_data_el_cost_dict,
         'results_excel_computation': excel_computation(),   #call the fuction excel_computation to get the results from the excel file
@@ -537,7 +536,6 @@ def expensive_computation(dummy_trigger):
         # Add other computed data as needed
     }
     
-
     #return the data to the dcc.Store
     return data_to_store
 

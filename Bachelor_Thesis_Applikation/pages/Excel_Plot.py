@@ -141,70 +141,83 @@ layout = html.Div(children=[
         persistence_type='session',
         tooltip={'always_visible': True, 'placement': 'bottom'}
     ),
-    # html.Br(),
-    html.Div(id='selected-dates-output', style={'fontWeight': 'bold','textAlign': 'center', 'fontSize': '22px'}),  # Placeholder for displaying selected start and end dates
-    # html.Br(),
-            dbc.Row(
-            [
-                dbc.Col(
-                    html.Div(
-                        [
-                            html.P("Wählen sie die gewünschten Wochentage aus:", className='regular-text', style={"text-align": "left"}),
 
-                        ]
-                    ),
-                    width=3,
-                ),
-                dbc.Col(
-                    html.Div(
-                        dcc.Checklist(
-                            id='selected-days-checklist-items',
-                            options=[{'label': day, 'value': day} for day in days_names],
-                            value = days_names,
-                            # labelStyle={'display': 'block'},
-                            # labelStyle={ 'fontWeight': 'bold', 'fontSize': '15px'},
-                            labelStyle={'display': 'inline-block', 'fontWeight': 'bold', 'fontSize': '15px', 'text-align': 'left'},
-                            inputStyle={'margin-right': '5px','margin-bottom': '5px', 'margin-top': '15px'},
-                            inputClassName='check-input',
-                            className='check-container',
-                            persistence=True,
-                            persistence_type='session',
-                            inline=True,
-                            style={'color': 'blue', 'font-size': '10px','opacity': '0.8'}
-                        ),
-                    ),
-                    width=5,
-                ),
-
-                dbc.Col(
-                    html.Div(
-                        html.P("Wählen sie eine Liegenschaft aus.", className='subheader', style={"text-align": "center"}),
-                        dcc.Dropdown(
-                            id="dropdown-phys",
-                            options=[
-                                {"label": "Riedgrabenstrasse 5", "value": "5"},
-                                {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
-                                {"label": "Riedgrabenstrasse 13", "value": "13"},
-                                {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
-                            ],
-                            value="5",
-                            clearable=False,
-                            style={
-                                "color": "black",
-                                "font-weight": "bold",
-                                "font-size": "16px",
-                                "width": "270px",
-                                "margin-right": "20px",
-                                "margin-top": "20px",
-                                "margin-bottom": "15px",
-                                "background-color": "transparent",
-                            },
-                        ),
-                    ),
-                    width=4,
-                ),
-                ]
+    dbc.Row(
+        [
+        dbc.Col(
+            html.Div(id='selected-dates-output', style={'fontWeight': 'bold','textAlign': 'center', 'fontSize': '22px'}),  # Placeholder for displaying selected start and end dates
+            width=8,
+        ),
+        dbc.Col(
+            html.Div(
+                html.P("Wählen sie eine Liegenschaft aus:", className='subheader', style={"text-align": "left"}),
             ),
+            width=4,
+        ),
+        ]
+    ),
+    dbc.Row(
+        [
+        dbc.Col(
+            html.Div(
+                [
+                html.P("Wählen sie die gewünschten Wochentage aus:", className='regular-text', style={"text-align": "left"}),
+
+                ]
+                ),
+            width=3,
+            ),
+        dbc.Col(
+            html.Div(
+                dcc.Checklist(
+                    id='selected-days-checklist-items',
+                    options=[{'label': day, 'value': day} for day in days_names],
+                    value = days_names,
+                    # labelStyle={'display': 'block'},
+                    # labelStyle={ 'fontWeight': 'bold', 'fontSize': '15px'},
+                    labelStyle={'display': 'inline-block', 'fontWeight': 'bold', 'fontSize': '15px', 'text-align': 'left'},
+                    inputStyle={'margin-right': '5px','margin-bottom': '5px', 'margin-top': '15px'},
+                    inputClassName='check-input',
+                    className='check-container',
+                    persistence=True,
+                    persistence_type='session',
+                    inline=True,
+                    style={'color': 'blue', 'font-size': '10px','opacity': '0.8'}
+                ),
+            ),
+            width=5,
+        ),
+
+        dbc.Col(
+            html.Div(
+                [
+                dcc.Dropdown(
+                    id="dropdown-phys",
+                    options=[
+                        {"label": "Riedgrabenstrasse 5", "value": "5"},
+                        {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
+                        {"label": "Riedgrabenstrasse 13", "value": "13"},
+                        {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
+                    ],
+                    value="5",
+                    clearable=False,
+                    style={
+                        "color": "black",
+                        "font-weight": "bold",
+                        "font-size": "16px",
+                        "width": "270px",
+                        "margin-right": "25px",
+                        "margin-top": "10px",
+                        "margin-bottom": "15px",
+                        "background-color": "transparent",
+                    },
+                    ),
+                ],
+            ),
+            width=4,
+        ),
+        ]
+    ),
     # html.Br(),
     # dcc.Dropdown(
     #     id='column-dropdown',

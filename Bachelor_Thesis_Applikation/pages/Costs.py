@@ -164,6 +164,7 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
+                            html.P("Resultate der Kostenberechnung:",className= 'subheader', style={"text-align": "left"}),
                             html.Div(
                                 id='table-cost-results-container',
                                 children=[
@@ -187,7 +188,7 @@ layout = html.Div(
                                         ]
                                     ),
                                 ],
-                                style={'overflow': 'auto', 'margin-right': '1%'}
+                                style={'overflow': 'auto', 'margin-right': '1%','margin-bottom': '10px', 'margin-top': '5px'}
                             ),
                             html.P("Liste der Bezugscharakter:",className= 'subheader', style={"text-align": "left"}),
                             dcc.Dropdown(

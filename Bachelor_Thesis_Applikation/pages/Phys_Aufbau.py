@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, html, callback, Output, Input
+from dash import dcc, html, Output, Input, State, callback, Dash
 import plotly.graph_objs as go
 import dash_leaflet as dl
 import json
@@ -18,7 +18,7 @@ layout = html.Div(
                 html.P(
                     "Auf dieser Seite werden der Standort, der physikalische Aufbau, wie auch die benötigten Komponenten der Solaranlage erwähnt, welche benötigt werden um das Ganze in Betrieb zu nehmen.", className='subheader', style={'text-align': 'left'}
                 ),
-                html.P("Interaktiver 3D Link einbaue nmit Callback von Liegenschaft Alle-->https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de     5-->https://vizview.solextron.com/?projectId=NTE3ZDVhMWEtZGZjMC0xMWVkLWFiY2EtYjlkNWJiYjY5MzM3XzIwMjMwOTI2&lang=en   7/9/11-->https://vizview.solextron.com/?projectId=ZDE0NmUyZDQtY2ZlNC0xMWVkLWFiYjQtZjdjNzk4Y2MyNTJiXzIwMjMwOTI2&lang=en     13--> https://vizview.solextron.com/?projectId=NzU1YWEwM2EtY2ZlMS0xMWVkLWFkNjktMmJmYzUzMTU5YTM4XzIwMjMwOTI2&lang=en", className='normal-text', style={'text-align': 'left'}),
+                # html.P("Interaktiver 3D Link einbaue nmit Callback von Liegenschaft Alle-->https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de     5-->https://vizview.solextron.com/?projectId=NTE3ZDVhMWEtZGZjMC0xMWVkLWFiY2EtYjlkNWJiYjY5MzM3XzIwMjMwOTI2&lang=en   7/9/11-->https://vizview.solextron.com/?projectId=ZDE0NmUyZDQtY2ZlNC0xMWVkLWFiYjQtZjdjNzk4Y2MyNTJiXzIwMjMwOTI2&lang=en     13--> https://vizview.solextron.com/?projectId=NzU1YWEwM2EtY2ZlMS0xMWVkLWFkNjktMmJmYzUzMTU5YTM4XzIwMjMwOTI2&lang=en", className='normal-text', style={'text-align': 'left'}),
             ],
             style={"margin": "auto", "width": "100%", "text-align": "center"},
         ),
@@ -27,28 +27,55 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         [
-                            # html.P("Wählen sie eine Liegenschaft aus.", className='picture-title', style={"text-align": "left"}),
-                            dcc.Dropdown(
-                                id="dropdown-phys",
-                                options=[
-                                    {"label": "Riedgrabenstrasse 5", "value": "5"},
-                                    {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
-                                    {"label": "Riedgrabenstrasse 13", "value": "13"},
-                                    {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
-                                ],
-                                value="5",
-                                clearable=False,
-                                style={
-                                    "color": "black",
-                                    "font-weight": "bold",
-                                    "font-size": "16px",
-                                    "width": "270px",
-                                    "margin-right": "20px",
-                                    "margin-top": "20px",
-                                    "margin-bottom": "15px",
-                                    "background-color": "transparent",
-                                },
+                        dbc.Row(
+                            [
+                            dbc.Col(
+                                html.Div(
+                                    [
+                                    # html.P("Wählen sie eine Liegenschaft aus.", className='picture-title', style={"text-align": "left"}),
+                                    dcc.Dropdown(
+                                        id="dropdown-phys",
+                                        options=[
+                                            {"label": "Riedgrabenstrasse 5", "value": "5"},
+                                            {"label": "Riedgrabenstrasse 7/9/11", "value": "7_9_11"},
+                                            {"label": "Riedgrabenstrasse 13", "value": "13"},
+                                            {"label": "Riedgrabenstrasse 5/7/9/11/13", "value": "5_7_9_11_13"},
+                                        ],
+                                        value="5",
+                                        clearable=False,
+                                        style={
+                                            "color": "black",
+                                            "font-weight": "bold",
+                                            "font-size": "16px",
+                                            "width": "270px",
+                                            "margin-right": "20px",
+                                            "margin-top": "15px",
+                                            "margin-bottom": "15px",
+                                            "background-color": "transparent",
+                                        },
+                                    ),
+                                    ],
+                                ),
+                                width=6,
                             ),
+
+                            dbc.Col(
+                                    html.Div( 
+                                        html.A(
+                                            id="external-3d-link",
+                                            href="",
+                                            target="_blank",
+                                            children=[
+                                                html.Span("Externer 3D Link von Solextron", style={"margin-left": "10px", "font-size": "17px", "color": "white"}),
+                                            ],
+                                            style={"text-align": "center", "margin-top": "15px", "display": "block"},
+                                        ),
+                                        style={"text-align": "center", "margin-top": "15px", 'margin-bottom': '15px'},
+                                    ),
+                                    width=5,
+                            ),
+                            ],
+                        ),
                             html.Div(
                                 id="image-slider-container",
                                 children=[
@@ -100,7 +127,7 @@ layout = html.Div(
                                     ),
                                     
                                 ],
-                                style={"margin-top": "25px"},
+                                style={"margin-top": "10px"},
                             ),
                         ]
                     ),
@@ -270,6 +297,23 @@ def update_images(value, prev_clicks, next_clicks):
         return images[current_image_index], None, prev_button_style, next_button_style
     else:
         return None, images[current_image_index], prev_button_style, next_button_style
+
+@callback(
+    Output("external-3d-link", "href"),
+    Input("dropdown-phys", "value"),
+)
+def update_external_3d_link(selected_value):
+    if selected_value == "5":
+        return "https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de"
+    elif selected_value == "7_9_11":
+        return "https://vizview.solextron.com/?projectId=NTE3ZDVhMWEtZGZjMC0xMWVkLWFiY2EtYjlkNWJiYjY5MzM3XzIwMjMwOTI2&lang=en"
+    elif selected_value == "13":
+        return "https://vizview.solextron.com/?projectId=NzU1YWEwM2EtY2ZlMS0xMWVkLWFkNjktMmJmYzUzMTU5YTM4XzIwMjMwOTI2&lang=en"
+    elif selected_value == "5_7_9_11_13":
+        return "https://vizview.solextron.com/?projectId=Njg5ODIyM2MtZGZjNy0xMWVkLWExMTEtMjc1OGZiYTcwY2YxXzIwMjMwOTIy&lang=de"  # Replace with the appropriate link
+    else:
+        return ""
+
 
 # Font Awesome Icons:
 
