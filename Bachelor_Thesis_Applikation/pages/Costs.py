@@ -6,7 +6,6 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import locale
 import calendar
-from datetime import timedelta
 
 # Set the locale
 locale.setlocale(locale.LC_ALL, 'de_CH')
