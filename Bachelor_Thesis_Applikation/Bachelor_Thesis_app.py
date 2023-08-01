@@ -9,7 +9,6 @@ import pandas as pd
 from dash import dcc, html, callback, Output, Input, State
 import dash_bootstrap_components as dbc
 import webbrowser
-from threading import Timer
 from flask_caching import Cache
 # from dash_bootstrap_templates import load_figure_template
 from dash import DiskcacheManager, CeleryManager, Input, Output, html
